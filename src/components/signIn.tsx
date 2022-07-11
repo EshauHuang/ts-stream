@@ -50,8 +50,6 @@ const SignIn = () => {
       }
     );
 
-    console.log(userCheck);
-
     if (userCheck) {
       setCurrentUser({ name, username });
     }

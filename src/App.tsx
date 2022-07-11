@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import SignIn from "@/components/signIn";
 import SignUp from "@/components/signUp";
+import Chatroom from '@/components/chatroom'
 
 interface NavbarProps {
   bar: string;
@@ -59,11 +60,12 @@ const App = () => {
   const [bar, setBar] = useState("signIn");
 
   return (
-    <Container>
-      <Navbar setBar={setBar} bar={bar} />
-      {bar === "signIn" && <SignIn />}
-      {bar === "signUp" && <SignUp />}
-    </Container>
+    // <Container>
+    //   <Navbar setBar={setBar} bar={bar} />
+    //   {bar === "signIn" && <SignIn />}
+    //   {bar === "signUp" && <SignUp />}
+    // </Container>
+    <Chatroom />
   );
 };
 

@@ -61,7 +61,7 @@ const SignUp = () => {
         if (name === user.name) {
           newError.name = "暱稱重複，請重新輸入";
         }
-        console.log(username, user.username);
+        
         if (username === user.username) {
           newError.username = "帳號重複，請重新輸入";
         }
