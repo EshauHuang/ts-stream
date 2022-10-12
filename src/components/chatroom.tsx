@@ -1,16 +1,15 @@
 import styled from "styled-components";
 
-import ChatMessages from "@/components/ChatMessages";
+import ChatMessages from "@/components/chatMessages";
 import SendMessage from "@/components/sendMessage";
 
 const Container = styled.div`
-  width: 100%;
-  height: 600px;
-  background-color: #333;
-  margin: 0 auto;
+  width: 34rem;
+  max-height: 596px;
   border: 1px solid #fff;
   display: flex;
   flex-direction: column;
+  background-color: #333;
 `;
 
 const ViewModeBar = styled.div`

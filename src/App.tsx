@@ -3,7 +3,8 @@ import styled from "styled-components";
 
 import SignIn from "@/components/signIn";
 import SignUp from "@/components/signUp";
-import Chatroom from '@/components/chatroom'
+import Chatroom from "@/components/chatroom";
+import VideoPlayer from "@/components/videoPlayer";
 
 interface NavbarProps {
   bar: string;
@@ -15,9 +16,11 @@ interface NavbarItemProps {
 }
 
 const Container = styled.div`
-  width: 60%;
-  margin: 0 auto;
-  background-color: #fff;
+  margin-top: 60px;
+  width: calc(100% - 1rem);
+  margin-inline: auto;
+  display: flex;
+  gap: 20px;
 `;
 
 const NavbarContainer = styled.ul`
@@ -60,12 +63,13 @@ const App = () => {
   const [bar, setBar] = useState("signIn");
 
   return (
-    // <Container>
-    //   <Navbar setBar={setBar} bar={bar} />
-    //   {bar === "signIn" && <SignIn />}
-    //   {bar === "signUp" && <SignUp />}
-    // </Container>
-    <Chatroom />
+    <Container>
+      {/* <Navbar setBar={setBar} bar={bar} />
+      {bar === "signIn" && <SignIn />}
+      {bar === "signUp" && <SignUp />} */}
+      <VideoPlayer />
+      <Chatroom />
+    </Container>
   );
 };
 

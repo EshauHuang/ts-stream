@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  .container {
+    background-color: #333;
+    display: flex;
+    flex-direction: column;
+    max-height: 520px;
+  }
+
+  .messages-container {
+    width: 100%;
+    height: 24rem;
+    max-height: 596px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    background-color: bisque;
+    border: 1px solid white;
+    flex-shrink: 1;
+  }
+
+  .input {
+    color: white;
+    min-height: 20px;
+    max-height: 100px;
+    /* max-width: 100%; */
+    overflow-y: scroll;
+    overflow-x: hidden;
+    border-bottom: 1px solid white;
+    margin-top: 10px;
+    flex-grow: 1;
+  }
+</style>
+
+<body>
+  <div class="container">
+    <div class="messages-container"></div>
+    <div class="input" contenteditable></div>
+    <textarea></textarea>
+  </div>
+</body>
+
+</html>

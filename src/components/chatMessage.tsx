@@ -16,14 +16,15 @@ const Container = styled.div`
 const AuthorPhoto = styled.div`
   width: 24px;
   height: 24px;
+  min-width: 24px;
   background-color: #fff;
   border-radius: 50%;
   margin-right: 16px;
 `;
 
-const Body = styled.div`
-  display: flex;
-  align-items: center;
+const Content = styled.div`
+  /* display: flex; */
+  /* align-items: center; */
 `;
 
 const Timestamp = styled.span`
@@ -37,30 +38,36 @@ const AuthorChip = styled.div`
   margin-right: 8px;
 `;
 
-const AuthorName = styled.span``;
+const AuthorName = styled.span`
+  color: rgba(255, 255, 255, 0.7);
+`;
 
 const MemberIcon = styled.div`
   width: 16px;
   height: 16px;
+  min-width: 16px;
   border-radius: 50%;
   background-color: red;
   margin-left: 2px;
 `;
 
-const Message = styled.div``;
+const Message = styled.span`
+  word-wrap: break-word;
+  word-break: break-word;
+`;
 
 const ChatMessage: React.FC<Props> = ({ name, message }) => {
   return (
     <Container>
       <AuthorPhoto />
-      <Body>
+      <Content>
         <AuthorChip>
-          <Timestamp>2:47 PM</Timestamp>
+          {/* <Timestamp>2:47 PM</Timestamp> */}
           <AuthorName>{name}</AuthorName>
           <MemberIcon />
         </AuthorChip>
         <Message>{message}</Message>
-      </Body>
+      </Content>
     </Container>
   );
 };

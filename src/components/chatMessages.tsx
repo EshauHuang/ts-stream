@@ -7,8 +7,10 @@ import ChatMessage from "@/components/chatMessage";
 
 const Container = styled.div`
   width: 100%;
+  min-height: 20px;
+  height: 420px;
   overflow-y: scroll;
-  flex-grow: 1;
+  background-color: #333;
 `;
 
 const ChatMessages = () => {
