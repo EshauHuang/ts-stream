@@ -1,28 +1,21 @@
 import { useEffect, useState, useContext } from "react";
-import styled from "styled-components";
+import { Link } from "react-router-dom";
 
 import Input from "@/components/input";
+import {
+  Form,
+  Title,
+  Content,
+  Footer,
+  Info,
+  Button,
+} from "./sign-in-form.style";
 
 import { getUsers } from "@/json/users";
 
 import { UserContext } from "@/contexts/userContext";
 
-const fakeUsers = [
-  {
-    name: "user01",
-    username: "user01",
-    password: "user01",
-  },
-];
-
-const Container = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const SignIn = () => {
+const SignInForm = () => {
   const [user, setUser] = useState({
     name: "",
     username: "",
@@ -62,24 +55,32 @@ const SignIn = () => {
   };
 
   return (
-    <Container as="form" onSubmit={handleSubmit}>
-      <Input
-        label="帳號"
-        type="text"
-        name="username"
-        value={user.username}
-        onChange={handleChangeValue}
-      />
-      <Input
-        label="密碼"
-        type="password"
-        name="password"
-        value={user.password}
-        onChange={handleChangeValue}
-      />
-      <button type="submit">送出</button>
-    </Container>
+    <Form onSubmit={handleSubmit}>
+      <Title>SING IN</Title>
+      <Content>
+        <Input
+          label="帳號"
+          type="text"
+          name="username"
+          value={user.username}
+          onChange={handleChangeValue}
+        />
+        <Input
+          label="密碼"
+          type="password"
+          name="password"
+          value={user.password}
+          onChange={handleChangeValue}
+        />
+        <Footer>
+          <Info>
+            還未成為會員嗎？趕快<Link to="/sign-up">註冊</Link>吧！
+          </Info>
+          <Button type="submit">送出</Button>
+        </Footer>
+      </Content>
+    </Form>
   );
 };
 
-export default SignIn;
+export default SignInForm;

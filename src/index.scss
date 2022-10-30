@@ -1,6 +1,9 @@
+html, body {
+  height: 100%;
+}
+
 body {
   margin: 0;
-  background-color: aquamarine;
   font-family: Roboto, Noto, sans-serif;
 }
 
@@ -88,4 +91,9 @@ button {
 }
 
 :root {
+  font-size: 12px;
+
+  @media (max-width: 480px) {
+    font-size: 10px;
+  }
 }

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { Routes, Route } from "react-router-dom";
 import styled from "styled-components";
 
-import SignIn from "@/components/signIn";
+import SignInForm from "@/components/sign-in-form/sign-in-form";
 import SignUp from "@/components/signUp";
 import Chatroom from "@/components/chatroom";
 import VideoPlayer from "@/components/videoPlayer";
@@ -63,13 +64,19 @@ const App = () => {
   const [bar, setBar] = useState("signIn");
 
   return (
-    <Container>
-      {/* <Navbar setBar={setBar} bar={bar} />
-      {bar === "signIn" && <SignIn />}
-      {bar === "signUp" && <SignUp />} */}
-      <VideoPlayer />
-      <Chatroom />
-    </Container>
+    <Routes>
+      <Route path="/">
+        <Route path="sign-up" element={<SignUp />} />
+        <Route path="sign-in" element={<SignInForm />} />
+      </Route>
+    </Routes>
+    // <Container>
+    //   <Navbar setBar={setBar} bar={bar} />
+    //   {bar === "signIn" && <SignIn />}
+    //   {bar === "signUp" && <SignUp />}
+    //   <VideoPlayer />
+    //   <Chatroom />
+    // </Container>
   );
 };
 

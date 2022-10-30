@@ -9,31 +9,48 @@ interface Props {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const InputWrap = styled.div`
-  width: 100%;
-
+const Container = styled.div`
   & + & {
     margin-top: 10px;
   }
+`;
+
+const InputWrap = styled.div`
+  width: 100%;
 
   & > input {
-    width: 60%;
-    max-width: 200px;
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    padding: 5px;
+    color: white;
+
+    &:focus {
+      border: 1px solid #005fff;
+    }
+  }
+
+  label,
+  input {
+    font-size: 1.675rem;
   }
 `;
 
 const ErrorMessage = styled.div`
   color: red;
-  font-size: 14px;
-`
+  font-size: 1.675rem;
+  line-height: 1.675rem;
+  height: 1.675rem;
+`;
 
 const Input: React.FC<Props> = ({ label, error, ...otherProps }) => {
   return (
-    <InputWrap>
-      <label>{label}：</label>
-      <input {...otherProps} />
+    <Container>
+      <InputWrap>
+        <label>{label}：</label>
+        <input {...otherProps} />
+      </InputWrap>
       <ErrorMessage>{error}</ErrorMessage>
-    </InputWrap>
+    </Container>
   );
 };
 
