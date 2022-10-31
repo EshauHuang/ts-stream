@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
 
-import Input from "@/components/input";
+import Input from "@/components/input/input.component";
 import {
   Form,
   Title,

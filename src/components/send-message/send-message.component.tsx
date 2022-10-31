@@ -1,78 +1,19 @@
 import { useContext, useState, useEffect, useRef } from "react";
-import styled from "styled-components";
 
 import { UserContext } from "@/contexts/userContext";
 import { MessagesContext } from "@/contexts/messagesContext";
 
-const Container = styled.div`
-  width: 100%;
-  padding: 20px;
-`;
-
-const TopField = styled.div`
-  display: flex;
-`;
-
-const Photo = styled.div`
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
-  background-color: blue;
-  border-radius: 50%;
-`;
-
-const InputField = styled.div`
-  color: white;
-  flex-grow: 1;
-  margin-left: 20px;
-`;
-
-const Underline = styled.div`
-  width: 100%;
-  height: 1px;
-  background-color: #666;
-  margin-top: 2px;
-`;
-
-const Input = styled.input`
-  color: white;
-  width: 100%;
-`;
-
-const DivInput = styled.div`
-  color: white;
-  word-break: break-word;
-  max-width: 100%;
-  min-height: 18px;
-  max-height: 100px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  overflow-wrap: break-word;
-
-  &:hover {
-    border: 0;
-  }
-
-  &:focus-visible {
-    outline: 0;
-  }
-`;
-
-const BottomField = styled.div`
-  margin-top: 10px;
-  display: flex;
-  justify-content: space-between;
-`;
-
-const EmojiPicker = styled.div``;
-
-const SendButton = styled.button`
-  font-size: 14px;
-  padding: 5px;
-  background-color: #fff;
-  cursor: pointer;
-  color: black;
-`;
+import {
+  Container,
+  TopField,
+  Photo,
+  InputField,
+  DivInput,
+  Underline,
+  BottomField,
+  EmojiPicker,
+  SendButton,
+} from "./send-message.style";
 
 const SendMessage = () => {
   const { currentUser } = useContext(UserContext);

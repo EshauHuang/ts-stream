@@ -1,12 +1,8 @@
-import styled from "styled-components";
 import { useEffect, useRef } from "react";
 import videojs from "video.js";
-import VideoJs from "./videoJs";
+import VideoJs from "@/components/video-js/video-js.component";
 
-const Container = styled.div`
-  flex-grow: 1;
-  width: 100%;
-`;
+import { Container } from "./video-player.style"
 
 const VideoPlayer = () => {
   const playerRef = useRef<null | videojs.Player>(null);
