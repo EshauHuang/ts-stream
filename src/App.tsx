@@ -4,8 +4,7 @@ import styled from "styled-components";
 
 import SignInForm from "@/components/sign-in-form/sign-in-form.component";
 import SignUpForm from "@/components/sign-up-form/sign-up-form.component";
-import Chatroom from "@/components/chatroom";
-import VideoPlayer from "@/components/videoPlayer";
+import Live from "@/routes/live/live.component";
 
 interface NavbarProps {
   bar: string;
@@ -68,15 +67,9 @@ const App = () => {
       <Route path="/">
         <Route path="sign-up" element={<SignUpForm />} />
         <Route path="sign-in" element={<SignInForm />} />
+        <Route path="live" element={<Live />} />
       </Route>
     </Routes>
-    // <Container>
-    //   <Navbar setBar={setBar} bar={bar} />
-    //   {bar === "signIn" && <SignIn />}
-    //   {bar === "signUp" && <SignUp />}
-    //   <VideoPlayer />
-    //   <Chatroom />
-    // </Container>
   );
 };
 

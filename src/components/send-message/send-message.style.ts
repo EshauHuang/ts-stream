@@ -44,6 +44,7 @@ export const DivInput = styled.div`
   overflow-y: auto;
   overflow-x: hidden;
   overflow-wrap: break-word;
+  font-size: 1.1625rem;
 
   &:hover {
     border: 0;
@@ -63,7 +64,7 @@ export const BottomField = styled.div`
 export const EmojiPicker = styled.div``;
 
 export const SendButton = styled.button`
-  font-size: 14px;
+  font-size: 1.1625rem;
   padding: 5px;
   background-color: #fff;
   cursor: pointer;

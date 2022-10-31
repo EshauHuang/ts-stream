@@ -26,14 +26,19 @@ const SendMessage = () => {
     if (!currentUser) return;
   }, [currentUser]);
 
+  useEffect(() => {
+    if (!inputRef.current) return;
+  }, [inputRef]);
+
   const handleChangeValue: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    const { innerText } = e.target;
+    const { innerText, scrollHeight } = e.target;
+    if (scrollHeight >= 100)
+      e.target.scrollIntoView({ block: "nearest", inline: "nearest" });
 
     setMessage(innerText);
   };
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
-    console.log("object");
     e.preventDefault();
     const inputEle = inputRef.current;
 
