@@ -1,7 +1,14 @@
 import React, { useEffect, useState, useContext } from "react";
-import styled from "styled-components";
-
+import { Link } from "react-router-dom"
 import Input from "@/components/input";
+import {
+  Form,
+  Title,
+  Content,
+  Footer,
+  Info,
+  Button,
+} from "./sign-up-form.style";
 
 import { UserContext } from "@/contexts/userContext";
 
@@ -30,17 +37,6 @@ const initialError = {
   password: "",
 };
 
-const Container = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-`;
-
-const Button = styled.button`
-  margin: 10px;
-`;
 
 const SignUp = () => {
   const [user, setUser] = useState<SignUpUser>(initialUser);
@@ -86,33 +82,31 @@ const SignUp = () => {
   };
 
   return (
-    <Container as="form" onSubmit={handleSubmit}>
-      <Input
-        label="姓名"
-        type="text"
-        name="name"
-        value={user.name}
-        error={error.name}
-        onChange={handleChangeValue}
-      />
-      <Input
-        label="帳號"
-        type="text"
-        name="username"
-        value={user.username}
-        error={error.username}
-        onChange={handleChangeValue}
-      />
-      <Input
-        label="密碼"
-        type="password"
-        name="password"
-        value={user.password}
-        error={error.password}
-        onChange={handleChangeValue}
-      />
-      <Button type="submit">送出</Button>
-    </Container>
+    <Form onSubmit={handleSubmit}>
+      <Title>SING UP</Title>
+      <Content>
+        <Input
+          label="帳號"
+          type="text"
+          name="username"
+          value={user.username}
+          onChange={handleChangeValue}
+        />
+        <Input
+          label="密碼"
+          type="password"
+          name="password"
+          value={user.password}
+          onChange={handleChangeValue}
+        />
+        <Footer>
+          <Info>
+            還未成為會員嗎？趕快<Link to="/sign-up">註冊</Link>吧！
+          </Info>
+          <Button type="submit">送出</Button>
+        </Footer>
+      </Content>
+    </Form>
   );
 };
 

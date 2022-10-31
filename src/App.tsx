@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import styled from "styled-components";
 
-import SignInForm from "@/components/sign-in-form/sign-in-form";
-import SignUp from "@/components/signUp";
+import SignInForm from "@/components/sign-in-form/sign-in-form.component";
+import SignUpForm from "@/components/sign-up-form/sign-up-form.component";
 import Chatroom from "@/components/chatroom";
 import VideoPlayer from "@/components/videoPlayer";
 
@@ -66,7 +66,7 @@ const App = () => {
   return (
     <Routes>
       <Route path="/">
-        <Route path="sign-up" element={<SignUp />} />
+        <Route path="sign-up" element={<SignUpForm />} />
         <Route path="sign-in" element={<SignInForm />} />
       </Route>
     </Routes>
