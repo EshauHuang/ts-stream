@@ -1,24 +1,38 @@
 import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import cors from "cors";
+import * as fs from "fs";
+
+const PORT = 3535;
+
+let isStreamOn = false;
+
+const video = {};
 
 class Comments {
   constructor() {
     this.length = 0;
+    this.createTime = Date.now();
   }
   addComment(user, text) {
     if (!user || !text) return;
     this[this.length] = {
       user,
       text,
+      time: new Date().getTime(),
     };
     this.length++;
+  }
+  showComments() {
+    return this;
   }
 }
 
 class Users {
   constructor() {
     this.length = 0;
+    this.createTime = Date.now();
   }
   addUser(socketId, user) {
     if (!socketId || !user) return;
@@ -59,12 +73,18 @@ class Rooms {
       this[room].comments.addComment(message, user);
     }
   }
+  showRoomComments(room) {
+    return this[room].comments.showComments();
+  }
 }
 
 const rooms = new Rooms();
 const users = new Users();
 
 const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
@@ -72,18 +92,48 @@ const io = new Server(server, {
   },
 });
 
+// app.io = io;
+
+app.post("/rtmp/on_publish", (req, res) => {
+  //get
+  isStreamOn = true;
+  console.log("POST/on_publish");
+  io.to("room1").emit("stream-connected");
+  res.status(204).send("Success!");
+});
+
+app.post("/rtmp/on_publish_done", async (req, res) => {
+  isStreamOn = false;
+  console.log("POST/on_publish_done");
+
+  try {
+    const json = JSON.stringify({
+      room1: {
+        comments: rooms["room1"].comments,
+      },
+    });
+    await fs.promises.writeFile("comments.json", json);
+    res.send("success");
+  } catch (error) {
+    res.send("failed");
+  }
+});
+
+app.get("/check-stream", (req, res) => {
+  res.send(isStreamOn);
+});
+
 io.on("connection", (socket) => {
   socket.on("join-room", ({ user, room }) => {
     socket.join(room);
 
-    currentRoomToDo(() => {
+    currentRoomToDo((room) => {
       socket.to(room).emit("new-user", user);
     });
 
     rooms.addUserToRoom(room, socket.id, user);
 
     users.addUser(socket.id, user);
-    console.log(users, rooms);
   });
 
   socket.on("send-message", (message, callback) => {
@@ -95,15 +145,14 @@ io.on("connection", (socket) => {
         message,
       });
 
-      rooms.addCommentToRoom(room, message, user);
+      rooms.addCommentToRoom(room, user, message);
+      console.log(rooms.showRoomComments(room));
 
       if (!callback) return;
       callback({
         status: "ok",
       });
     });
-
-    console.log(users, rooms);
   });
 
   socket.on("disconnecting", function () {
@@ -115,7 +164,6 @@ io.on("connection", (socket) => {
     });
 
     users.removeUser(socket.id);
-    console.log(users, rooms);
   });
 
   function currentRoomToDo(func) {
@@ -127,6 +175,6 @@ io.on("connection", (socket) => {
   }
 });
 
-server.listen(3001, () => {
-  console.log("Server is on 3001 port");
+server.listen(PORT, () => {
+  console.log(`Server is running on ${PORT} port`);
 });
