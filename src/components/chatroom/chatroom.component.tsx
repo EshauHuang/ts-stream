@@ -1,8 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { io, Socket } from "socket.io-client";
+
+import { MessagesContext } from "@/contexts/messagesContext";
 
 import ChatMessages from "@/components/chat-messages/chat-messages.component";
 import SendMessage from "@/components/send-message/send-message.component";
+
 import { Container, ViewModeBar } from "./chatroom.style";
 
 interface User {
@@ -16,52 +19,45 @@ interface Comment {
 
 interface ServerToClientEvents {
   connect: () => void;
-  "user-disconnected": (username: string) => void;
-  "user-connected": (username: string) => void;
   "chat-message": (comment: Comment) => void;
+  "stream-connected": (isStreamOn: boolean) => void;
 }
 
 interface ClientToServerEvents {
-  "join-room": (user: User, room: string) => void;
+  "new-user": (user: User, roomName: string) => void;
 }
 
 const user = {
   username: "Sans",
 };
 
-const Chatroom = () => {
+interface IChatroomProps {
+  roomName: string;
+}
+
+const Chatroom: React.FC<IChatroomProps> = ({ roomName }) => {
+  const { sendMessageByUser } = useContext(MessagesContext);
+
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [comments, setComments] = useState([]);
-  const [currentUser, setCurrentUser] = useState(user);
-  const inputRef = useRef(null);
-  const roomRef = useRef(null);
+  const [currentUser, setCurrentUser] = useState(() => user);
 
   useEffect(() => {
-    const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io("http://localhost:3001");
+    if (!roomName) return
+
+    const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
+      "http://localhost:3535"
+    );
 
     socket.on("connect", () => {
       setIsConnected(true);
     });
 
+    socket.emit("new-user", currentUser, roomName);
+
     socket.on("disconnect", () => {
       setIsConnected(false);
-    });
-
-    setSocket(socket);
-
-    return () => {
-      socket.off("connect");
-      socket.off("disconnect");
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.emit("join-room", {
-      user: currentUser,
-      room: "room1",
     });
 
     socket.on("chat-message", ({ user, message }) => {
@@ -73,19 +69,25 @@ const Chatroom = () => {
       //   },
       // ]);
     });
+    socket.on("stream-connected", () => {
+      console.log("stream connected");
+      // setIsStreamOn(true);
+    });
 
     setSocket(socket);
 
     return () => {
+      socket.off("connect");
       socket.off("chat-message");
+      socket.off("disconnect");
     };
-  }, [socket]);
-  console.log(isConnected);
+  }, [roomName]);
+
   return (
     <Container>
       <ViewModeBar>ViewModeBar</ViewModeBar>
       <ChatMessages />
-      <SendMessage />
+      <SendMessage socket={socket} />
     </Container>
   );
 };

@@ -6,9 +6,44 @@ import * as fs from "fs";
 
 const PORT = 3535;
 
-let isStreamOn = false;
+// 網站總共有多少部影片
+const siteVideos = {
+  0: {},
+  1: {},
+  length: 2,
+};
 
-const video = {};
+// 使用過的 streamKeys
+const streamKeys = {
+  sdada: 1,
+};
+
+// 儲存每個用戶的資訊
+const usersTable = [
+  {
+    id: 0,
+    username: "user01",
+    streamKey: "test",
+    videos: {
+      0: {
+        // 關聯到 siteVideosID
+      },
+    },
+    stream: {
+      isStreamOn: false,
+      title: "",
+      content: "",
+    },
+  },
+];
+
+const currentStreamOptions = {
+  type: "stream",
+  isStreamOn: false,
+  user: { username: "user01" },
+  title: "第一個直播",
+  content: "第一個直播",
+};
 
 class Comments {
   constructor() {
@@ -92,18 +127,19 @@ const io = new Server(server, {
   },
 });
 
-// app.io = io;
-
 app.post("/rtmp/on_publish", (req, res) => {
-  //get
-  isStreamOn = true;
-  console.log("POST/on_publish");
-  io.to("room1").emit("stream-connected");
+  const { name: streamKey } = req.body;
+  const user = usersTable.find((user) => user.streamKey === streamKey);
+
+  console.log("streaming user", user);
+  user.stream.isStreamOn = true;
+  console.log("streaming user 2", user);
+  io.to(streamKey).emit("stream-connected");
   res.status(204).send("Success!");
 });
 
 app.post("/rtmp/on_publish_done", async (req, res) => {
-  isStreamOn = false;
+  currentStreamOptions.isStreamOn = false;
   console.log("POST/on_publish_done");
 
   try {
@@ -119,21 +155,23 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
   }
 });
 
-app.get("/check-stream", (req, res) => {
-  res.send(isStreamOn);
+app.post("/get-stream", (req, res) => {
+  const { username } = req.body;
+  const { stream } = usersTable.find((user) => user.username === username);
+  res.json(stream);
 });
 
 io.on("connection", (socket) => {
-  socket.on("join-room", ({ user, room }) => {
-    socket.join(room);
+  socket.on("new-user", (user, roomName) => {
+    socket.join(roomName);
 
     currentRoomToDo((room) => {
       socket.to(room).emit("new-user", user);
     });
-
-    rooms.addUserToRoom(room, socket.id, user);
+    rooms.addUserToRoom(roomName, socket.id, user);
 
     users.addUser(socket.id, user);
+    // console.log(users, rooms)
   });
 
   socket.on("send-message", (message, callback) => {
@@ -156,14 +194,12 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnecting", function () {
-    const { user } = users[socket.id];
-
-    currentRoomToDo((room) => {
-      socket.to(room).emit("user-left", user);
-      rooms.removeUserFromRoom(room, socket.id);
-    });
-
-    users.removeUser(socket.id);
+    // const { user } = users[socket.id];
+    // currentRoomToDo((room) => {
+    //   socket.to(room).emit("user-left", user);
+    //   rooms.removeUserFromRoom(room, socket.id);
+    // });
+    // users.removeUser(socket.id);
   });
 
   function currentRoomToDo(func) {
