@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 import styled from "styled-components";
 
 import SignInForm from "@/components/sign-in-form/sign-in-form.component";
@@ -63,13 +63,16 @@ const App = () => {
   const [bar, setBar] = useState("signIn");
 
   return (
-    <Routes>
-      <Route path="/">
-        <Route path="sign-up" element={<SignUpForm />} />
-        <Route path="sign-in" element={<SignInForm />} />
-        <Route path="live" element={<Live />} />
-      </Route>
-    </Routes>
+    <>
+    <Link to="/live/user01">LIVE</Link>
+      <Routes>
+        <Route path="/">
+          <Route path="sign-up" element={<SignUpForm />} />
+          <Route path="sign-in" element={<SignInForm />} />
+          <Route path="live/:username" element={<Live />} />
+        </Route>
+      </Routes>
+    </>
   );
 };
 

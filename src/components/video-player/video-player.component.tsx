@@ -4,7 +4,11 @@ import VideoJs from "@/components/video-js/video-js.component";
 
 import { Container } from "./video-player.style"
 
-const VideoPlayer = () => {
+interface IVideoPlayerProps {
+  isStreamOn: boolean;
+}
+
+const VideoPlayer: React.FC<IVideoPlayerProps> = ({ isStreamOn }) => {
   const playerRef = useRef<null | videojs.Player>(null);
 
   const videoJsOptions = {

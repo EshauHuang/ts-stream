@@ -1,4 +1,5 @@
 import { useContext, useState, useEffect, useRef } from "react";
+import { Socket } from "socket.io-client";
 
 import { UserContext } from "@/contexts/userContext";
 import { MessagesContext } from "@/contexts/messagesContext";
@@ -15,7 +16,11 @@ import {
   SendButton,
 } from "./send-message.style";
 
-const SendMessage = () => {
+interface ISendMessage {
+  socket: Socket | null;
+}
+
+const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
   const { currentUser } = useContext(UserContext);
   const { sendMessageByUser } = useContext(MessagesContext);
   const [message, setMessage] = useState("");
@@ -45,7 +50,9 @@ const SendMessage = () => {
     if (!currentUser || !message || !inputEle) return;
     const { username } = currentUser;
 
-    sendMessageByUser({ username, message });
+    socket?.emit("send-message", message)
+
+    // sendMessageByUser({ username, message });
     setMessage("");
     inputEle.innerText = "";
   };
