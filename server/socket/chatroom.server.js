@@ -2,15 +2,33 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
-import * as fs from "fs";
+import CryptoJS from "crypto-js";
+
+const SECRET_KEY = "testtest";
 
 const PORT = 3535;
 
 // 網站總共有多少部影片
 const siteVideos = {
-  0: {},
+  0: {
+    title: "",
+    content: "",
+  },
   1: {},
   length: 2,
+  createInitVideo() {
+    const id = this.length;
+    this[id] = {};
+
+    this.length++;
+
+    return id;
+  },
+  update(id, video) {
+    this[id] = video;
+
+    return id;
+  },
 };
 
 // 使用過的 streamKeys
@@ -23,10 +41,18 @@ const usersTable = [
   {
     id: 0,
     username: "user01",
-    streamKey: "test",
+    streamKey: "U2FsdGVkX1/5NVvBrPwm01j8Ww0RFc8t/Nkyty1L85g=",
     videos: {
       0: {
         // 關聯到 siteVideosID
+      },
+      length: 1,
+      addVideo(video) {
+        const index = this.length;
+        this[index] = video;
+        this.length++;
+
+        return { [index]: this[index] };
       },
     },
     stream: {
@@ -36,14 +62,6 @@ const usersTable = [
     },
   },
 ];
-
-const currentStreamOptions = {
-  type: "stream",
-  isStreamOn: false,
-  user: { username: "user01" },
-  title: "第一個直播",
-  content: "第一個直播",
-};
 
 class Comments {
   constructor() {
@@ -95,7 +113,6 @@ class Rooms {
   }
   addUserToRoom(room, socketId, user) {
     if (!room || !socketId || !user) return;
-    this.addRoom(room);
     this[room].users.addUser(socketId, user);
   }
   removeUserFromRoom(room, socketId) {
@@ -103,8 +120,7 @@ class Rooms {
     this[room].users.removeUser(socketId);
   }
   addCommentToRoom(room, message, user) {
-    if (!room || !message || user) {
-      this.addRoom(room);
+    if (!room || !message || !user) {
       this[room].comments.addComment(message, user);
     }
   }
@@ -127,51 +143,121 @@ const io = new Server(server, {
   },
 });
 
-app.post("/rtmp/on_publish", (req, res) => {
-  const { name: streamKey } = req.body;
-  const user = usersTable.find((user) => user.streamKey === streamKey);
+app.post("/auth/on_publish", (req, res) => {
+  console.log("驗證 stream key '/auth/on_publish");
+  const { name: streamKeyHex } = req.body;
 
-  console.log("streaming user", user);
+  // 判斷 streamKey 是否為此網站產生的
+
+  // 收到的 stream key 為 16 進位字串，需要解碼後再解析
+  const streamKey = CryptoJS.enc.Hex.parse(streamKeyHex).toString(
+    CryptoJS.enc.Base64
+  );
+
+  const username = CryptoJS.AES.decrypt(streamKey, SECRET_KEY).toString(
+    CryptoJS.enc.Utf8
+  );
+
+  // 非網站產生 stream key(secret key 不同)
+  if (!username) {
+    console.log("stream key 驗證失敗");
+    return res.status(500).send("stream key was wrong");
+  }
+  // 確認是否有該 user
+  const user = usersTable.find((user) => user.username === username);
+
+  if (!user) {
+    console.log("無此 user");
+    return res.status(500).send("stream key was wrong");
+  }
+
+  console.log("驗證成功！");
+  // 建立新的 video 並取得 videoId
+  const videoId = siteVideos.createInitVideo();
+
+  // 利用新的 streamKey(videoId) 推到 nginx，同時需要推送 username，nginx 會自動將 params(username) 當成 post data 傳至 on_publish 及 on_publish_done
+  res
+    .status(302)
+    .redirect(
+      `rtmp://192.168.64.2:1935/hls_live/${videoId}?username=${username}`
+    );
+});
+
+app.post("/rtmp/on_publish", (req, res) => {
+  console.log("直播開始 'on_publish");
+  const { username } = req.body;
+  const user = usersTable.find((user) => user.username === username);
+
+  // 直播狀態改為 on，用於使用者進入直播間時可自動去抓取直播資源
   user.stream.isStreamOn = true;
-  console.log("streaming user 2", user);
-  io.to(streamKey).emit("stream-connected");
-  res.status(204).send("Success!");
+
+  // 傳送直播開始訊息，用於刷新影片
+  io.to(username).emit("stream-connected");
+
+  res.status(204);
 });
 
 app.post("/rtmp/on_publish_done", async (req, res) => {
-  currentStreamOptions.isStreamOn = false;
-  console.log("POST/on_publish_done");
+  console.log("直播結束 'on_publish_done'");
+  const { name: videoId, username } = req.body;
 
-  try {
-    const json = JSON.stringify({
-      room1: {
-        comments: rooms["room1"].comments,
-      },
-    });
-    await fs.promises.writeFile("comments.json", json);
-    res.send("success");
-  } catch (error) {
-    res.send("failed");
-  }
+  // 取得此 streamKey 的擁有者
+  const user = usersTable.find((user) => user.username === username);
+  // room 名稱與 username 相同，取得此 room 的 comments
+  const { comments } = rooms[username];
+
+  // 將此直播紀錄(影片、聊天室)儲存在 siteVideos 內
+  siteVideos.update(videoId, {
+    title: user.stream.title,
+    content: user.stream.content,
+    comments,
+  });
+
+  // 將影片加至 user 的 videos 內
+  user.videos.addVideo({
+    videoId,
+    title: user.stream.title,
+    content: user.stream.content,
+    comments,
+  });
+
+  user.stream.isStreamOn = false;
+
+  res.status(204);
 });
+
+// curl -d '{"username":"user01", "key2":"value2"}' -H "Content-Type: application/json" -X POST http://localhost:3535/u/user01/create-stream
+
+// 初次建立直播間，未建立直播間則無法開實況
+app.post("/u/:username/stream-room", (req, res) => {
+  console.log(req.body);
+  // const { username, title, content } = req.body;
+  // const user = usersTable.find((user) => user.streamKey === streamKey);
+
+  // console.log("query", query);
+  res.send("success");
+});
+
+// curl -d '{"username":"user01", "key2":"value2"}' -H "Content-Type: application/json" -X POST http://localhost:3535/get-stream
 
 app.post("/get-stream", (req, res) => {
   const { username } = req.body;
-  const { stream } = usersTable.find((user) => user.username === username);
-  res.json(stream);
+  if (!username) return;
+
+  const user = usersTable.find((user) => user.username === username);
+  res.json(user.stream);
 });
 
 io.on("connection", (socket) => {
+  // 假設直播室已建立
+  rooms.addRoom("user01");
+
   socket.on("new-user", (user, roomName) => {
     socket.join(roomName);
 
-    currentRoomToDo((room) => {
-      socket.to(room).emit("new-user", user);
-    });
     rooms.addUserToRoom(roomName, socket.id, user);
 
     users.addUser(socket.id, user);
-    // console.log(users, rooms)
   });
 
   socket.on("send-message", (message, callback) => {
@@ -184,8 +270,6 @@ io.on("connection", (socket) => {
       });
 
       rooms.addCommentToRoom(room, user, message);
-      console.log(rooms.showRoomComments(room));
-
       if (!callback) return;
       callback({
         status: "ok",
