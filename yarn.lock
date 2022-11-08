@@ -1095,6 +1095,11 @@ has@^1.0.3:
   dependencies:
     function-bind "^1.1.1"
 
+hls.js@^1.2.5:
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/hls.js/-/hls.js-1.2.5.tgz#f5ae78095754d8f894e2f65b6a4b09c870b7707c"
+  integrity sha512-1xW5PBJcQu2MsQDnqoFtCfaxxJ1hHwJHRThxDtrKRcrltTtSi4A62xgOsey+KK8MTMD6i4w5fcmBBz1U62ihvQ==
+
 hoist-non-react-statics@^3.0.0, hoist-non-react-statics@^3.3.0:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz#ece0acaf71d62c2969c2ec59feff42a4b1a85b45"
