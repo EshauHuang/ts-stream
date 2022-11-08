@@ -194,7 +194,7 @@ app.post("/rtmp/on_publish", (req, res) => {
   // 傳送直播開始訊息，用於刷新影片
   io.to(username).emit("stream-connected");
 
-  res.status(204);
+  res.status(204).end();
 });
 
 app.post("/rtmp/on_publish_done", async (req, res) => {
@@ -223,7 +223,7 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
 
   user.stream.isStreamOn = false;
 
-  res.status(204);
+  res.status(204).end();
 });
 
 // curl -d '{"username":"user01", "key2":"value2"}' -H "Content-Type: application/json" -X POST http://localhost:3535/u/user01/create-stream
