@@ -28,7 +28,8 @@ export const InputWrap = styled.div`
 
 export const ErrorMessage = styled.div`
   color: red;
-  font-size: 1.675rem;
+  font-size: 1.275rem;
   line-height: 1.675rem;
   height: 1.675rem;
+  margin-top: 0.125rem;
 `;

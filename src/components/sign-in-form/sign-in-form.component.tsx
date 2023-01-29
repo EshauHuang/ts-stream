@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 import Input from "@/components/input/input.component";
@@ -12,39 +13,78 @@ import {
 } from "./sign-in-form.style";
 
 import { getUsers } from "@/json/users";
+import {
+  inputValidate,
+  formatInputAndValidateOptions,
+} from "@/utils/inputValidate";
 
 import { UserContext } from "@/contexts/userContext";
 
-const SignInForm = () => {
-  const [user, setUser] = useState({
-    name: "",
-    username: "",
-    password: "",
-  });
-  const { name, username, password } = user;
+const initialUser = {
+  username: "",
+  password: "",
+};
 
-  const { setCurrentUser } = useContext(UserContext);
+const initialError = {
+  username: "",
+  password: "",
+};
+
+const validateRulesOptions = {
+  username: {
+    label: "帳號",
+    rules: ["required"],
+  },
+  password: {
+    label: "密碼",
+    rules: ["required"],
+  },
+};
+
+const SignInForm = () => {
+  const [user, setUser] = useState(initialUser);
+  const [error, setError] = useState(initialError);
+
+  const navigate = useNavigate();
+  const { currentUser, setCurrentUser } = useContext(UserContext);
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
+    const inputUser = { ...user };
 
-    const { data: users } = await getUsers();
-
-    const userCheck = users.every(
-      ({
-        username,
-        password,
-      }: {
-        name: string;
-        username: string;
-        password: string;
-      }) => {
-        return username === user.username && password === user.password;
-      }
+    const inputValidateOptions = formatInputAndValidateOptions(
+      inputUser,
+      validateRulesOptions
     );
 
-    if (userCheck) {
-      setCurrentUser({ name, username });
+    const newErrorMessages = inputValidateOptions.reduce((errorObj, option) => {
+      const { name } = option;
+      return { ...errorObj, [name]: inputValidate(option) };
+    }, initialError);
+
+    const isValid = Object.values(newErrorMessages).some((value) => value);
+
+    if (isValid) {
+      setError(newErrorMessages);
+      return;
+    }
+
+    // 註冊
+    const res = await fetch("http://192.168.50.224:3535/sign-in", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+      body: JSON.stringify(inputUser),
+    });
+
+    if (res.ok) {
+      const { message, user } = await res.json();
+      console.log({ message, user });
+      setCurrentUser(user);
+    } else {
+      const { message } = await res.json();
+      console.log({ message });
     }
   };
 
@@ -53,6 +93,12 @@ const SignInForm = () => {
 
     setUser((prev) => ({ ...prev, [name]: value }));
   };
+
+  useEffect(() => {
+    if (!currentUser) return;
+    alert("登入成功")
+    navigate("/");
+  }, [currentUser]);
 
   return (
     <Form onSubmit={handleSubmit}>
@@ -64,6 +110,7 @@ const SignInForm = () => {
           name="username"
           value={user.username}
           onChange={handleChangeValue}
+          error={error.username}
         />
         <Input
           label="密碼"
@@ -71,6 +118,7 @@ const SignInForm = () => {
           name="password"
           value={user.password}
           onChange={handleChangeValue}
+          error={error.password}
         />
         <Footer>
           <Info>
