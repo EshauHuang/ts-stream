@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 import videojs from "video.js";
+import { Video } from "./video-js.style";
+
 import "video.js/dist/video-js.css";
 
 interface Props {
@@ -8,7 +10,7 @@ interface Props {
 }
 
 const VideoJs: React.FC<Props> = (props) => {
-  const videoRef = useRef<null | HTMLVideoElement> (null);
+  const videoRef = useRef<null | HTMLVideoElement>(null);
   const playerRef = useRef<null | videojs.Player>(null);
   const { options, onReady } = props;
 
@@ -18,12 +20,12 @@ const VideoJs: React.FC<Props> = (props) => {
 
       if (!videoElement) return;
 
-      const player = playerRef.current = videojs(videoElement, options, () => {
+      const player = (playerRef.current = videojs(videoElement, options, () => {
         videojs.log("player is ready");
-        onReady && onReady(player)
-      })
+        onReady && onReady(player);
+      }));
     }
-  }, [options, videoRef])
+  }, [options, videoRef]);
 
   useEffect(() => {
     const player = playerRef.current;
@@ -36,12 +38,7 @@ const VideoJs: React.FC<Props> = (props) => {
     };
   }, [playerRef]);
 
-
-  return (
-    <div data-vjs-player>
-      <video ref={videoRef} className="video-js vjs-big-play-centered" />
-    </div>
-  );
+  return <Video ref={videoRef} className="video-js vjs-big-play-centered" />;
 };
 
 export default VideoJs;

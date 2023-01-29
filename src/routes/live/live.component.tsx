@@ -14,8 +14,6 @@ interface IStreamData {
   content: string;
 }
 
-
-
 const initialStreamData = {
   isStreamOn: false,
   title: "",
@@ -23,7 +21,7 @@ const initialStreamData = {
 };
 
 const Live = () => {
-  const { username } = useParams() as {username: string};
+  const { username } = useParams() as { username: string };
   const [stream, setStream] = useState<IStreamData>(initialStreamData);
   const { isStreamOn, title, content } = stream;
 
@@ -43,7 +41,7 @@ const Live = () => {
   return (
     <Container>
       <VideoPlayer isStreamOn={isStreamOn} />
-      <Chatroom roomName={username}/>
+      <Chatroom setStream={setStream} roomName={username} />
     </Container>
   );
 };

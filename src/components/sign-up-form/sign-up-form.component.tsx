@@ -1,78 +1,105 @@
-import React, { useEffect, useState, useContext } from "react";
-import { Link } from "react-router-dom"
+import React, { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+
 import Input from "@/components/input/input.component";
 import {
   Form,
   Title,
   Content,
   Footer,
-  Info,
   Button,
 } from "./sign-up-form.style";
 
 import { UserContext } from "@/contexts/userContext";
+import {
+  inputValidate,
+  formatInputAndValidateOptions,
+} from "@/utils/inputValidate";
 
-import { getUsers } from "@/json/users";
 interface SignUpUser {
-  name: string;
   username: string;
   password: string;
+  email: string;
 }
 
 interface SignUpUserError {
-  name: string;
   username: string;
   password: string;
+  email: string;
 }
 
 const initialUser = {
-  name: "",
   username: "",
   password: "",
+  email: "",
 };
 
 const initialError = {
-  name: "",
   username: "",
   password: "",
+  email: "",
 };
 
+const validateRulesOptions = {
+  email: {
+    label: "電子信箱",
+    rules: ["required", "email"],
+  },
+  username: {
+    label: "帳號",
+    rules: ["required"],
+  },
+  password: {
+    label: "密碼",
+    rules: ["required"],
+  },
+};
 
 const SignUp = () => {
   const [user, setUser] = useState<SignUpUser>(initialUser);
   const [error, setError] = useState<SignUpUserError>(initialError);
+  const navigate = useNavigate();
 
-  const { setCurrentUser } = useContext(UserContext);
+  const { currentUser, setCurrentUser } = useContext(UserContext);
 
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
+    const inputUser = { ...user };
 
-    const dataCheck = async (user: SignUpUser) => {
-      let newError = Object.assign({}, initialError);
+    const inputValidateOptions = formatInputAndValidateOptions(
+      inputUser,
+      validateRulesOptions
+    );
 
-      let { data: users } = await getUsers()
+    const newErrorMessages = inputValidateOptions.reduce((errorObj, option) => {
+      const { name } = option;
+      return { ...errorObj, [name]: inputValidate(option) };
+    }, initialError);
 
-      // 後端部分
-      users.every(({ name, username }: {name: string, username: string}) => {
-        if (name === user.name) {
-          newError.name = "暱稱重複，請重新輸入";
-        }
-        
-        if (username === user.username) {
-          newError.username = "帳號重複，請重新輸入";
-        }
-        const noError = Object.values(newError).every((value) => value === "");
-        if (noError) {
-          users.push(user);
-          setCurrentUser(user);
-          setUser(initialUser);
-        } else {
-          setError(newError);
-        }
-      });
-    };
+    const isValid = Object.values(newErrorMessages).some((value) => value);
 
-    dataCheck(user);
+    if (isValid) {
+      setError(newErrorMessages);
+      return;
+    }
+
+    // 註冊
+    const res = await fetch("http://192.168.50.224:3535/sign-up", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+      },
+      body: JSON.stringify(inputUser),
+    });
+
+    if (res.ok) {
+      const { message, user } = await res.json();
+      console.log({ message, user });
+      setCurrentUser(user);
+    } else {
+      const { message } = await res.json();
+      console.log({ message });
+    }
   };
 
   const handleChangeValue: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -80,6 +107,12 @@ const SignUp = () => {
 
     setUser((prev) => ({ ...prev, [name]: value }));
   };
+
+  useEffect(() => {
+    if (!currentUser) return
+    alert("帳號創建成功");
+    navigate("/")
+  }, [currentUser])
 
   return (
     <Form onSubmit={handleSubmit}>
@@ -91,6 +124,7 @@ const SignUp = () => {
           name="username"
           value={user.username}
           onChange={handleChangeValue}
+          error={error.username}
         />
         <Input
           label="密碼"
@@ -98,11 +132,17 @@ const SignUp = () => {
           name="password"
           value={user.password}
           onChange={handleChangeValue}
+          error={error.password}
+        />
+        <Input
+          label="信箱"
+          type="email"
+          name="email"
+          value={user.email}
+          onChange={handleChangeValue}
+          error={error.email}
         />
         <Footer>
-          <Info>
-            還未成為會員嗎？趕快<Link to="/sign-up">註冊</Link>吧！
-          </Info>
           <Button type="submit">送出</Button>
         </Footer>
       </Content>
