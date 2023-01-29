@@ -3,9 +3,10 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import CryptoJS from "crypto-js";
+import bcrypt from "bcrypt";
 
 const SECRET_KEY = "testtest";
-
+const saltRounds = 10;
 const PORT = 3535;
 
 // 網站總共有多少部影片
@@ -29,11 +30,6 @@ const siteVideos = {
 
     return id;
   },
-};
-
-// 使用過的 streamKeys
-const streamKeys = {
-  sdada: 1,
 };
 
 // 儲存每個用戶的資訊
@@ -61,7 +57,87 @@ const usersTable = [
       content: "",
     },
   },
+  {
+    id: 1,
+    username: "123",
+    password: "$2b$10$J251lEpX3LI8UpxxIuXMiugtELV71EL4gO2bfHyMtUtPI2B4taNJu",
+    email: "123@gmail.com",
+    streamKey: "U2FsdGVkX18bAolx32khI/UvP46nraEwZDxwUIx1Xhc=",
+    videos: {
+      0: {
+        // 關聯到 siteVideosID
+      },
+      length: 1,
+      addVideo(video) {
+        const index = this.length;
+        this[index] = video;
+        this.length++;
+
+        return { [index]: this[index] };
+      },
+    },
+    stream: {
+      isStreamOn: false,
+      title: "",
+      content: "",
+    },
+  },
 ];
+
+usersTable.generateNewUser = async function (username, password, email) {
+  const streamKeyHex = CryptoJS.AES.encrypt(username, SECRET_KEY).toString();
+  const salt = bcrypt.genSaltSync(saltRounds);
+  const passwordHash = bcrypt.hashSync(password, salt);
+  const newUser = {
+    id: this.length,
+    username,
+    password: passwordHash,
+    email,
+    streamKey: streamKeyHex,
+    videos: {
+      length: 0,
+      addVideo(video) {
+        const index = this.length;
+        this[index] = video;
+        this.length++;
+
+        return { [index]: this[index] };
+      },
+    },
+    stream: {
+      isStreamOn: false,
+      title: "",
+      content: "",
+    },
+  };
+
+  this.push(newUser);
+
+  return {
+    username,
+    email,
+  };
+};
+
+usersTable.verifyUser = function (username, password) {
+  const user = this.find((user) => {
+    console.log(user.username);
+    if (user.username === username) {
+      console.log({ password });
+      console.log({ passwordHash: user.password });
+      const result = bcrypt.compareSync(password, user.password);
+      console.log({ result });
+      return result;
+    }
+  });
+
+  if (!user) return null
+
+  return {
+    username: user.username,
+    email: user.email,
+  };
+};
 
 class Comments {
   constructor() {
@@ -147,6 +223,8 @@ app.post("/auth/on_publish", (req, res) => {
   console.log("驗證 stream key '/auth/on_publish");
   const { name: streamKeyHex } = req.body;
 
+  console.log(req.body);
+
   // 判斷 streamKey 是否為此網站產生的
 
   // 收到的 stream key 為 16 進位字串，需要解碼後再解析
@@ -160,7 +238,6 @@ app.post("/auth/on_publish", (req, res) => {
 
   // 非網站產生 stream key(secret key 不同)
   if (!username) {
-    console.log("stream key 驗證失敗");
     return res.status(500).send("stream key was wrong");
   }
   // 確認是否有該 user
@@ -177,15 +254,14 @@ app.post("/auth/on_publish", (req, res) => {
 
   // 利用新的 streamKey(videoId) 推到 nginx，同時需要推送 username，nginx 會自動將 params(username) 當成 post data 傳至 on_publish 及 on_publish_done
   res
-    .status(302)
-    .redirect(
-      `rtmp://192.168.64.2:1935/hls_live/${videoId}?username=${username}`
-    );
+    .status(301)
+    .redirect(`rtmp://192.168.50.109:1935/hls_live/2?username=${username}`);
 });
 
 app.post("/rtmp/on_publish", (req, res) => {
   console.log("直播開始 'on_publish");
-  const { username } = req.body;
+  const { username, name: videoId } = req.body;
+
   const user = usersTable.find((user) => user.username === username);
 
   // 直播狀態改為 on，用於使用者進入直播間時可自動去抓取直播資源
@@ -236,6 +312,63 @@ app.post("/u/:username/stream-room", (req, res) => {
 
   // console.log("query", query);
   res.send("success");
+});
+
+app.post("/sign-up", async (req, res) => {
+  try {
+    const { username, password, email } = req.body;
+    if (!username || !password || !email) {
+      throw new Error("Empty value");
+    }
+
+    // check username or email weren't duplicate
+    const isDuplicate = usersTable.some(
+      (user) => user.username === username || user.email === email
+    );
+
+    if (isDuplicate) {
+      throw new Error("Duplicate account or email");
+    }
+
+    const user = await usersTable.generateNewUser(username, password, email);
+
+    console.log(user);
+
+    res.status(200).json({
+      message: "Register success",
+      user,
+    });
+  } catch (error) {
+    const { message } = error;
+    res.status(400).json({
+      message,
+    });
+  }
+});
+
+app.post("/sign-in", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      throw new Error("Empty value");
+    }
+
+    const user = usersTable.verifyUser(username, password);
+
+    if (!user) {
+      throw new Error("Verify wrong")
+    }
+
+    res.status(200).json({
+      message: "Login success",
+      user
+    });
+  } catch (error) {
+    const { message } = error;
+    res.status(400).json({
+      message,
+    });
+  }
 });
 
 // curl -d '{"username":"user01", "key2":"value2"}' -H "Content-Type: application/json" -X POST http://localhost:3535/get-stream

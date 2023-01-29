@@ -60,11 +60,20 @@ const Navbar: React.FC<NavbarProps> = ({ bar, setBar }) => {
 };
 
 const App = () => {
-  const [bar, setBar] = useState("signIn");
-
   return (
     <>
-    <Link to="/live/user01">LIVE</Link>
+      <Link to="/">Home</Link>
+      <br />
+      <br />
+      <Link to="/live/user01">LIVE</Link>
+      <br />
+      <br />
+      <Link to="/sign-up">Sign Up</Link>
+      <br />
+      <br />
+      <Link to="/sign-in">Sign In</Link>
+      <br />
+      <br />
       <Routes>
         <Route path="/">
           <Route path="sign-up" element={<SignUpForm />} />

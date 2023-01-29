@@ -35,7 +35,7 @@ interface IChatroomProps {
   roomName: string;
 }
 
-const Chatroom: React.FC<IChatroomProps> = ({ roomName }) => {
+const Chatroom: React.FC<IChatroomProps> = ({ roomName, setStream }) => {
   const { sendMessageByUser } = useContext(MessagesContext);
 
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -44,10 +44,10 @@ const Chatroom: React.FC<IChatroomProps> = ({ roomName }) => {
   const [currentUser, setCurrentUser] = useState(() => user);
 
   useEffect(() => {
-    if (!roomName) return
+    if (!roomName) return;
 
     const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-      "http://localhost:3535"
+      "http://192.168.50.224:3535"
     );
 
     socket.on("connect", () => {
@@ -71,6 +71,10 @@ const Chatroom: React.FC<IChatroomProps> = ({ roomName }) => {
     });
     socket.on("stream-connected", () => {
       console.log("stream connected");
+      setStream((prev) => ({
+        ...prev,
+        isStreamOn: true,
+      }));
       // setIsStreamOn(true);
     });
 

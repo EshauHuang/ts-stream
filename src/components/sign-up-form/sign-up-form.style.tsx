@@ -50,11 +50,7 @@ export const Button = styled.button`
 export const Footer = styled.div`
   width: 100%;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   margin-top: 0.975rem;
-`;
-
-export const Info = styled.div`
-  font-size: 1.125rem;
+  justify-content: flex-end;
 `;
