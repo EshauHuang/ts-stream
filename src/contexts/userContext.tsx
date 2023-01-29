@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState } from "react";
 
 interface UserProps {
   name: string;
@@ -20,14 +20,6 @@ export const UsersProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<UserProps | null>(null);
 
   const value = { currentUser, setCurrentUser };
-
-  // 模擬登入狀態
-  useEffect(() => {
-    setCurrentUser({
-      name: 'user01',
-      username: "user01"
-    })
-  }, [])
 
   return <UserContext.Provider value={value}>{children} </UserContext.Provider>;
 };
