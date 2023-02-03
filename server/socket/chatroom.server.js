@@ -12,11 +12,81 @@ const PORT = 3535;
 // 網站總共有多少部影片
 const siteVideos = {
   0: {
-    title: "",
-    content: "",
+    title: "Learn Web Components In 25 Minutes",
+    author: "Web Dev Simplified",
+    content: "asdsadsa",
+    thumbnail: "/1.jpg",
   },
-  1: {},
-  length: 2,
+  1: {
+    title: "how programmers overprepare for job interviews",
+    author: "Joma Tech",
+    content: "asdsadsa",
+    thumbnail: "/2.jpg",
+  },
+  2: {
+    title: "年薪300萬工程師辭職重考醫學系 醫: 腦袋壞掉",
+    author: "蒼藍鴿的醫學天地",
+    content: "asdsadsa",
+    thumbnail: "/2.jpg",
+  },
+  3: {
+    title:
+      "【中文配音心得26-鬼滅之刃遊廓篇(下)】台灣聲優竭盡全力的嘶吼，童磨的聲線帥到出水！",
+    author: "台灣聲優研究所",
+    content: "asdsadsa",
+    thumbnail: "/2.jpg",
+  },
+  4: {
+    title:
+      "Git for Professionals Tutorial - Tools & Concepts for Mastering Version Control with Git",
+    author: "freeCodeCamp.org",
+    content: "asdsadsa",
+    thumbnail: "/2.jpg",
+  },
+  5: {
+    title: "是什麼讓事情變得「卡夫卡式」？　諾亞.泰夫林",
+    author: "TED-Ed",
+    content: "asdsadsa",
+    thumbnail: "/1.jpg",
+  },
+  6: {
+    title: "【アニメ】あっははインドネシア〜！",
+    author: "hololive ホロライブ - VTuber Group",
+    content: "asdsadsa",
+    thumbnail: "/3.jpg",
+  },
+  7: {
+    title: "星街すいせい - みちづれ / THE FIRST TAKE",
+    author: "THE FIRST TAKE",
+    content: "asdsadsa",
+    thumbnail: "/3.jpg",
+  },
+  8: {
+    title: "CCC",
+    author: "AAA",
+    content: "asdsadsa",
+    thumbnail: "/3.jpg",
+  },
+  9: {
+    title: "DDDD",
+    author: "AAA",
+    content: "asdsadsa",
+    thumbnail: "/3.jpg",
+  },
+  10: {
+    title: "adasdas",
+    author: "AAA",
+    content: "asdsadsa",
+    thumbnail: "/1.jpg",
+  },
+  11: {
+    title: "adasdas",
+    author: "AAA",
+    content: "asdsadsa",
+    thumbnail: "/1.jpg",
+  },
+
+  length: 1,
   createInitVideo() {
     const id = this.length;
     this[id] = {};
@@ -131,7 +201,7 @@ usersTable.verifyUser = function (username, password) {
     }
   });
 
-  if (!user) return null
+  if (!user) return null;
 
   return {
     username: user.username,
@@ -356,12 +426,12 @@ app.post("/sign-in", async (req, res) => {
     const user = usersTable.verifyUser(username, password);
 
     if (!user) {
-      throw new Error("Verify wrong")
+      throw new Error("Verify wrong");
     }
 
     res.status(200).json({
       message: "Login success",
-      user
+      user,
     });
   } catch (error) {
     const { message } = error;
@@ -379,6 +449,31 @@ app.post("/get-stream", (req, res) => {
 
   const user = usersTable.find((user) => user.username === username);
   res.json(user.stream);
+});
+
+app.post("/get-streams", (req, res) => {
+  const liveStreams = usersTable.find((user) => user.stream.isStreamOn) || [];
+
+  res.json({ message: "success", liveStreams });
+});
+
+app.post("/videos", (req, res) => {
+  const { page, limit } = req.body;
+
+  const start = (page - 1) * limit;
+  const end = page * limit;
+
+  const videos = Object.entries(siteVideos)
+    .slice(start, end)
+    .map((entry) => ({
+      id: entry[0],
+      ...entry[1],
+    }));
+
+  res.json({
+    message: "success",
+    videos,
+  });
 });
 
 io.on("connection", (socket) => {

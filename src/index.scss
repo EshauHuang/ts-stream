@@ -1,10 +1,13 @@
-html, body {
-  height: 100%;
+html {
+  text-size-adjust: none;
+  font-size: 10px;
+  font-family: Roboto, Noto, sans-serif;
 }
 
 body {
   margin: 0;
-  font-family: Roboto, Noto, sans-serif;
+  padding: 0;
+  overflow-y: scroll;
 }
 
 canvas,
@@ -69,8 +72,15 @@ var {
   background: transparent;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+  color: black;
 }
 
 input {
@@ -88,12 +98,4 @@ button {
   border: 0;
   background: transparent;
   padding: 0;
-}
-
-:root {
-  font-size: 12px;
-
-  @media (max-width: 480px) {
-    font-size: 10px;
-  }
 }
