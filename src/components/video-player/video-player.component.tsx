@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import videojs from "video.js";
-import VideoJs from "@/components/video-js/video-js.component";
 
 import Hls from "hls.js";
 import HlsJs from "@/components/hls-js/hls-js.component";
@@ -8,60 +6,21 @@ import HlsJs from "@/components/hls-js/hls-js.component";
 import { Container, Video } from "./video-player.style";
 
 interface IVideoPlayerProps {
-  isStreamOn: boolean;
+  src?: string;
+  videoId?: string | number;
 }
 
-export const VideoJsPlayer: React.FC<IVideoPlayerProps> = ({ isStreamOn }) => {
-  const playerRef = useRef<null | videojs.Player>(null);
-
-  const videoJsOptions = {
-    liveui: true,
-    controls: true,
-    responsive: true,
-    fluid: true,
-    sources: [
-      {
-        src: "http://192.168.64.2/2/index.m3u8",
-        type: "application/x-mpegURL",
-      },
-    ],
-  };
-
-  const handlePlayerReady = (player: videojs.Player) => {
-    playerRef.current = player;
-
-    console.log(player.liveTracker.seekableEnd());
-
-    // You can handle player events here, for example:
-    player.on("waiting", () => {
-      videojs.log("player is waiting");
-    });
-
-    player.on("dispose", () => {
-      videojs.log("player will dispose");
-    });
-  };
-
-  return (
-    <Container>
-      <VideoJs options={videoJsOptions} onReady={handlePlayerReady} />
-    </Container>
-  );
-};
-
-const HlsJsPlayer: React.FC<IVideoPlayerProps> = ({ isStreamOn }) => {
-  const videoRef = useRef(null);
-  const [isStreamExist, setIsStreamExist] = useState(false);
+const HlsJsPlayer: React.FC<IVideoPlayerProps> = ({ src, videoId }) => {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const STREAM_SERVER_URL = import.meta.env.VITE_STREAM_SERVER_URL;
 
-  console.log("isStreamOn", isStreamOn);
-
   useEffect(() => {
-    if (!videoRef.current || !isStreamOn) return;
+    const video = videoRef.current;
+
+    if (!video || (!videoId && !src)) return;
     try {
       if (Hls.isSupported()) {
-        const playVideo = (el, url) => {
-          const video = videoRef.current;
+        const playVideo = () => {
           const hls = new Hls({
             liveSyncDurationCount: 0,
             liveMaxLatencyDurationCount: 1,
@@ -69,7 +28,7 @@ const HlsJsPlayer: React.FC<IVideoPlayerProps> = ({ isStreamOn }) => {
           hls.attachMedia(video);
 
           hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-            hls.loadSource(`${STREAM_SERVER_URL}/2/index.m3u8`);
+            hls.loadSource(`${STREAM_SERVER_URL}/${videoId}/index.m3u8`);
 
             hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
               video.play();
@@ -95,7 +54,7 @@ const HlsJsPlayer: React.FC<IVideoPlayerProps> = ({ isStreamOn }) => {
         playVideo();
       }
     } catch (err) {}
-  }, [videoRef, isStreamOn]);
+  }, [videoRef, src, videoId]);
   return (
     <Container>
       <Video ref={videoRef} id="video" muted />

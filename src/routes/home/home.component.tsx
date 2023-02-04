@@ -123,12 +123,11 @@ const VideoAuthor = styled.div`
 
 const Home = () => {
   const [videos, setVideo] = useState([]);
-  const arr = Array.from({ length: 20 }, (_, i) => i);
 
   useEffect(() => {
     const fetchStreams = async () => {
       try {
-        const { videos } = await getVideos();
+        const { videos } = await getVideos(1, 20);
         console.log(videos);
         setVideo(videos);
       } catch (err) {
