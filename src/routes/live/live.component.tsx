@@ -8,22 +8,26 @@ import { getStream } from "@/api/stream";
 
 import { Container } from "./live.style";
 
-interface IStreamData {
+export interface IStreamData {
   isStreamOn: boolean;
   title: string;
   content: string;
+  videoId: string;
 }
 
 const initialStreamData = {
   isStreamOn: false,
   title: "",
   content: "",
+  videoId: ""
 };
 
 const Live = () => {
   const { username } = useParams() as { username: string };
   const [stream, setStream] = useState<IStreamData>(initialStreamData);
-  const { isStreamOn, title, content } = stream;
+  const { isStreamOn, title, content, videoId } = stream;
+
+  console.log({ isStreamOn, title, content, videoId });
 
   useEffect(() => {
     const fetchStreamData = async () => {
@@ -40,7 +44,7 @@ const Live = () => {
 
   return (
     <Container>
-      <VideoPlayer isStreamOn={isStreamOn} />
+      <VideoPlayer videoId={videoId} />
       <Chatroom setStream={setStream} roomName={username} />
     </Container>
   );

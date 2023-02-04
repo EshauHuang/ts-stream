@@ -4,6 +4,7 @@ import { Server } from "socket.io";
 import cors from "cors";
 import CryptoJS from "crypto-js";
 import bcrypt from "bcrypt";
+import * as _ from "lodash-es";
 
 const SECRET_KEY = "testtest";
 const saltRounds = 10;
@@ -85,21 +86,6 @@ const siteVideos = {
     content: "asdsadsa",
     thumbnail: "/1.jpg",
   },
-
-  length: 1,
-  createInitVideo() {
-    const id = this.length;
-    this[id] = {};
-
-    this.length++;
-
-    return id;
-  },
-  update(id, video) {
-    this[id] = video;
-
-    return id;
-  },
 };
 
 // 儲存每個用戶的資訊
@@ -125,6 +111,7 @@ const usersTable = [
       isStreamOn: false,
       title: "",
       content: "",
+      videoId: "",
     },
   },
   {
@@ -209,6 +196,43 @@ usersTable.verifyUser = function (username, password) {
   };
 };
 
+class Video {
+  constructor(videos) {
+    if (videos) {
+      const videosClone = _.cloneDeep(videos);
+      Object.entries(videosClone).forEach(([key, value]) => {
+        this[key] = value;
+      });
+      Object.defineProperty(this, "length", {
+        value: Object.keys(videosClone).length,
+        writable: true,
+        enumerable: false,
+        configurable: false,
+      });
+    } else {
+      Object.defineProperty(this, "length", {
+        value: 0,
+        writable: true,
+        enumerable: false,
+        configurable: false,
+      });
+    }
+  }
+
+  createInitVideo() {
+    const id = this.length;
+    this.length++;
+
+    return id;
+  }
+
+  update(id, video) {
+    this[id] = video;
+
+    return id;
+  }
+}
+
 class Comments {
   constructor() {
     this.length = 0;
@@ -275,6 +299,7 @@ class Rooms {
   }
 }
 
+const videos = new Video(siteVideos);
 const rooms = new Rooms();
 const users = new Users();
 
@@ -293,10 +318,7 @@ app.post("/auth/on_publish", (req, res) => {
   console.log("驗證 stream key '/auth/on_publish");
   const { name: streamKeyHex } = req.body;
 
-  console.log(req.body);
-
   // 判斷 streamKey 是否為此網站產生的
-
   // 收到的 stream key 為 16 進位字串，需要解碼後再解析
   const streamKey = CryptoJS.enc.Hex.parse(streamKeyHex).toString(
     CryptoJS.enc.Base64
@@ -320,12 +342,14 @@ app.post("/auth/on_publish", (req, res) => {
 
   console.log("驗證成功！");
   // 建立新的 video 並取得 videoId
-  const videoId = siteVideos.createInitVideo();
+  const videoId = videos.createInitVideo();
 
   // 利用新的 streamKey(videoId) 推到 nginx，同時需要推送 username，nginx 會自動將 params(username) 當成 post data 傳至 on_publish 及 on_publish_done
   res
     .status(301)
-    .redirect(`rtmp://192.168.50.109:1935/hls_live/2?username=${username}`);
+    .redirect(
+      `rtmp://192.168.50.109:1935/hls_live/${videoId}?username=${username}`
+    );
 });
 
 app.post("/rtmp/on_publish", (req, res) => {
@@ -336,9 +360,9 @@ app.post("/rtmp/on_publish", (req, res) => {
 
   // 直播狀態改為 on，用於使用者進入直播間時可自動去抓取直播資源
   user.stream.isStreamOn = true;
-
+  user.stream.videoId = videoId;
   // 傳送直播開始訊息，用於刷新影片
-  io.to(username).emit("stream-connected");
+  io.to(username).emit("stream-connected", { videoId });
 
   res.status(204).end();
 });
@@ -350,13 +374,13 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
   // 取得此 streamKey 的擁有者
   const user = usersTable.find((user) => user.username === username);
   // room 名稱與 username 相同，取得此 room 的 comments
-  const { comments } = rooms[username];
+  // const { comments } = rooms[username];
 
   // 將此直播紀錄(影片、聊天室)儲存在 siteVideos 內
-  siteVideos.update(videoId, {
+  videos.update(videoId, {
     title: user.stream.title,
     content: user.stream.content,
-    comments,
+    // comments,
   });
 
   // 將影片加至 user 的 videos 內
@@ -364,10 +388,11 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
     videoId,
     title: user.stream.title,
     content: user.stream.content,
-    comments,
+    // comments,
   });
 
   user.stream.isStreamOn = false;
+  user.stream.videoId = "";
 
   res.status(204).end();
 });
@@ -463,7 +488,7 @@ app.post("/videos", (req, res) => {
   const start = (page - 1) * limit;
   const end = page * limit;
 
-  const videos = Object.entries(siteVideos)
+  const sliceVideos = Object.entries(videos)
     .slice(start, end)
     .map((entry) => ({
       id: entry[0],
@@ -472,7 +497,7 @@ app.post("/videos", (req, res) => {
 
   res.json({
     message: "success",
-    videos,
+    videos: sliceVideos,
   });
 });
 

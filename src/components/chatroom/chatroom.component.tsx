@@ -6,6 +6,8 @@ import { MessagesContext } from "@/contexts/messagesContext";
 import ChatMessages from "@/components/chat-messages/chat-messages.component";
 import SendMessage from "@/components/send-message/send-message.component";
 
+import { IStreamData } from "@/routes/live/live.component";
+
 import { Container, ViewModeBar } from "./chatroom.style";
 
 interface User {
@@ -20,7 +22,7 @@ interface Comment {
 interface ServerToClientEvents {
   connect: () => void;
   "chat-message": (comment: Comment) => void;
-  "stream-connected": (isStreamOn: boolean) => void;
+  "stream-connected": ({ videoId }: { videoId: string }) => void;
 }
 
 interface ClientToServerEvents {
@@ -32,7 +34,8 @@ const user = {
 };
 
 interface IChatroomProps {
-  roomName: string;
+  roomName?: string;
+  setStream?: React.Dispatch<React.SetStateAction<IStreamData>>;
 }
 
 const Chatroom: React.FC<IChatroomProps> = ({ roomName, setStream }) => {
@@ -44,7 +47,7 @@ const Chatroom: React.FC<IChatroomProps> = ({ roomName, setStream }) => {
   const [currentUser, setCurrentUser] = useState(() => user);
 
   useEffect(() => {
-    if (!roomName) return;
+    if (!roomName || !setStream) return;
 
     const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
       "http://192.168.50.224:3535"
@@ -69,13 +72,14 @@ const Chatroom: React.FC<IChatroomProps> = ({ roomName, setStream }) => {
       //   },
       // ]);
     });
-    socket.on("stream-connected", () => {
+
+    socket.on("stream-connected", ({ videoId }) => {
       console.log("stream connected");
       setStream((prev) => ({
         ...prev,
         isStreamOn: true,
+        videoId,
       }));
-      // setIsStreamOn(true);
     });
 
     setSocket(socket);
