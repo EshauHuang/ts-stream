@@ -178,12 +178,8 @@ usersTable.generateNewUser = async function (username, password, email) {
 
 usersTable.verifyUser = function (username, password) {
   const user = this.find((user) => {
-    console.log(user.username);
     if (user.username === username) {
-      console.log({ password });
-      console.log({ passwordHash: user.password });
       const result = bcrypt.compareSync(password, user.password);
-      console.log({ result });
       return result;
     }
   });
@@ -240,14 +236,19 @@ class Comments {
   }
   addComment(user, text) {
     if (!user || !text) return;
-    this[this.length] = {
+    const comment = {
       user,
-      text,
-      time: new Date().getTime(),
+      message: {
+        text,
+        date: new Date().getTime(),
+      },
     };
+    this[this.length] = comment;
     this.length++;
+
+    return comment;
   }
-  showComments() {
+  searchComments() {
     return this;
   }
 }
@@ -290,12 +291,12 @@ class Rooms {
     this[room].users.removeUser(socketId);
   }
   addCommentToRoom(room, message, user) {
-    if (!room || !message || !user) {
-      this[room].comments.addComment(message, user);
-    }
+    if (!room || !message || !user) return;
+    const comment = this[room].comments.addComment(message, user);
+    return comment;
   }
-  showRoomComments(room) {
-    return this[room].comments.showComments();
+  searchRoomComments(room) {
+    return this[room].comments.searchComments();
   }
 }
 
@@ -319,6 +320,7 @@ app.post("/auth/on_publish", (req, res) => {
   const { name: streamKeyHex } = req.body;
 
   // 判斷 streamKey 是否為此網站產生的
+
   // 收到的 stream key 為 16 進位字串，需要解碼後再解析
   const streamKey = CryptoJS.enc.Hex.parse(streamKeyHex).toString(
     CryptoJS.enc.Base64
@@ -341,7 +343,8 @@ app.post("/auth/on_publish", (req, res) => {
   }
 
   console.log("驗證成功！");
-  // 建立新的 video 並取得 videoId
+
+  // 取得新的 videoId
   const videoId = videos.createInitVideo();
 
   // 利用新的 streamKey(videoId) 推到 nginx，同時需要推送 username，nginx 會自動將 params(username) 當成 post data 傳至 on_publish 及 on_publish_done
@@ -358,9 +361,10 @@ app.post("/rtmp/on_publish", (req, res) => {
 
   const user = usersTable.find((user) => user.username === username);
 
-  // 直播狀態改為 on，用於使用者進入直播間時可自動去抓取直播資源
+  // 直播狀態改為 on，用於使用者進入直播間時可自動去抓取直播資源，videoId 用來取得影片位置
   user.stream.isStreamOn = true;
   user.stream.videoId = videoId;
+
   // 傳送直播開始訊息，用於刷新影片
   io.to(username).emit("stream-connected", { videoId });
 
@@ -374,13 +378,15 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
   // 取得此 streamKey 的擁有者
   const user = usersTable.find((user) => user.username === username);
   // room 名稱與 username 相同，取得此 room 的 comments
-  // const { comments } = rooms[username];
+  const { comments } = rooms[username];
+
+  console.log({ comments });
 
   // 將此直播紀錄(影片、聊天室)儲存在 siteVideos 內
   videos.update(videoId, {
     title: user.stream.title,
     content: user.stream.content,
-    // comments,
+    comments,
   });
 
   // 將影片加至 user 的 videos 內
@@ -388,7 +394,7 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
     videoId,
     title: user.stream.title,
     content: user.stream.content,
-    // comments,
+    comments,
   });
 
   user.stream.isStreamOn = false;
@@ -515,14 +521,10 @@ io.on("connection", (socket) => {
 
   socket.on("send-message", (message, callback) => {
     const { user } = users[socket.id];
-
     currentRoomToDo((room) => {
-      socket.to(room).emit("chat-message", {
-        user,
-        message,
-      });
-
-      rooms.addCommentToRoom(room, user, message);
+      const comment = rooms.addCommentToRoom(room, user, message);
+      io.in(room).emit("chat-message", comment);
+      // console.log(rooms.searchRoomComments(room));
       if (!callback) return;
       callback({
         status: "ok",

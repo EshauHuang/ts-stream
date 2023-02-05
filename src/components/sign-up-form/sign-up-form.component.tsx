@@ -94,11 +94,9 @@ const SignUp = () => {
 
     if (res.ok) {
       const { message, user } = await res.json();
-      console.log({ message, user });
       setCurrentUser(user);
     } else {
       const { message } = await res.json();
-      console.log({ message });
     }
   };
 

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import { io, Socket } from "socket.io-client";
 
-import { MessagesContext } from "@/contexts/messagesContext";
+import { CommentsContext, IComment } from "@/contexts/commentsContext";
 
 import ChatMessages from "@/components/chat-messages/chat-messages.component";
 import SendMessage from "@/components/send-message/send-message.component";
@@ -14,14 +14,9 @@ interface User {
   username: string;
 }
 
-interface Comment {
-  user: User;
-  message: string;
-}
-
 interface ServerToClientEvents {
   connect: () => void;
-  "chat-message": (comment: Comment) => void;
+  "chat-message": (comment: IComment) => void;
   "stream-connected": ({ videoId }: { videoId: string }) => void;
 }
 
@@ -39,11 +34,10 @@ interface IChatroomProps {
 }
 
 const Chatroom: React.FC<IChatroomProps> = ({ roomName, setStream }) => {
-  const { sendMessageByUser } = useContext(MessagesContext);
+  const { sendCommentByUser, setCurrentComments } = useContext(CommentsContext);
 
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [comments, setComments] = useState([]);
   const [currentUser, setCurrentUser] = useState(() => user);
 
   useEffect(() => {
@@ -63,14 +57,8 @@ const Chatroom: React.FC<IChatroomProps> = ({ roomName, setStream }) => {
       setIsConnected(false);
     });
 
-    socket.on("chat-message", ({ user, message }) => {
-      // setComments((prev) => [
-      //   ...prev,
-      //   {
-      //     user,
-      //     message,
-      //   },
-      // ]);
+    socket.on("chat-message", (comment) => {
+      sendCommentByUser(comment);
     });
 
     socket.on("stream-connected", ({ videoId }) => {
@@ -88,6 +76,7 @@ const Chatroom: React.FC<IChatroomProps> = ({ roomName, setStream }) => {
       socket.off("connect");
       socket.off("chat-message");
       socket.off("disconnect");
+      setCurrentComments([]);
     };
   }, [roomName]);
 
