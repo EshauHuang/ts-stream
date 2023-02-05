@@ -2,7 +2,6 @@ import { useContext, useState, useEffect, useRef } from "react";
 import { Socket } from "socket.io-client";
 
 import { UserContext } from "@/contexts/userContext";
-import { CommentsContext } from "@/contexts/commentsContext";
 
 import {
   Container,

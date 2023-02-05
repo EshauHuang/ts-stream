@@ -508,7 +508,6 @@ app.post("/videos", (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  // 假設直播室已建立
   rooms.addRoom("user01");
 
   socket.on("new-user", (user, roomName) => {
