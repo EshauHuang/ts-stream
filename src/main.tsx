@@ -5,14 +5,14 @@ import App from "./App";
 import "./index.scss";
 
 import { UsersProvider } from "@/contexts/userContext";
-import { MessagesProvider } from "@/contexts/messagesContext";
+import { CommentsProvider } from "@/contexts/commentsContext";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <UsersProvider>
-    <MessagesProvider>
+    <CommentsProvider>
       <BrowserRouter>
         <App />
       </BrowserRouter>
-    </MessagesProvider>
+    </CommentsProvider>
   </UsersProvider>
 );

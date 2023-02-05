@@ -128,7 +128,6 @@ const Home = () => {
     const fetchStreams = async () => {
       try {
         const { videos } = await getVideos(1, 20);
-        console.log(videos);
         setVideo(videos);
       } catch (err) {
         console.log(err);

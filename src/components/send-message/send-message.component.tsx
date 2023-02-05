@@ -2,7 +2,7 @@ import { useContext, useState, useEffect, useRef } from "react";
 import { Socket } from "socket.io-client";
 
 import { UserContext } from "@/contexts/userContext";
-import { MessagesContext } from "@/contexts/messagesContext";
+import { CommentsContext } from "@/contexts/commentsContext";
 
 import {
   Container,
@@ -22,7 +22,6 @@ interface ISendMessage {
 
 const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
   const { currentUser } = useContext(UserContext);
-  const { sendMessageByUser } = useContext(MessagesContext);
   const [message, setMessage] = useState("");
   const inputRef = useRef<HTMLInputElement | null>(null);
   const submitBtnRef = useRef<HTMLButtonElement | null>(null);
@@ -49,10 +48,10 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
 
     if (!currentUser || !message || !inputEle) return;
     const { username } = currentUser;
-
+    
     socket?.emit("send-message", message)
 
-    // sendMessageByUser({ username, message });
+    // sendCommentByUser({ username, message });
     setMessage("");
     inputEle.innerText = "";
   };
@@ -69,7 +68,6 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
     e.preventDefault();
     let text = e.clipboardData.getData("text/plain");
     text = text.replace(/[\r\n]/gm, "");
-    console.log(text);
     document.execCommand("insertText", false, text);
   };
 
@@ -96,7 +94,6 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
         </SendButton>
       </BottomField>
     </Container>
-    // <DivInput onInput={handleChangeValue} contentEditable></DivInput>
   );
 };
 

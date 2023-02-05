@@ -27,8 +27,6 @@ const Live = () => {
   const [stream, setStream] = useState<IStreamData>(initialStreamData);
   const { isStreamOn, title, content, videoId } = stream;
 
-  console.log({ isStreamOn, title, content, videoId });
-
   useEffect(() => {
     const fetchStreamData = async () => {
       try {
