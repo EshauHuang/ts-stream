@@ -19,7 +19,7 @@ const initialStreamData = {
   isStreamOn: false,
   title: "",
   content: "",
-  videoId: ""
+  videoId: "",
 };
 
 const Live = () => {

@@ -44,7 +44,6 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({ children }) 
     []
   );
 
-  // 模擬留言
   const sendCommentByUser = ({ user, message }: IComment) => {
     setCurrentComments((prev) => [
       ...prev,
@@ -55,6 +54,14 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({ children }) 
       },
     ]);
   };
+
+  useEffect(() => {
+    console.log("start");
+
+    return () => {
+      setCurrentComments([]);
+    }
+  }, [])
 
   // 模擬從資料庫抓取聊天室訊息
   // useEffect(() => {

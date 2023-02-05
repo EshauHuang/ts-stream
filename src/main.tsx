@@ -9,10 +9,8 @@ import { CommentsProvider } from "@/contexts/commentsContext";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <UsersProvider>
-    <CommentsProvider>
       <BrowserRouter>
         <App />
       </BrowserRouter>
-    </CommentsProvider>
   </UsersProvider>
 );
