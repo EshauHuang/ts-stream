@@ -5,6 +5,8 @@ import cors from "cors";
 import CryptoJS from "crypto-js";
 import bcrypt from "bcrypt";
 import * as _ from "lodash-es";
+import dotenv from "dotenv";
+dotenv.config();
 
 const SECRET_KEY = "testtest";
 const saltRounds = 10;
@@ -351,7 +353,7 @@ app.post("/auth/on_publish", (req, res) => {
   res
     .status(301)
     .redirect(
-      `rtmp://192.168.50.109:1935/hls_live/${videoId}?username=${username}`
+      `${process.env.VITE_STREAM_SERVER_URL}/hls_live/${videoId}?username=${username}`
     );
 });
 
@@ -379,8 +381,6 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
   const user = usersTable.find((user) => user.username === username);
   // room 名稱與 username 相同，取得此 room 的 comments
   const { comments } = rooms[username];
-
-  console.log({ comments });
 
   // 將此直播紀錄(影片、聊天室)儲存在 siteVideos 內
   videos.update(videoId, {
@@ -505,6 +505,12 @@ app.post("/videos", (req, res) => {
     message: "success",
     videos: sliceVideos,
   });
+});
+
+app.post("/videos/:videoId", (req, res) => {
+  console.log(req.body);
+  console.log(req.params);
+  res.json({ message: "success" });
 });
 
 io.on("connection", (socket) => {
