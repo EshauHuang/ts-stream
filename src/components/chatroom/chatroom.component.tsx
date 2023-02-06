@@ -45,8 +45,9 @@ const Chatroom: React.FC<IChatroomProps> = ({ roomName, setStream }) => {
     if (!roomName) return;
 
     const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-      "http://192.168.50.224:3535"
+      `${import.meta.env.VITE_SERVER_URL}`
     );
+
 
     socket.on("connect", () => {
       setIsConnected(true);

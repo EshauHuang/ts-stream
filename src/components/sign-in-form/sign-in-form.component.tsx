@@ -70,7 +70,7 @@ const SignInForm = () => {
     }
 
     // 註冊
-    const res = await fetch("http://192.168.50.224:3535/sign-in", {
+    const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/sign-in`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json; charset=utf-8",

@@ -9,8 +9,6 @@ const ChatMessages = () => {
   const { currentComments } = useContext(CommentsContext);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  console.log("ChatMessages", { currentComments });
-
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: "nearest", inline: "nearest" });
   }, [currentComments]);

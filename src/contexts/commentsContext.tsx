@@ -56,8 +56,6 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({ children }) 
   };
 
   useEffect(() => {
-    console.log("start");
-
     return () => {
       setCurrentComments([]);
     }
