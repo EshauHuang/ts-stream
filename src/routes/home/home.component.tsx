@@ -80,7 +80,7 @@ const MetaBottomLine = styled.div`
 
 const VideoTitle = styled.h3`
   --max-lines: 2;
-  
+
   color: white;
   font-size: 1.4rem;
   line-height: 2rem;
@@ -123,18 +123,18 @@ const VideoAuthor = styled.div`
 
 const Home = () => {
   const [videos, setVideo] = useState([]);
-  const arr = Array.from({ length: 20 }, (_, i) => i);
 
   useEffect(() => {
     const fetchStreams = async () => {
       try {
-        const { videos } = await getVideos();
-        console.log(videos);
+        const { videos } = await getVideos(1, 20);
+
         setVideo(videos);
       } catch (err) {
         console.log(err);
       }
     };
+
 
     fetchStreams();
   }, []);

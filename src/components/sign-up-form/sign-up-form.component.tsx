@@ -84,7 +84,7 @@ const SignUp = () => {
     }
 
     // 註冊
-    const res = await fetch("http://192.168.50.224:3535/sign-up", {
+    const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/sign-up`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json; charset=utf-8",
@@ -94,11 +94,9 @@ const SignUp = () => {
 
     if (res.ok) {
       const { message, user } = await res.json();
-      console.log({ message, user });
       setCurrentUser(user);
     } else {
       const { message } = await res.json();
-      console.log({ message });
     }
   };
 

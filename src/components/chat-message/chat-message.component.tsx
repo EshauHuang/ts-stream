@@ -1,3 +1,5 @@
+import { CommentsProps } from "@/contexts/commentsContext"
+
 import {
   Container,
   AuthorPhoto,
@@ -6,24 +8,21 @@ import {
   AuthorName,
   MemberIcon,
   Message,
+  Timestamp,
 } from "./chat.message.style";
 
-interface Props {
-  name: string;
-  message: string;
-}
+const ChatMessage: React.FC<CommentsProps> = ({ id, user, message }) => {
 
-const ChatMessage: React.FC<Props> = ({ name, message }) => {
   return (
     <Container>
       <AuthorPhoto />
       <Content>
         <AuthorChip>
-          {/* <Timestamp>2:47 PM</Timestamp> */}
-          <AuthorName>{name}</AuthorName>
+          <Timestamp>{message.date}</Timestamp>
+          <AuthorName>{user.username}</AuthorName>
           <MemberIcon />
         </AuthorChip>
-        <Message>{message}</Message>
+        <Message>{message.text}</Message>
       </Content>
     </Container>
   );

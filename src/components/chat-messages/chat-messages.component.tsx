@@ -1,22 +1,22 @@
 import { useContext, useEffect, useRef } from "react";
 
-import { MessagesContext } from "@/contexts/messagesContext";
+import { CommentsContext } from "@/contexts/commentsContext";
 
 import ChatMessage from "@/components/chat-message/chat-message.component";
 import { Container } from "./chat-messages.style";
 
 const ChatMessages = () => {
-  const { currentMessages } = useContext(MessagesContext);
+  const { currentComments } = useContext(CommentsContext);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: "nearest", inline: "nearest" });
-  }, [currentMessages]);
+  }, [currentComments]);
 
   return (
     <Container>
-      {currentMessages.map((data) => (
-        <ChatMessage key={`chat-${data.id}`} {...data} />
+      {currentComments.map((comment, index) => (
+        <ChatMessage key={`${index}`} {...comment} />
       ))}
       <div ref={bottomRef}></div>
     </Container>
