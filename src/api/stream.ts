@@ -27,7 +27,6 @@ export const getStreams = async (page = 1, limit = 10) => {
 }
 
 export const getVideos = async (page = 1, limit = 10) => {
-  console.log({page, limit})
   const response = await fetch(`${SERVER_URL}/videos`, {
     method: "POST",
     headers: {
@@ -38,8 +37,6 @@ export const getVideos = async (page = 1, limit = 10) => {
       limit
     }),
   })
-
-  console.log({ response })
 
   return await response.json()
 }

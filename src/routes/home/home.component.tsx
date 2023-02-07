@@ -135,10 +135,9 @@ const Home = () => {
       }
     };
 
+
     fetchStreams();
   }, []);
-
-  console.log({ videos });
 
   return (
     <Container>

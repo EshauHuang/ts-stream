@@ -30,10 +30,8 @@ const Video = () => {
     const fetchVideoData = async () => {
       const { video } = await getVideo(videoId);
       const { comments } = await getComments(videoId);
-      console.log({ video });
 
       if (video) {
-        console.log("video", video.comments);
         setVideo(video);
       }
     };
@@ -42,7 +40,7 @@ const Video = () => {
   }, []);
   return (
     <Container>
-      <VideoPlayer videoId={videoId}/>
+      <VideoPlayer videoId={videoId} />
       <Chatroom comments={video.comments} />
     </Container>
   );

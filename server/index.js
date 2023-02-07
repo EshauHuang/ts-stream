@@ -454,7 +454,6 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
   // room 名稱與 username 相同，取得此 room 的 comments
   const { comments } = rooms[username];
   const { title, content, startTime } = user.stream;
-  console.log({ comments });
 
   // 將此直播紀錄(影片、聊天室)儲存在 siteVideos 內
   videos.createVideo(videoId, {
