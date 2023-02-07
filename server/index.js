@@ -4,9 +4,9 @@ import { Server } from "socket.io";
 import cors from "cors";
 import CryptoJS from "crypto-js";
 import bcrypt from "bcrypt";
-import * as _ from "lodash-es";
 import dotenv from "dotenv";
 dotenv.config();
+import { Video, Rooms, Users, Comments } from "./models/index.js";
 
 const SECRET_KEY = "testtest";
 const saltRounds = 10;
@@ -14,17 +14,13 @@ const PORT = 3535;
 
 // 網站總共有多少部影片
 const siteVideos = {
-  0: {
-    title: "Learn Web Components In 25 Minutes",
-    author: "Web Dev Simplified",
-    content: "asdsadsa",
-    thumbnail: "/1.jpg",
-  },
   1: {
     title: "how programmers overprepare for job interviews",
     author: "Joma Tech",
     content: "asdsadsa",
     thumbnail: "/2.jpg",
+    startTime: 1675759497647,
+    comments: new Comments(),
   },
   2: {
     title: "年薪300萬工程師辭職重考醫學系 醫: 腦袋壞掉",
@@ -90,19 +86,196 @@ const siteVideos = {
   },
 };
 
+// 假資料
+const video = siteVideos[1];
+const comments = [
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "asd", date: 1675759497647 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "asd", date: 1675759497786 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "asdas", date: 1675759498151 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "d", date: 1675759498217 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "a", date: 1675759498330 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "da", date: 1675759498456 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "sd", date: 1675759498557 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "a", date: 1675759498662 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "d", date: 1675759498790 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "a", date: 1675759498916 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "d", date: 1675759499006 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "a", date: 1675759499106 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "d", date: 1675759499211 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "csfsdf", date: 1675759501410 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "s", date: 1675759501574 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "sdf", date: 1675759501999 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "sd", date: 1675759502141 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "fs", date: 1675759502269 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "f", date: 1675759502416 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "sf", date: 1675759502557 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "s", date: 1675759502708 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "fs", date: 1675759502866 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "df", date: 1675759503008 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "sf", date: 1675759503191 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "s", date: 1675759503341 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "fs", date: 1675759503472 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "f", date: 1675759503624 },
+    },
+  },
+  {
+    comment: {
+      user: { username: "Sans" },
+      message: { text: "s", date: 1675759503756 },
+    },
+  },
+];
+comments.map((comment) => {
+  const c = comment.comment;
+  video.comments.addFakeComment(c.user, c.message);
+});
+
 // 儲存每個用戶的資訊
 const usersTable = [
   {
-    id: 0,
+    id: 1,
     username: "user01",
     streamKey: "U2FsdGVkX1/5NVvBrPwm01j8Ww0RFc8t/Nkyty1L85g=",
     videos: {
-      0: {
+      1: {
         // 關聯到 siteVideosID
       },
       length: 1,
       addVideo(video) {
-        const index = this.length;
+        const index = this.length + 1;
         this[index] = video;
         this.length++;
 
@@ -114,21 +287,22 @@ const usersTable = [
       title: "",
       content: "",
       videoId: "",
+      startTime: "",
     },
   },
   {
-    id: 1,
+    id: 2,
     username: "123",
     password: "$2b$10$J251lEpX3LI8UpxxIuXMiugtELV71EL4gO2bfHyMtUtPI2B4taNJu",
     email: "123@gmail.com",
     streamKey: "U2FsdGVkX18bAolx32khI/UvP46nraEwZDxwUIx1Xhc=",
     videos: {
-      0: {
+      1: {
         // 關聯到 siteVideosID
       },
       length: 1,
       addVideo(video) {
-        const index = this.length;
+        const index = this.length + 1;
         this[index] = video;
         this.length++;
 
@@ -139,6 +313,8 @@ const usersTable = [
       isStreamOn: false,
       title: "",
       content: "",
+      videoId: "",
+      startTime: "",
     },
   },
 ];
@@ -156,7 +332,7 @@ usersTable.generateNewUser = async function (username, password, email) {
     videos: {
       length: 0,
       addVideo(video) {
-        const index = this.length;
+        const index = this.length + 1;
         this[index] = video;
         this.length++;
 
@@ -194,124 +370,19 @@ usersTable.verifyUser = function (username, password) {
   };
 };
 
-class Video {
-  constructor(videos) {
-    if (videos) {
-      const videosClone = _.cloneDeep(videos);
-      Object.entries(videosClone).forEach(([key, value]) => {
-        this[key] = value;
-      });
-      Object.defineProperty(this, "length", {
-        value: Object.keys(videosClone).length,
-        writable: true,
-        enumerable: false,
-        configurable: false,
-      });
-    } else {
-      Object.defineProperty(this, "length", {
-        value: 0,
-        writable: true,
-        enumerable: false,
-        configurable: false,
-      });
-    }
-  }
-
-  createInitVideo() {
-    const id = this.length;
-    this.length++;
-
-    return id;
-  }
-
-  update(id, video) {
-    this[id] = video;
-
-    return id;
-  }
-}
-
-class Comments {
-  constructor() {
-    this.length = 0;
-    this.createTime = Date.now();
-  }
-  addComment(user, text) {
-    if (!user || !text) return;
-    const comment = {
-      user,
-      message: {
-        text,
-        date: new Date().getTime(),
-      },
-    };
-    this[this.length] = comment;
-    this.length++;
-
-    return comment;
-  }
-  searchComments() {
-    return this;
-  }
-}
-
-class Users {
-  constructor() {
-    this.length = 0;
-    this.createTime = Date.now();
-  }
-  addUser(socketId, user) {
-    if (!socketId || !user) return;
-    this[socketId] = { user };
-    this.length++;
-  }
-  removeUser(socketId) {
-    if (!socketId || !this[socketId]) return;
-    delete this[socketId];
-    this.length--;
-  }
-}
-
-class Rooms {
-  constructor() {
-    this.length = 0;
-  }
-  addRoom(room) {
-    if (this[room]) return;
-    this[room] = {
-      users: new Users(),
-      comments: new Comments(),
-    };
-    this.length++;
-  }
-  addUserToRoom(room, socketId, user) {
-    if (!room || !socketId || !user) return;
-    this[room].users.addUser(socketId, user);
-  }
-  removeUserFromRoom(room, socketId) {
-    if (!room || !socketId) return;
-    this[room].users.removeUser(socketId);
-  }
-  addCommentToRoom(room, message, user) {
-    if (!room || !message || !user) return;
-    const comment = this[room].comments.addComment(message, user);
-    return comment;
-  }
-  searchRoomComments(room) {
-    return this[room].comments.searchComments();
-  }
-}
-
-const videos = new Video(siteVideos);
-const rooms = new Rooms();
-const users = new Users();
+export const videos = new Video(siteVideos);
+export const rooms = new Rooms();
+export const users = new Users();
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 const server = createServer(app);
-const io = new Server(server, {
+
+export const io = new Server(server, {
   cors: {
     origin: "*",
   },
@@ -347,7 +418,7 @@ app.post("/auth/on_publish", (req, res) => {
   console.log("驗證成功！");
 
   // 取得新的 videoId
-  const videoId = videos.createInitVideo();
+  const videoId = videos.newVideoId();
 
   // 利用新的 streamKey(videoId) 推到 nginx，同時需要推送 username，nginx 會自動將 params(username) 當成 post data 傳至 on_publish 及 on_publish_done
   res
@@ -364,6 +435,7 @@ app.post("/rtmp/on_publish", (req, res) => {
   const user = usersTable.find((user) => user.username === username);
 
   // 直播狀態改為 on，用於使用者進入直播間時可自動去抓取直播資源，videoId 用來取得影片位置
+  user.stream.startTime = Date.now();
   user.stream.isStreamOn = true;
   user.stream.videoId = videoId;
 
@@ -381,19 +453,23 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
   const user = usersTable.find((user) => user.username === username);
   // room 名稱與 username 相同，取得此 room 的 comments
   const { comments } = rooms[username];
+  const { title, content, startTime } = user.stream;
+  console.log({ comments });
 
   // 將此直播紀錄(影片、聊天室)儲存在 siteVideos 內
-  videos.update(videoId, {
-    title: user.stream.title,
-    content: user.stream.content,
+  videos.createVideo(videoId, {
+    title,
+    content,
+    startTime,
     comments,
   });
 
   // 將影片加至 user 的 videos 內
   user.videos.addVideo({
     videoId,
-    title: user.stream.title,
-    content: user.stream.content,
+    title,
+    content,
+    startTime,
     comments,
   });
 
@@ -402,8 +478,6 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
 
   res.status(204).end();
 });
-
-// curl -d '{"username":"user01", "key2":"value2"}' -H "Content-Type: application/json" -X POST http://localhost:3535/u/user01/create-stream
 
 // 初次建立直播間，未建立直播間則無法開實況
 app.post("/u/:username/stream-room", (req, res) => {
@@ -432,8 +506,6 @@ app.post("/sign-up", async (req, res) => {
     }
 
     const user = await usersTable.generateNewUser(username, password, email);
-
-    console.log(user);
 
     res.status(200).json({
       message: "Register success",
@@ -472,20 +544,18 @@ app.post("/sign-in", async (req, res) => {
   }
 });
 
-// curl -d '{"username":"user01", "key2":"value2"}' -H "Content-Type: application/json" -X POST http://localhost:3535/get-stream
+app.post("/streams", (req, res) => {
+  const liveStreams = usersTable.find((user) => user.stream.isStreamOn) || [];
 
-app.post("/get-stream", (req, res) => {
-  const { username } = req.body;
+  res.json({ message: "success", liveStreams });
+});
+
+app.post("/streams/:username", (req, res) => {
+  const { username } = req.params;
   if (!username) return;
 
   const user = usersTable.find((user) => user.username === username);
   res.json(user.stream);
-});
-
-app.post("/get-streams", (req, res) => {
-  const liveStreams = usersTable.find((user) => user.stream.isStreamOn) || [];
-
-  res.json({ message: "success", liveStreams });
 });
 
 app.post("/videos", (req, res) => {
@@ -508,9 +578,35 @@ app.post("/videos", (req, res) => {
 });
 
 app.post("/videos/:videoId", (req, res) => {
-  console.log(req.body);
-  console.log(req.params);
-  res.json({ message: "success" });
+  try {
+    const { videoId } = req.params;
+
+    const video = videos.getVideo(videoId);
+
+    res.json({ message: "success", video });
+  } catch (error) {
+    const { message } = error;
+    res.status(400).json({
+      message,
+    });
+  }
+});
+
+app.post("/comments/:videoId", (req, res) => {
+  try {
+    const { videoId } = req.params;
+    const { date } = req.query;
+
+    const sliceComments = videos.getSliceComments(videoId, date);
+
+    res.json({ message: "success", comments: sliceComments });
+  } catch (error) {
+    console.log(error);
+    const { message } = error;
+    res.status(400).json({
+      message,
+    });
+  }
 });
 
 io.on("connection", (socket) => {
@@ -526,10 +622,11 @@ io.on("connection", (socket) => {
 
   socket.on("send-message", (message, callback) => {
     const { user } = users[socket.id];
+
     currentRoomToDo((room) => {
       const comment = rooms.addCommentToRoom(room, user, message);
       io.in(room).emit("chat-message", comment);
-      // console.log(rooms.searchRoomComments(room));
+
       if (!callback) return;
       callback({
         status: "ok",

@@ -1,7 +1,10 @@
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useRef, useContext, useMemo } from "react";
 import { io, Socket } from "socket.io-client";
 
-import { CommentsContext, IComment } from "@/contexts/commentsContext";
+import {
+  CommentsContext,
+  IComment,
+} from "@/contexts/commentsContext";
 import { CommentsProvider } from "@/contexts/commentsContext";
 
 import ChatMessages from "@/components/chat-messages/chat-messages.component";
@@ -31,15 +34,22 @@ const user = {
 
 interface IChatroomProps {
   roomName?: string;
+  comments?: IComment[];
   setStream?: React.Dispatch<React.SetStateAction<IStreamData>>;
 }
 
-const Chatroom: React.FC<IChatroomProps> = ({ roomName, setStream }) => {
+const Chatroom: React.FC<IChatroomProps> = ({
+  roomName,
+  setStream,
+  comments,
+}) => {
   const { sendCommentByUser, setCurrentComments } = useContext(CommentsContext);
 
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [currentUser, setCurrentUser] = useState(() => user);
+
+  console.log("render");
 
   useEffect(() => {
     if (!roomName) return;
@@ -47,7 +57,6 @@ const Chatroom: React.FC<IChatroomProps> = ({ roomName, setStream }) => {
     const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
       `${import.meta.env.VITE_SERVER_URL}`
     );
-
 
     socket.on("connect", () => {
       setIsConnected(true);
@@ -64,7 +73,7 @@ const Chatroom: React.FC<IChatroomProps> = ({ roomName, setStream }) => {
     });
 
     socket.on("stream-connected", ({ videoId }) => {
-      if(!setStream) return
+      if (!setStream) return;
       console.log("stream connected");
       setStream((prev) => ({
         ...prev,
@@ -82,12 +91,18 @@ const Chatroom: React.FC<IChatroomProps> = ({ roomName, setStream }) => {
     };
   }, [roomName]);
 
+  useEffect(() => {
+    console.log("useEffect");
+    if (!comments || !comments.length) return;
+    setCurrentComments(comments);
+  }, [comments]);
+
   return (
-      <Container>
-        <ViewModeBar>ViewModeBar</ViewModeBar>
-        <ChatMessages />
-        <SendMessage socket={socket} />
-      </Container>
+    <Container>
+      <ViewModeBar>ViewModeBar</ViewModeBar>
+      <ChatMessages />
+      <SendMessage socket={socket} />
+    </Container>
   );
 };
 
