@@ -49,8 +49,6 @@ const Chatroom: React.FC<IChatroomProps> = ({
   const [isConnected, setIsConnected] = useState(false);
   const [currentUser, setCurrentUser] = useState(() => user);
 
-  console.log("render");
-
   useEffect(() => {
     if (!roomName) return;
 
@@ -92,7 +90,6 @@ const Chatroom: React.FC<IChatroomProps> = ({
   }, [roomName]);
 
   useEffect(() => {
-    console.log("useEffect");
     if (!comments || !comments.length) return;
     setCurrentComments(comments);
   }, [comments]);
