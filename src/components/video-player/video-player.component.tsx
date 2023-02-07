@@ -12,7 +12,7 @@ interface IVideoPlayerProps {
 
 const HlsJsPlayer: React.FC<IVideoPlayerProps> = ({ src, videoId }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const STREAM_SERVER_URL = import.meta.env.VITE_STREAM_SERVER_URL;
+  const STREAM_SERVER_URL = import.meta.env.VITE_GET_STREAM_URL;
 
   useEffect(() => {
     const video = videoRef.current;

@@ -15,8 +15,8 @@ const ChatMessages = () => {
 
   return (
     <Container>
-      {currentComments.map((comment) => (
-        <ChatMessage key={`comment-${comment.id}`} {...comment} />
+      {currentComments.map((comment, index) => (
+        <ChatMessage key={`${index}`} {...comment} />
       ))}
       <div ref={bottomRef}></div>
     </Container>

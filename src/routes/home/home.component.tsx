@@ -80,7 +80,7 @@ const MetaBottomLine = styled.div`
 
 const VideoTitle = styled.h3`
   --max-lines: 2;
-  
+
   color: white;
   font-size: 1.4rem;
   line-height: 2rem;
@@ -128,6 +128,7 @@ const Home = () => {
     const fetchStreams = async () => {
       try {
         const { videos } = await getVideos(1, 20);
+
         setVideo(videos);
       } catch (err) {
         console.log(err);
@@ -136,6 +137,8 @@ const Home = () => {
 
     fetchStreams();
   }, []);
+
+  console.log({ videos });
 
   return (
     <Container>

@@ -14,22 +14,14 @@ export interface IMessage {
   text: string;
 }
 
-export interface CommentsProps {
-  id: number;
-  message: IMessage;
-  user: IUser;
-}
-
 export interface IComment {
   user: IUser;
   message: IMessage;
 }
 
 interface CommentsContextProps {
-  currentComments: CommentsProps[] | [];
-  setCurrentComments: React.Dispatch<
-    React.SetStateAction<CommentsProps[] | []>
-  >;
+  currentComments: IComment[] | [];
+  setCurrentComments: React.Dispatch<React.SetStateAction<IComment[] | []>>;
   sendCommentByUser: ({ user, message }: IComment) => void;
 }
 
@@ -40,9 +32,7 @@ interface CommentsProviderProps {
 export const CommentsContext = createContext({} as CommentsContextProps);
 
 export const CommentsProvider: React.FC<CommentsProviderProps> = ({ children }) => {
-  const [currentComments, setCurrentComments] = useState<CommentsProps[] | []>(
-    []
-  );
+  const [currentComments, setCurrentComments] = useState<IComment[] | []>([]);
 
   const sendCommentByUser = ({ user, message }: IComment) => {
     setCurrentComments((prev) => [
@@ -60,17 +50,6 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({ children }) 
       setCurrentComments([]);
     }
   }, [])
-
-  // 模擬從資料庫抓取聊天室訊息
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const { data: Comments } = await getComments();
-
-  //     setCurrentComments(Comments);
-  //   };
-
-  //   fetchData();
-  // }, []);
 
   const value = { currentComments, setCurrentComments, sendCommentByUser };
 
