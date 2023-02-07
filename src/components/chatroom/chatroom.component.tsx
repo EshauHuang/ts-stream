@@ -1,10 +1,16 @@
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useRef, useContext, useMemo } from "react";
 import { io, Socket } from "socket.io-client";
 
-import { MessagesContext } from "@/contexts/messagesContext";
+import {
+  CommentsContext,
+  IComment,
+} from "@/contexts/commentsContext";
+import { CommentsProvider } from "@/contexts/commentsContext";
 
 import ChatMessages from "@/components/chat-messages/chat-messages.component";
 import SendMessage from "@/components/send-message/send-message.component";
+
+import { IStreamData } from "@/routes/live/live.component";
 
 import { Container, ViewModeBar } from "./chatroom.style";
 
@@ -12,15 +18,10 @@ interface User {
   username: string;
 }
 
-interface Comment {
-  user: User;
-  message: string;
-}
-
 interface ServerToClientEvents {
   connect: () => void;
-  "chat-message": (comment: Comment) => void;
-  "stream-connected": (isStreamOn: boolean) => void;
+  "chat-message": (comment: IComment) => void;
+  "stream-connected": ({ videoId }: { videoId: string }) => void;
 }
 
 interface ClientToServerEvents {
@@ -32,22 +33,27 @@ const user = {
 };
 
 interface IChatroomProps {
-  roomName: string;
+  roomName?: string;
+  comments?: IComment[];
+  setStream?: React.Dispatch<React.SetStateAction<IStreamData>>;
 }
 
-const Chatroom: React.FC<IChatroomProps> = ({ roomName, setStream }) => {
-  const { sendMessageByUser } = useContext(MessagesContext);
+const Chatroom: React.FC<IChatroomProps> = ({
+  roomName,
+  setStream,
+  comments,
+}) => {
+  const { sendCommentByUser, setCurrentComments } = useContext(CommentsContext);
 
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [comments, setComments] = useState([]);
   const [currentUser, setCurrentUser] = useState(() => user);
 
   useEffect(() => {
     if (!roomName) return;
 
     const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-      "http://192.168.50.224:3535"
+      `${import.meta.env.VITE_SERVER_URL}`
     );
 
     socket.on("connect", () => {
@@ -60,22 +66,18 @@ const Chatroom: React.FC<IChatroomProps> = ({ roomName, setStream }) => {
       setIsConnected(false);
     });
 
-    socket.on("chat-message", ({ user, message }) => {
-      // setComments((prev) => [
-      //   ...prev,
-      //   {
-      //     user,
-      //     message,
-      //   },
-      // ]);
+    socket.on("chat-message", (comment) => {
+      sendCommentByUser(comment);
     });
-    socket.on("stream-connected", () => {
+
+    socket.on("stream-connected", ({ videoId }) => {
+      if (!setStream) return;
       console.log("stream connected");
       setStream((prev) => ({
         ...prev,
         isStreamOn: true,
+        videoId,
       }));
-      // setIsStreamOn(true);
     });
 
     setSocket(socket);
@@ -87,6 +89,11 @@ const Chatroom: React.FC<IChatroomProps> = ({ roomName, setStream }) => {
     };
   }, [roomName]);
 
+  useEffect(() => {
+    if (!comments || !comments.length) return;
+    setCurrentComments(comments);
+  }, [comments]);
+
   return (
     <Container>
       <ViewModeBar>ViewModeBar</ViewModeBar>
@@ -96,4 +103,10 @@ const Chatroom: React.FC<IChatroomProps> = ({ roomName, setStream }) => {
   );
 };
 
-export default Chatroom;
+const ChatRoomProvider = (props: IChatroomProps) => (
+  <CommentsProvider>
+    <Chatroom {...props} />
+  </CommentsProvider>
+);
+
+export default ChatRoomProvider;
