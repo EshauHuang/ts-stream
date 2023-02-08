@@ -126,11 +126,13 @@ export class Users {
     this.length = 0;
     this.createTime = Date.now();
   }
+
   addUser(socketId, user) {
     if (!socketId || !user) return;
     this[socketId] = { user };
     this.length++;
   }
+
   removeUser(socketId) {
     if (!socketId || !this[socketId]) return;
     delete this[socketId];

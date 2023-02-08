@@ -9,8 +9,6 @@ interface Props {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-
-
 const Input: React.FC<Props> = ({ label, error, ...otherProps }) => {
   return (
     <Container>
