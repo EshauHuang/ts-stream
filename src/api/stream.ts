@@ -62,3 +62,22 @@ export const getComments = async (videoId: string) => {
 
   return await response.json()
 }
+
+interface IStream {
+  title: string;
+  content: string;
+}
+
+export const editStream = async (username: string, stream: IStream) => {
+  const response = await fetch(`${SERVER_URL}/streams/${username}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: JSON.stringify(stream)
+  })
+
+  console.log({ response })
+
+  return await response.json()
+}

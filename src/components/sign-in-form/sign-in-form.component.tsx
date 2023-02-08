@@ -62,9 +62,9 @@ const SignInForm = () => {
       return { ...errorObj, [name]: inputValidate(option) };
     }, initialError);
 
-    const isValid = Object.values(newErrorMessages).some((value) => value);
+    const isValid = Object.values(newErrorMessages).every((value) => !value);
 
-    if (isValid) {
+    if (!isValid) {
       setError(newErrorMessages);
       return;
     }

@@ -18,6 +18,7 @@ const App = () => {
         <Route path="/">
           <Route index element={<Home />} />
           <Route path="setting" element={<Setting />} />
+          <Route path=":username/setting" element={<Setting />} />
           <Route path="sign-up" element={<SignUpForm />} />
           <Route path="sign-in" element={<SignInForm />} />
           <Route path="live/:username" element={<Live />} />
