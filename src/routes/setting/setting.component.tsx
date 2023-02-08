@@ -6,7 +6,7 @@ import Input from "@/components/input/input.component";
 
 import { UserContext } from "@/contexts/userContext";
 
-import { getStream, editStream } from "@/api/stream";
+import { getStream, editStream, refreshStreamKey } from "@/api/stream";
 import {
   inputValidate,
   formatInputAndValidateOptions,
@@ -18,7 +18,7 @@ const Container = styled.div`
   left: 50%;
   background-color: #333;
   width: 90%;
-  max-width: 500px;
+  max-width: 650px;
   height: 450px;
   transform: translate(-50%, -50%);
   color: white;
@@ -75,7 +75,7 @@ const Button = styled.button`
 `;
 
 const Label = styled.label`
-  font-size: 1.675rem;
+  font-size: 1.6rem;
 `;
 
 interface IStreamMeta {
@@ -103,15 +103,71 @@ const TextareaField = (props: ITextarea) => {
 interface IStreamKey {
   label: string;
   streamKey: string;
+  handleRefreshStreamKey: () => void;
+  handleCopyText: () => void;
 }
 
-const StreamKeyField = ({ label, streamKey }: IStreamKey) => {
+const TextField = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+`;
+
+const StreamKeyText = styled.p`
+  font-size: 1.4rem;
+  margin-left: 8px;
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const StyledStreamField = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  white-space: nowrap;
+  padding-top: 40px;
+
+  ${ButtonField} {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  ${Button} {
+    margin-left: 8px;
+  }
+`;
+
+const StreamKeyField = ({
+  label,
+  streamKey,
+  handleCopyText,
+  handleRefreshStreamKey,
+}: IStreamKey) => {
   return (
-    <div>
-      <Label>{label}: </Label>
-      <div>{streamKey}</div>
-    </div>
+    <StyledStreamField>
+      <TextField>
+        <Label>{label}: </Label>
+        <StreamKeyText>{streamKey}</StreamKeyText>
+      </TextField>
+      <ButtonField>
+        <Button type="button" onClick={handleCopyText}>
+          複製
+        </Button>
+        <Button type="button" onClick={handleRefreshStreamKey}>
+          刷新
+        </Button>
+      </ButtonField>
+    </StyledStreamField>
   );
+};
+
+const initialStreamMeta = {
+  title: "",
+  content: "",
+  streamKey: "",
 };
 
 const initialError = {
@@ -127,11 +183,7 @@ const validateRulesOptions = {
 
 const Setting = () => {
   const { currentUser } = useContext(UserContext);
-  const [streamMeta, setStreamMeta] = useState<IStreamMeta>({
-    title: "",
-    content: "",
-    streamKey: "",
-  });
+  const [streamMeta, setStreamMeta] = useState<IStreamMeta>(initialStreamMeta);
   const [error, setError] = useState(initialError);
   const { username } = useParams();
 
@@ -161,13 +213,10 @@ const Setting = () => {
 
     const isValid = Object.values(newErrorMessages).every((value) => !value);
 
-    console.log(newErrorMessages);
-
     if (!isValid) {
       setError(newErrorMessages);
     } else {
       setError(initialError);
-      console.log("submit");
       const data = await editStream(username, {
         title: streamMeta.title,
         content: streamMeta.content,
@@ -175,6 +224,21 @@ const Setting = () => {
 
       console.log({ data });
     }
+  };
+
+  const handleRefreshStreamKey = async () => {
+    if (!username) return;
+
+    const { streamKey } = await refreshStreamKey(username);
+    setStreamMeta((prev) => ({
+      ...prev,
+      streamKey,
+    }));
+  };
+
+  const handleCopyText = () => {
+    const { streamKey } = streamMeta;
+    navigator.clipboard.writeText(streamKey);
   };
 
   useEffect(() => {
@@ -200,7 +264,12 @@ const Setting = () => {
     <Container>
       <Title>Setting</Title>
       <Form onSubmit={handleSubmit}>
-        <StreamKeyField label="stream key" streamKey={streamMeta.streamKey} />
+        <StreamKeyField
+          label="stream key"
+          streamKey={streamMeta.streamKey}
+          handleRefreshStreamKey={handleRefreshStreamKey}
+          handleCopyText={handleCopyText}
+        />
         <Input
           label="title"
           type="text"

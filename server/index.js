@@ -5,7 +5,10 @@ import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
 import { Video, Rooms, Users, Comments } from "./models/index.js";
-import { genStreamKey, checkStreamKey } from "./utils/streamKey.js";
+import {
+  genStreamKey,
+  checkStreamKey,
+} from "./utils/streamKey.js";
 import { genSalt, hashPassword, checkPassword } from "./utils/password.js";
 
 const PORT = 3535;
@@ -376,6 +379,15 @@ usersTable.getStream = function (username) {
   return stream;
 };
 
+usersTable.refreshStreamKey = function (username) {
+  const user = usersTable.find((user) => user.username === username);
+  const streamKey = genStreamKey(username);
+
+  user.stream.streamKey = streamKey;
+
+  return streamKey;
+};
+
 export const videos = new Video(siteVideos);
 export const rooms = new Rooms();
 export const users = new Users();
@@ -438,6 +450,8 @@ app.post("/rtmp/on_publish", (req, res) => {
   user.stream.isStreamOn = true;
   user.stream.videoId = videoId;
 
+  rooms.addRoom(username)
+
   // 傳送直播開始訊息，用於刷新影片
   io.to(username).emit("stream-connected", { videoId });
 
@@ -473,6 +487,8 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
 
   user.stream.isStreamOn = false;
   user.stream.videoId = "";
+
+  rooms.removeRoom(username)
 
   res.status(204).end();
 });
@@ -555,6 +571,24 @@ app.post("/streams/:username", (req, res) => {
   const stream = usersTable.getStream(username);
 
   res.json({ message: "success", stream });
+});
+
+app.post("/streams/:username/streamKey", (req, res) => {
+  try {
+    const { username } = req.params;
+
+    if (!username) {
+      throw new Error("Empty value!");
+    }
+
+    const streamKey = usersTable.refreshStreamKey(username);
+
+    res.json({ message: "success", streamKey });
+  } catch (error) {
+    const { message } = error;
+
+    res.status(400).json({ message });
+  }
 });
 
 app.put("/streams/:username", (req, res) => {
