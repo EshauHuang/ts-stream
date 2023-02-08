@@ -7,6 +7,8 @@ import { Container, LinkList, StyledLink } from "./navbar.style";
 const Navbar = () => {
   const { currentUser, setCurrentUser } = useContext(UserContext);
 
+  const { username } = currentUser || {};
+
   return (
     <Container>
       <LinkList>
@@ -14,7 +16,7 @@ const Navbar = () => {
         <StyledLink to="/live/user01">Live</StyledLink>
         {currentUser ? (
           <>
-            <StyledLink to="/setting">Setting</StyledLink>
+            <StyledLink to={`${username}/setting`}>Setting</StyledLink>
             <StyledLink
               to="/sign-out"
               onClick={() => {

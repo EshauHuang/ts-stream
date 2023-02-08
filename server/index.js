@@ -282,7 +282,7 @@ const usersTable = [
     stream: {
       streamKey: "U2FsdGVkX1__fd2ANVT33jYDE4shKW1l5lzgRRafZN4=",
       isStreamOn: false,
-      title: "",
+      title: "user01 的直播間",
       content: "",
       videoId: "",
       startTime: "",
@@ -309,7 +309,7 @@ const usersTable = [
     stream: {
       streamKey: "U2FsdGVkX194rC63kIDq6ePffAq_cif1QEb1RcHnimk=",
       isStreamOn: false,
-      title: "",
+      title: "123 的直播間",
       content: "",
       videoId: "",
       startTime: "",
@@ -339,7 +339,7 @@ usersTable.generateNewUser = async function (username, password, email) {
     stream: {
       streamKey: streamKey,
       isStreamOn: false,
-      title: "",
+      title: `${username} 的直播間`,
       content: "",
       startTime: "",
     },
@@ -566,13 +566,12 @@ app.put("/streams/:username", (req, res) => {
       throw new Error("Empty data!");
     }
 
-    const user = usersTable.find((user) => user.username === username);
+    const stream = usersTable.getStream(username);
 
-    user.title = title;
-    user.content = content;
-    console.log(usersTable);
+    stream.title = title;
+    stream.content = content;
 
-    res.json({ message: "success", user });
+    res.json({ message: "success", stream });
   } catch (error) {
     const { message } = error;
 
