@@ -81,3 +81,14 @@ export const editStream = async (username: string, stream: IStream) => {
 
   return await response.json()
 }
+
+export const refreshStreamKey = async (username: string) => {
+  const response = await fetch(`${SERVER_URL}/streams/${username}/streamKey`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+  })
+
+  return await response.json()
+}
