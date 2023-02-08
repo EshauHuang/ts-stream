@@ -13,14 +13,17 @@ const Navbar = () => {
         <StyledLink to="/">Home</StyledLink>
         <StyledLink to="/live/user01">Live</StyledLink>
         {currentUser ? (
-          <StyledLink
-            to="/sign-out"
-            onClick={() => {
-              setCurrentUser(null);
-            }}
-          >
-            Sign Out
-          </StyledLink>
+          <>
+            <StyledLink to="/setting">Setting</StyledLink>
+            <StyledLink
+              to="/sign-out"
+              onClick={() => {
+                setCurrentUser(null);
+              }}
+            >
+              Sign Out
+            </StyledLink>
+          </>
         ) : (
           <>
             <StyledLink to="/sign-up">Sign Up</StyledLink>
