@@ -2,14 +2,15 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
-import CryptoJS from "crypto-js";
-import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 dotenv.config();
 import { Video, Rooms, Users, Comments } from "./models/index.js";
+import {
+  genStreamKey,
+  checkStreamKey,
+} from "./utils/streamKey.js";
+import { genSalt, hashPassword, checkPassword } from "./utils/password.js";
 
-const SECRET_KEY = "testtest";
-const saltRounds = 10;
 const PORT = 3535;
 
 // 網站總共有多少部影片
@@ -268,7 +269,6 @@ const usersTable = [
   {
     id: 1,
     username: "user01",
-    streamKey: "U2FsdGVkX1/5NVvBrPwm01j8Ww0RFc8t/Nkyty1L85g=",
     videos: {
       1: {
         // 關聯到 siteVideosID
@@ -283,8 +283,9 @@ const usersTable = [
       },
     },
     stream: {
+      streamKey: "U2FsdGVkX1__fd2ANVT33jYDE4shKW1l5lzgRRafZN4=",
       isStreamOn: false,
-      title: "",
+      title: "user01 的直播間",
       content: "",
       videoId: "",
       startTime: "",
@@ -295,7 +296,6 @@ const usersTable = [
     username: "123",
     password: "$2b$10$J251lEpX3LI8UpxxIuXMiugtELV71EL4gO2bfHyMtUtPI2B4taNJu",
     email: "123@gmail.com",
-    streamKey: "U2FsdGVkX18bAolx32khI/UvP46nraEwZDxwUIx1Xhc=",
     videos: {
       1: {
         // 關聯到 siteVideosID
@@ -310,8 +310,9 @@ const usersTable = [
       },
     },
     stream: {
+      streamKey: "U2FsdGVkX194rC63kIDq6ePffAq_cif1QEb1RcHnimk=",
       isStreamOn: false,
-      title: "",
+      title: "123 的直播間",
       content: "",
       videoId: "",
       startTime: "",
@@ -320,15 +321,14 @@ const usersTable = [
 ];
 
 usersTable.generateNewUser = async function (username, password, email) {
-  const streamKeyHex = CryptoJS.AES.encrypt(username, SECRET_KEY).toString();
-  const salt = bcrypt.genSaltSync(saltRounds);
-  const passwordHash = bcrypt.hashSync(password, salt);
+  const streamKey = genStreamKey(username);
+  const salt = genSalt();
+  const passwordHash = hashPassword(password, salt);
   const newUser = {
     id: this.length,
     username,
     password: passwordHash,
     email,
-    streamKey: streamKeyHex,
     videos: {
       length: 0,
       addVideo(video) {
@@ -340,9 +340,11 @@ usersTable.generateNewUser = async function (username, password, email) {
       },
     },
     stream: {
+      streamKey: streamKey,
       isStreamOn: false,
-      title: "",
+      title: `${username} 的直播間`,
       content: "",
+      startTime: "",
     },
   };
 
@@ -357,7 +359,7 @@ usersTable.generateNewUser = async function (username, password, email) {
 usersTable.verifyUser = function (username, password) {
   const user = this.find((user) => {
     if (user.username === username) {
-      const result = bcrypt.compareSync(password, user.password);
+      const result = checkPassword(password, user.password);
       return result;
     }
   });
@@ -368,6 +370,22 @@ usersTable.verifyUser = function (username, password) {
     username: user.username,
     email: user.email,
   };
+};
+
+usersTable.getStream = function (username) {
+  const user = usersTable.find((user) => user.username === username);
+  const { stream } = user;
+
+  return stream;
+};
+
+usersTable.refreshStreamKey = function (username) {
+  const user = usersTable.find((user) => user.username === username);
+  const streamKey = genStreamKey(username);
+
+  user.stream.streamKey = streamKey;
+
+  return streamKey;
 };
 
 export const videos = new Video(siteVideos);
@@ -390,18 +408,11 @@ export const io = new Server(server, {
 
 app.post("/auth/on_publish", (req, res) => {
   console.log("驗證 stream key '/auth/on_publish");
-  const { name: streamKeyHex } = req.body;
+  const { name: streamKey } = req.body;
 
   // 判斷 streamKey 是否為此網站產生的
-
   // 收到的 stream key 為 16 進位字串，需要解碼後再解析
-  const streamKey = CryptoJS.enc.Hex.parse(streamKeyHex).toString(
-    CryptoJS.enc.Base64
-  );
-
-  const username = CryptoJS.AES.decrypt(streamKey, SECRET_KEY).toString(
-    CryptoJS.enc.Utf8
-  );
+  const username = checkStreamKey(streamKey);
 
   // 非網站產生 stream key(secret key 不同)
   if (!username) {
@@ -439,6 +450,8 @@ app.post("/rtmp/on_publish", (req, res) => {
   user.stream.isStreamOn = true;
   user.stream.videoId = videoId;
 
+  rooms.addRoom(username)
+
   // 傳送直播開始訊息，用於刷新影片
   io.to(username).emit("stream-connected", { videoId });
 
@@ -474,6 +487,8 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
 
   user.stream.isStreamOn = false;
   user.stream.videoId = "";
+
+  rooms.removeRoom(username)
 
   res.status(204).end();
 });
@@ -553,8 +568,49 @@ app.post("/streams/:username", (req, res) => {
   const { username } = req.params;
   if (!username) return;
 
-  const user = usersTable.find((user) => user.username === username);
-  res.json(user.stream);
+  const stream = usersTable.getStream(username);
+
+  res.json({ message: "success", stream });
+});
+
+app.post("/streams/:username/streamKey", (req, res) => {
+  try {
+    const { username } = req.params;
+
+    if (!username) {
+      throw new Error("Empty value!");
+    }
+
+    const streamKey = usersTable.refreshStreamKey(username);
+
+    res.json({ message: "success", streamKey });
+  } catch (error) {
+    const { message } = error;
+
+    res.status(400).json({ message });
+  }
+});
+
+app.put("/streams/:username", (req, res) => {
+  try {
+    const { username } = req.params;
+    const { title, content } = req.body;
+
+    if (!username || !title) {
+      throw new Error("Empty data!");
+    }
+
+    const stream = usersTable.getStream(username);
+
+    stream.title = title;
+    stream.content = content;
+
+    res.json({ message: "success", stream });
+  } catch (error) {
+    const { message } = error;
+
+    res.json({ message });
+  }
 });
 
 app.post("/videos", (req, res) => {

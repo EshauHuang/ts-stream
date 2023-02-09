@@ -72,6 +72,7 @@ const Chatroom: React.FC<IChatroomProps> = ({
 
     socket.on("stream-connected", ({ videoId }) => {
       if (!setStream) return;
+
       console.log("stream connected");
       setStream((prev) => ({
         ...prev,
