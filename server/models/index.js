@@ -126,11 +126,13 @@ export class Users {
     this.length = 0;
     this.createTime = Date.now();
   }
+
   addUser(socketId, user) {
     if (!socketId || !user) return;
     this[socketId] = { user };
     this.length++;
   }
+
   removeUser(socketId) {
     if (!socketId || !this[socketId]) return;
     delete this[socketId];
@@ -142,6 +144,7 @@ export class Rooms {
   constructor() {
     this.length = 0;
   }
+  
   addRoom(room) {
     if (this[room]) return;
     this[room] = {
@@ -150,19 +153,30 @@ export class Rooms {
     };
     this.length++;
   }
+
+  removeRoom(room) {
+    if (!this[room]) return;
+    delete this[room];
+    
+    this.length--;
+  }
+
   addUserToRoom(room, socketId, user) {
     if (!room || !socketId || !user) return;
     this[room].users.addUser(socketId, user);
   }
+
   removeUserFromRoom(room, socketId) {
     if (!room || !socketId) return;
     this[room].users.removeUser(socketId);
   }
+
   addCommentToRoom(room, message, user) {
     if (!room || !message || !user) return;
     const comment = this[room].comments.addComment(message, user);
     return comment;
   }
+
   searchRoomComments(room) {
     return this[room].comments.searchComments();
   }

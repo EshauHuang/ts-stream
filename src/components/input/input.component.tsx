@@ -1,6 +1,13 @@
-import { Container, InputWrap, ErrorMessage} from "./input.style"
+import {
+  Container,
+  InputWrap,
+  ErrorMessage,
+  Label,
+  LabelWrap,
+} from "./input.style";
 
 interface Props {
+  labelWidth?: string;
   label: string;
   type: string;
   name: string;
@@ -9,16 +16,21 @@ interface Props {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-
-
-const Input: React.FC<Props> = ({ label, error, ...otherProps }) => {
+const Input: React.FC<Props> = ({
+  label,
+  labelWidth,
+  error,
+  ...otherProps
+}) => {
   return (
     <Container>
       <InputWrap>
-        <label>{label}：</label>
+        <LabelWrap labelWidth={labelWidth}>
+          <Label>{label}</Label>
+        </LabelWrap>
         <input {...otherProps} />
       </InputWrap>
-      <ErrorMessage>{error}</ErrorMessage>
+      <ErrorMessage labelWidth={labelWidth}>{error}</ErrorMessage>
     </Container>
   );
 };

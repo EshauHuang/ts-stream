@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 import Input from "@/components/input/input.component";
+import { LayoutBottom } from "@/components/ui/ui.style";
+
 import {
   Form,
   Title,
@@ -12,7 +14,6 @@ import {
   Button,
 } from "./sign-in-form.style";
 
-import { getUsers } from "@/json/users";
 import {
   inputValidate,
   formatInputAndValidateOptions,
@@ -62,9 +63,9 @@ const SignInForm = () => {
       return { ...errorObj, [name]: inputValidate(option) };
     }, initialError);
 
-    const isValid = Object.values(newErrorMessages).some((value) => value);
+    const isValid = Object.values(newErrorMessages).every((value) => !value);
 
-    if (isValid) {
+    if (!isValid) {
       setError(newErrorMessages);
       return;
     }
@@ -94,7 +95,7 @@ const SignInForm = () => {
 
   useEffect(() => {
     if (!currentUser) return;
-    alert("登入成功")
+    alert("登入成功");
     navigate("/");
   }, [currentUser]);
 
@@ -102,22 +103,28 @@ const SignInForm = () => {
     <Form onSubmit={handleSubmit}>
       <Title>SING IN</Title>
       <Content>
-        <Input
-          label="帳號"
-          type="text"
-          name="username"
-          value={user.username}
-          onChange={handleChangeValue}
-          error={error.username}
-        />
-        <Input
-          label="密碼"
-          type="password"
-          name="password"
-          value={user.password}
-          onChange={handleChangeValue}
-          error={error.password}
-        />
+        <LayoutBottom lines="none">
+          <Input
+            labelWidth="4"
+            label="帳號"
+            type="text"
+            name="username"
+            value={user.username}
+            onChange={handleChangeValue}
+            error={error.username}
+          />
+        </LayoutBottom>
+        <LayoutBottom lines="none">
+          <Input
+            labelWidth="4"
+            label="密碼"
+            type="password"
+            name="password"
+            value={user.password}
+            onChange={handleChangeValue}
+            error={error.password}
+          />
+        </LayoutBottom>
         <Footer>
           <Info>
             還未成為會員嗎？趕快<Link to="/sign-up">註冊</Link>吧！
