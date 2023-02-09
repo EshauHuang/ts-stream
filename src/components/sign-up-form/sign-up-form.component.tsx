@@ -2,13 +2,8 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Input from "@/components/input/input.component";
-import {
-  Form,
-  Title,
-  Content,
-  Footer,
-  Button,
-} from "./sign-up-form.style";
+import { LayoutBottom } from "@/components/ui/ui.style";
+import { Form, Title, Content, Footer, Button } from "./sign-up-form.style";
 
 import { UserContext } from "@/contexts/userContext";
 import {
@@ -107,39 +102,48 @@ const SignUp = () => {
   };
 
   useEffect(() => {
-    if (!currentUser) return
+    if (!currentUser) return;
     alert("帳號創建成功");
-    navigate("/")
-  }, [currentUser])
+    navigate("/");
+  }, [currentUser]);
 
   return (
     <Form onSubmit={handleSubmit}>
       <Title>SING UP</Title>
       <Content>
-        <Input
-          label="帳號"
-          type="text"
-          name="username"
-          value={user.username}
-          onChange={handleChangeValue}
-          error={error.username}
-        />
-        <Input
-          label="密碼"
-          type="password"
-          name="password"
-          value={user.password}
-          onChange={handleChangeValue}
-          error={error.password}
-        />
-        <Input
-          label="信箱"
-          type="email"
-          name="email"
-          value={user.email}
-          onChange={handleChangeValue}
-          error={error.email}
-        />
+        <LayoutBottom lines="none">
+          <Input
+            labelWidth="4"
+            label="帳號"
+            type="text"
+            name="username"
+            value={user.username}
+            onChange={handleChangeValue}
+            error={error.username}
+          />
+        </LayoutBottom>
+        <LayoutBottom lines="none">
+          <Input
+            labelWidth="4"
+            label="密碼"
+            type="password"
+            name="password"
+            value={user.password}
+            onChange={handleChangeValue}
+            error={error.password}
+          />
+        </LayoutBottom>
+        <LayoutBottom lines="none">
+          <Input
+            labelWidth="4"
+            label="信箱"
+            type="email"
+            name="email"
+            value={user.email}
+            onChange={handleChangeValue}
+            error={error.email}
+          />
+        </LayoutBottom>
         <Footer>
           <Button type="submit">送出</Button>
         </Footer>

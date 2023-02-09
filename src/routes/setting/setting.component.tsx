@@ -3,58 +3,58 @@ import { useParams } from "react-router-dom";
 import styled from "styled-components";
 
 import Input from "@/components/input/input.component";
+import { Layout, LayoutContainer } from "@/components/ui/ui.style";
 
 import { UserContext } from "@/contexts/userContext";
 
 import { getStream, editStream, refreshStreamKey } from "@/api/stream";
+
 import {
   inputValidate,
   formatInputAndValidateOptions,
 } from "@/utils/inputValidate";
 
 const Container = styled.div`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  background-color: #333;
-  width: 90%;
-  max-width: 650px;
-  height: 450px;
-  transform: translate(-50%, -50%);
+  padding: 4rem 4rem 0;
   color: white;
-  padding: 20px 40px;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-
-  & > div + div {
-    margin-top: 15px;
-  }
+  background-color: #18181b;
+  padding: 2rem 2rem 0;
+  border-radius: 0.4rem;
 `;
 
 const Title = styled.h2`
-  font-size: 3rem;
-  margin-bottom: 3rem;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
   font-weight: bold;
-  text-align: center;
 `;
+
+const TextareaWrap = styled.div``;
 
 const Textarea = styled.textarea`
   width: 100%;
-  height: 40%;
-  resize: vertical;
-  background-color: #30363d;
-  border: 1px solid #757b81;
+  resize: none;
+  background-color: rgba(255, 255, 255, 0.16);
+  border-width: 2px;
+  border-style: solid;
+  border-color: transparent;
   border-radius: 6px;
   color: #c9d1d9;
   padding: 8px;
+  transition: border 100ms ease-in, background-color 100ms ease-in;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.65);
+  }
 
   &:focus {
     outline: none;
-    border-color: #58a6ff;
-    box-shadow: inset 0 0 0 1px transparent;
+    background-color: black;
+    border-color: #ff9800;
   }
 
   &::placeholder {
@@ -67,15 +67,31 @@ const ButtonField = styled.div`
   justify-content: flex-end;
 `;
 
-const Button = styled.button`
-  border: 1px solid grey;
+const Button = styled.button<{
+  bgColor?: string;
+  fColor?: string;
+  bgHover?: string;
+}>`
+  height: 3rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 0.4rem;
   background-color: white;
-  padding: 4px;
   cursor: pointer;
+  background-color: ${({ bgColor }) =>
+    bgColor ? bgColor : "rgba(255, 255, 255, 0.2)"};
+  color: ${({ fColor }) => (fColor ? fColor : "black")};
+
+  &:hover {
+    background-color: ${({ bgHover }) => bgHover};
+  }
 `;
 
 const Label = styled.label`
-  font-size: 1.6rem;
+  font-size: 1.4rem;
+  font-weight: bold;
 `;
 
 interface IStreamMeta {
@@ -85,20 +101,15 @@ interface IStreamMeta {
 }
 
 interface ITextarea {
+  label: string;
   name: string;
   value: string;
   placeholder: string;
   error?: string;
+  cols?: number;
+  rows?: number;
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
-
-const TextareaField = (props: ITextarea) => {
-  return (
-    <div>
-      <Textarea wrap="hard" {...props} />
-    </div>
-  );
-};
 
 interface IStreamKey {
   label: string;
@@ -107,38 +118,96 @@ interface IStreamKey {
   handleCopyText: () => void;
 }
 
-const TextField = styled.div`
+const LabelWrap = styled.div`
+  width: 15rem;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  width: 100%;
 `;
 
-const StreamKeyText = styled.p`
+const Content = styled.div`
+  flex-grow: 1;
+  min-width: 0;
+  display: flex;
+`;
+
+const StreamKeyTextWrap = styled.div`
+  flex-grow: 1;
+  display: flex;
+  padding-right: 0.5rem;
+`;
+
+const StreamKeyText = styled.input`
+  background-color: rgba(255, 255, 255, 0.16);
   font-size: 1.4rem;
-  margin-left: 8px;
-  flex-shrink: 1;
   overflow: hidden;
-  text-overflow: ellipsis;
+  width: 100%;
+  border-radius: 0.4rem;
+  border-style: solid;
+  border-width: 2px;
+  border-color: rgba(255, 255, 255, 0.16);
+  padding: 0.5rem 1rem;
+  color: white;
+  background-clip: padding-box;
+  transition: border 100ms ease-in, background-color 100ms ease-in;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.65);
+  }
+
+  &:focus {
+    background-color: black;
+    border-color: #ff9800;
+  }
+`;
+
+const ButtonWrap = styled.div`
+  padding-left: 0.8rem;
+  flex-shrink: 0;
 `;
 
 const StyledStreamField = styled.div`
   position: relative;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  white-space: nowrap;
-  padding-top: 40px;
 
-  ${ButtonField} {
-    position: absolute;
-    top: 0;
-    right: 0;
+  ${Label} {
+    font-size: 1.3rem;
+    font-weight: bold;
   }
 
   ${Button} {
-    margin-left: 8px;
+    height: 3rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    flex-shrink: 0;
+    border: 0;
   }
 `;
+
+const StyledTextareaField = styled.div`
+  display: flex;
+
+  ${LabelWrap} {
+    align-items: stretch;
+  }
+
+  ${TextareaWrap} {
+    flex-grow: 1;
+  }
+`;
+
+const TextareaField = ({ label, ...otherProps }: ITextarea) => {
+  return (
+    <StyledTextareaField>
+      <LabelWrap>
+        <Label>{label}</Label>
+      </LabelWrap>
+      <TextareaWrap>
+        <Textarea wrap="hard" {...otherProps} />
+      </TextareaWrap>
+    </StyledTextareaField>
+  );
+};
 
 const StreamKeyField = ({
   label,
@@ -148,18 +217,28 @@ const StreamKeyField = ({
 }: IStreamKey) => {
   return (
     <StyledStreamField>
-      <TextField>
-        <Label>{label}: </Label>
-        <StreamKeyText>{streamKey}</StreamKeyText>
-      </TextField>
-      <ButtonField>
-        <Button type="button" onClick={handleCopyText}>
+      <LabelWrap>
+        <Label>{label}</Label>
+      </LabelWrap>
+      <Content>
+        <StreamKeyTextWrap>
+          <StreamKeyText value={streamKey} type="password" readOnly />
+        </StreamKeyTextWrap>
+        <Button
+          fColor="#fff"
+          bgColor="#f2711c"
+          bgHover="#f26202"
+          type="button"
+          onClick={handleCopyText}
+        >
           複製
         </Button>
-        <Button type="button" onClick={handleRefreshStreamKey}>
-          刷新
-        </Button>
-      </ButtonField>
+        <ButtonWrap>
+          <Button fColor="#fff" type="button" onClick={handleRefreshStreamKey}>
+            刷新
+          </Button>
+        </ButtonWrap>
+      </Content>
     </StyledStreamField>
   );
 };
@@ -264,29 +343,48 @@ const Setting = () => {
     <Container>
       <Title>Setting</Title>
       <Form onSubmit={handleSubmit}>
-        <StreamKeyField
-          label="stream key"
-          streamKey={streamMeta.streamKey}
-          handleRefreshStreamKey={handleRefreshStreamKey}
-          handleCopyText={handleCopyText}
-        />
-        <Input
-          label="title"
-          type="text"
-          name="title"
-          value={streamMeta.title}
-          error={error.title}
-          onChange={handleChangeValue}
-        />
-        <TextareaField
-          name="content"
-          placeholder="detail"
-          value={streamMeta.content}
-          onChange={handleChangeValue}
-        />
-        <ButtonField>
-          <Button type="submit">確定</Button>
-        </ButtonField>
+        <LayoutContainer>
+          <Layout>
+            <StreamKeyField
+              label="Primary Stream key"
+              streamKey={streamMeta.streamKey}
+              handleRefreshStreamKey={handleRefreshStreamKey}
+              handleCopyText={handleCopyText}
+            />
+          </Layout>
+          <Layout>
+            <Input
+              label="Stream Title"
+              type="text"
+              name="title"
+              value={streamMeta.title}
+              error={error.title}
+              onChange={handleChangeValue}
+            />
+          </Layout>
+          <Layout>
+            <TextareaField
+              label="Stream Information"
+              rows={5}
+              name="content"
+              placeholder="about your stream..."
+              value={streamMeta.content}
+              onChange={handleChangeValue}
+            />
+          </Layout>
+        </LayoutContainer>
+        <Layout>
+          <ButtonField>
+            <Button
+              type="submit"
+              fColor="#fff"
+              bgColor="#f2711c"
+              bgHover="#f26202"
+            >
+              確定
+            </Button>
+          </ButtonField>
+        </Layout>
       </Form>
     </Container>
   );
