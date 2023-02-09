@@ -93,11 +93,15 @@ const Setting = () => {
       ...prev,
       streamKey,
     }));
+    alert("更新成功");
   };
 
-  const handleCopyText = () => {
+  const handleCopyText = async () => {
     const { streamKey } = streamMeta;
-    navigator.clipboard.writeText(streamKey);
+    await navigator.clipboard.writeText(streamKey);
+
+    console.log({ streamKey });
+    alert("複製成功");
   };
 
   useEffect(() => {
