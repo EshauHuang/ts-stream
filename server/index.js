@@ -5,10 +5,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
 import { Video, Rooms, Users, Comments } from "./models/index.js";
-import {
-  genStreamKey,
-  checkStreamKey,
-} from "./utils/streamKey.js";
+import { genStreamKey, checkStreamKey } from "./utils/streamKey.js";
 import { genSalt, hashPassword, checkPassword } from "./utils/password.js";
 
 const PORT = 3535;
@@ -450,7 +447,7 @@ app.post("/rtmp/on_publish", (req, res) => {
   user.stream.isStreamOn = true;
   user.stream.videoId = videoId;
 
-  rooms.addRoom(username)
+  rooms.addRoom(username);
 
   // 傳送直播開始訊息，用於刷新影片
   io.to(username).emit("stream-connected", { videoId });
@@ -488,10 +485,15 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
   user.stream.isStreamOn = false;
   user.stream.videoId = "";
 
-  rooms.removeRoom(username)
+  rooms.removeRoom(username);
 
   res.status(204).end();
 });
+
+// nginx 代理 server
+// app.get("/video", (req, res) => {
+//   res.status(301).redirect(`http://192.168.64.2/12/index.m3u8`);
+// });
 
 // 初次建立直播間，未建立直播間則無法開實況
 app.post("/u/:username/stream-room", (req, res) => {
@@ -635,8 +637,9 @@ app.post("/videos", (req, res) => {
 app.post("/videos/:videoId", (req, res) => {
   try {
     const { videoId } = req.params;
-
     const video = videos.getVideo(videoId);
+
+    console.log({ video });
 
     res.json({ message: "success", video });
   } catch (error) {
