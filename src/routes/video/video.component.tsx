@@ -29,7 +29,9 @@ const Video = () => {
   useEffect(() => {
     const fetchVideoData = async () => {
       const { video } = await getVideo(videoId);
-      const { comments } = await getComments(videoId);
+      // const { comments } = await getComments(videoId);
+
+      console.log(video);
 
       if (video) {
         setVideo(video);
