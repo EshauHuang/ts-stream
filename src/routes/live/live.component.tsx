@@ -30,8 +30,14 @@ const Live = () => {
   useEffect(() => {
     const fetchStreamData = async () => {
       try {
-        const data = await getStream(username);
-        setStream(data);
+        const {stream} = await getStream(username);
+
+        if (!stream) return
+
+        const { streamKey, ...streamData } = stream
+
+        setStream(streamData);
+        // setStream(data);
       } catch (error) {
         console.log(error);
       }

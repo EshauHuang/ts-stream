@@ -522,6 +522,7 @@ app.post("/sign-up", async (req, res) => {
     }
 
     const user = await usersTable.generateNewUser(username, password, email);
+    rooms.addRoom(username);
 
     res.status(200).json({
       message: "Register success",
@@ -567,12 +568,17 @@ app.post("/streams", (req, res) => {
 });
 
 app.post("/streams/:username", (req, res) => {
-  const { username } = req.params;
-  if (!username) return;
+  try {
+    const { username } = req.params;
+    if (!username) return;
 
-  const stream = usersTable.getStream(username);
+    const stream = usersTable.getStream(username);
 
-  res.json({ message: "success", stream });
+    res.json({ message: "success", stream });
+  } catch (error) {
+    const { message } = error;
+    res.json({ message });
+  }
 });
 
 app.post("/streams/:username/streamKey", (req, res) => {
@@ -668,7 +674,9 @@ app.post("/comments/:videoId", (req, res) => {
 });
 
 io.on("connection", (socket) => {
+  // 加入假的 user 進 rooms
   rooms.addRoom("user01");
+  rooms.addRoom("123");
 
   socket.on("new-user", (user, roomName) => {
     socket.join(roomName);

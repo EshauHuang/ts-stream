@@ -144,7 +144,7 @@ export class Rooms {
   constructor() {
     this.length = 0;
   }
-  
+
   addRoom(room) {
     if (this[room]) return;
     this[room] = {
@@ -157,27 +157,31 @@ export class Rooms {
   removeRoom(room) {
     if (!this[room]) return;
     delete this[room];
-    
+
     this.length--;
   }
 
   addUserToRoom(room, socketId, user) {
     if (!room || !socketId || !user) return;
+    if (!this[room] || !this[room].users) return;
     this[room].users.addUser(socketId, user);
   }
 
   removeUserFromRoom(room, socketId) {
     if (!room || !socketId) return;
+    if (!this[room] || !this[room].users) return;
     this[room].users.removeUser(socketId);
   }
 
   addCommentToRoom(room, message, user) {
     if (!room || !message || !user) return;
+    if (!this[room] || !this[room].comments) return;
     const comment = this[room].comments.addComment(message, user);
     return comment;
   }
 
   searchRoomComments(room) {
+    if (!this[room]) return;
     return this[room].comments.searchComments();
   }
 }
