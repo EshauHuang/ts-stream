@@ -21,7 +21,8 @@
       "view/*": ["src/views/*"],
       "components/*": ["src/component/*"],
       "assets/*": ["src/assets/*"]
-    }
+    },
+    // "types": ["vite-plugin-svgr/client"] or add in vite-env.d.ts
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

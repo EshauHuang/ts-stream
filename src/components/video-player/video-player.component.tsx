@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import Hls from "hls.js";
-import HlsJs from "@/components/hls-js/hls-js.component";
+import HlsJs from "@/components/hls-video-player/hls-video-player.component";
 
 import { Container, Video } from "./video-player.style";
 
