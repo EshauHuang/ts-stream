@@ -463,9 +463,11 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
 
   const handleChangeVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
+    console.log({value});
     setVideoOptions((prev) => ({
       ...prev,
       volume: Number(value),
+      isMuted: false
     }));
   };
 
@@ -502,8 +504,6 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
 
 
     if (!timeline || isScrubbing || !isPlay) return;
-    console.log("handleVideoTime");
-
     const { currentTime, duration } = e.target as HTMLVideoElement;
 
     const percent = currentTime / duration;
@@ -676,7 +676,7 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
     };
   }, [videoRef, videoId]);
 
-  console.log({currentTime, duration});
+  // console.log({currentTime, duration});
 
   return (
     <>
