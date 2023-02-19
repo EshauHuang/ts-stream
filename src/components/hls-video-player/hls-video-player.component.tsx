@@ -170,7 +170,7 @@ const RightPart = styled.div`
   height: 100%;
 `;
 
-const ControlsBarContainer = styled.div`
+const ControlsBarContainer = styled.div<{ isScrubbing: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -180,7 +180,7 @@ const ControlsBarContainer = styled.div`
   bottom: 0;
   width: 100%;
   height: 5rem;
-  opacity: 0;
+  opacity: ${({ isScrubbing }) => (isScrubbing ? 1 : 0)};
   transition: opacity 0.2s ease-out;
 
   ${PlayPauseIcon},
@@ -420,11 +420,12 @@ interface IHlsVideoPlayer {
 const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
   src,
   videoId,
-  isLive = false,
+  isLive = true,
 }) => {
   const STREAM_SERVER_URL = import.meta.env.VITE_GET_STREAM_URL;
   const videoRef = useRef<HTMLVideoElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
+  const [hls, setHls] = useState<Hls | null>(null);
 
   const [videoOptions, setVideoOptions] = useState<IVideoOptions>({
     isLive,
@@ -446,6 +447,7 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
     volume,
     isMuted,
     isPlay,
+    isPlaying,
     isTheater,
     isFull,
     currentTime,
@@ -456,18 +458,17 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
   const handleTogglePlay = () => {
     setVideoOptions((prev) => ({
       ...prev,
-      isPlaying: !prev.isPlay,
       isPlay: !prev.isPlay,
     }));
   };
 
   const handleChangeVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    console.log({value});
+
     setVideoOptions((prev) => ({
       ...prev,
       volume: Number(value),
-      isMuted: false
+      isMuted: false,
     }));
   };
 
@@ -501,11 +502,10 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
 
   const handleVideoTime = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const timeline = timelineRef.current;
-
-
-    if (!timeline || isScrubbing || !isPlay) return;
     const { currentTime, duration } = e.target as HTMLVideoElement;
 
+    if (!timeline || isScrubbing || !isPlay) return;
+    // const { currentTime, duration } = e.target as HTMLVideoElement;
     const percent = currentTime / duration;
     timeline.style.setProperty("--progress-position", `${percent}`);
 
@@ -514,7 +514,7 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
       currentTime: isLive ? duration : currentTime,
     }));
   };
-  
+
   const handleUpdateVideoTime = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
@@ -575,13 +575,13 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
     setVideoOptions((prev) => ({
       ...prev,
       setTime,
-      currentTime: setTime
+      currentTime: setTime,
     }));
   };
 
   const throttledHandleMouseMove = _.throttle(handleMouseMove, 60);
 
-  const THrottledHandleMOuseMove = useCallback(
+  const throttledSetTime = useCallback(
     _.throttle((setTime) => {
       const video = videoRef.current;
 
@@ -599,21 +599,34 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
   useEffect(() => {
     const video = videoRef.current;
 
-    if (!video) return;
+    if (!video || (!videoId && !src)) return;
 
     video.volume = volume;
     video.muted = isMuted;
 
     if (isPlay && video.paused) {
+      console.log("video play");
       video.play();
-    } else if (!isPlay && !video.paused) {
+
+      setVideoOptions((prev) => ({
+        ...prev,
+        isPlaying: true,
+      }));
+    } else if (isPlaying && !isPlay && !video.paused) {
+      console.log("video pause");
       video.pause();
+
+      !isScrubbing &&
+        setVideoOptions((prev) => ({
+          ...prev,
+          isPlaying: false,
+        }));
     }
 
     if (setTime !== undefined) {
-      THrottledHandleMOuseMove(setTime);
+      throttledSetTime(setTime);
     }
-  }, [videoOptions]);
+  }, [videoOptions, videoId, src]);
 
   useEffect(() => {
     document.addEventListener("mousemove", throttledHandleMouseMove);
@@ -630,38 +643,55 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
 
     if (!video || (!videoId && !src)) return;
 
-    const playVideo = _.debounce(() => {
-      const hls = new Hls({
-        // liveSyncDurationCount: 0,
-        // liveMaxLatencyDurationCount: 1,
-      });
+    const config = isLive
+      ? {
+          liveMaxLatencyDurationCount: 10
+        }
+      : {
+          startPosition: 0,
+        };
+
+    if (!hls) {
+      setHls(new Hls(config));
+
+      return;
+    }
+
+    const playVideo = () => {
       hls.attachMedia(video);
 
       hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-        hls.loadSource(`${STREAM_SERVER_URL}/videos/${videoId}/index.m3u8`);
-
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          setVideoOptions((prev) => ({
-            ...prev,
-            isPlaying: true,
-            isPlay: true,
-          }));
-        });
+        const url = isLive
+          ? `${STREAM_SERVER_URL}/live/${videoId}/index.m3u8`
+          : `${STREAM_SERVER_URL}/videos/${videoId}/index.m3u8`;
+        hls.loadSource(url);
       });
 
-      hls.on(Hls.Events.ERROR, function (event, data) {
-        var errorType = data.type;
-
-        switch (errorType) {
-          case Hls.ErrorTypes.NETWORK_ERROR:
-            hls.destroy();
-            playVideo();
-            break;
-          default:
-            break;
-        }
+      hls.on(Hls.Events.MANIFEST_PARSED, (events, data) => {
+        setVideoOptions((prev) => ({
+          ...prev,
+          isPlaying: true,
+          isPlay: true,
+        }));
       });
-    }, 500);
+
+      hls.on(Hls.Events.FRAG_CHANGED, function (event, data) {});
+
+      hls.on(
+        Hls.Events.ERROR,
+        _.throttle(function (event, data) {
+          var errorType = data.type;
+
+          switch (errorType) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              hls.recoverMediaError();
+              break;
+            default:
+              break;
+          }
+        }, 2000)
+      );
+    };
 
     try {
       if (Hls.isSupported()) {
@@ -672,11 +702,12 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
     }
 
     return () => {
-      playVideo.cancel();
-    };
-  }, [videoRef, videoId]);
+      console.log("leave video");
 
-  // console.log({currentTime, duration});
+      hls.destroy();
+      setHls(null);
+    };
+  }, [videoId, hls]);
 
   return (
     <>
@@ -685,10 +716,9 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
           ref={videoRef}
           onClick={() => handleTogglePlay()}
           onTimeUpdate={(e) => handleVideoTime(e)}
-          // onLoadedMetadata={(e) => handleVideoLoaded(e)}
-          onLoadedData={(e) => handleVideoLoaded(e)}
+          onLoadedMetadata={(e) => handleVideoLoaded(e)}
         ></Video>
-        <ControlsBarContainer>
+        <ControlsBarContainer isScrubbing={isScrubbing}>
           <TimelineSlider
             ref={timelineRef}
             isLive={isLive}
@@ -713,10 +743,10 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
                 value={isMuted ? 0 : volume}
                 onChange={handleChangeVolume}
               ></VolumeSlider>
+              <div style={{ color: "#fff" }}>{Math.floor(duration)}</div>
               <div style={{ color: "#fff", fontSize: "2rem" }}>
                 {Math.floor(currentTime)}
               </div>
-              <div style={{ color: "#fff" }}>{Math.floor(duration)}</div>
             </VolumeContainer>
           </LeftPart>
           <RightPart>

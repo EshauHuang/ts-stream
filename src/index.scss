@@ -100,3 +100,31 @@ button {
   background: transparent;
   padding: 0;
 }
+
+/* Input Thumb */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 15px;
+  width: 15px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 1);
+  transition: background 0.3s ease-in-out;
+}
+
+input[type="range"]::-moz-range-thumb {
+  -webkit-appearance: none;
+  height: 15px;
+  width: 15px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 1);
+  transition: background 0.3s ease-in-out;
+}
+
+input[type="range"]::-ms-thumb {
+  -webkit-appearance: none;
+  height: 15px;
+  width: 15px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 1);
+  transition: background 0.3s ease-in-out;
+}
