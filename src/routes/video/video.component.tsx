@@ -43,7 +43,7 @@ const Video = () => {
   }, []);
   return (
     <Container>
-      <HlsVideoPlayer videoId={videoId} />
+      <HlsVideoPlayer isLive={false} videoId={videoId} />
       <Chatroom comments={video.comments} />
     </Container>
   );
