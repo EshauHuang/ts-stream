@@ -1,11 +1,7 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import img1 from "/1.jpg";
-import img2 from "/2.jpg";
-import img3 from "/3.jpg";
-import img4 from "/4.jpg";
-import img5 from "/5.jpg";
+import img5 from "/images/5.jpg";
 
 import { getStreams, getVideos } from "@/api/stream";
 

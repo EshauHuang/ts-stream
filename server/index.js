@@ -4,7 +4,7 @@ import { Server } from "socket.io";
 import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
-import { Video, Rooms, Users, Comments } from "./models/index.js";
+import { Video, Rooms, Users, Comments } from "./models/stream.js";
 import { genStreamKey, checkStreamKey } from "./utils/streamKey.js";
 import { genSalt, hashPassword, checkPassword } from "./utils/password.js";
 
@@ -16,7 +16,7 @@ const siteVideos = {
     title: "how programmers overprepare for job interviews",
     author: "Joma Tech",
     content: "asdsadsa",
-    thumbnail: "/2.jpg",
+    thumbnail: "images/2.jpg",
     startTime: 1675759497647,
     comments: new Comments(),
   },
@@ -24,63 +24,63 @@ const siteVideos = {
     title: "年薪300萬工程師辭職重考醫學系 醫: 腦袋壞掉",
     author: "蒼藍鴿的醫學天地",
     content: "asdsadsa",
-    thumbnail: "/2.jpg",
+    thumbnail: "images/2.jpg",
   },
   3: {
     title:
       "【中文配音心得26-鬼滅之刃遊廓篇(下)】台灣聲優竭盡全力的嘶吼，童磨的聲線帥到出水！",
     author: "台灣聲優研究所",
     content: "asdsadsa",
-    thumbnail: "/2.jpg",
+    thumbnail: "images/2.jpg",
   },
   4: {
     title:
       "Git for Professionals Tutorial - Tools & Concepts for Mastering Version Control with Git",
     author: "freeCodeCamp.org",
     content: "asdsadsa",
-    thumbnail: "/2.jpg",
+    thumbnail: "images/2.jpg",
   },
   5: {
     title: "是什麼讓事情變得「卡夫卡式」？　諾亞.泰夫林",
     author: "TED-Ed",
     content: "asdsadsa",
-    thumbnail: "/1.jpg",
+    thumbnail: "images/1.jpg",
   },
   6: {
     title: "【アニメ】あっははインドネシア〜！",
     author: "hololive ホロライブ - VTuber Group",
     content: "asdsadsa",
-    thumbnail: "/3.jpg",
+    thumbnail: "images/3.jpg",
   },
   7: {
     title: "星街すいせい - みちづれ / THE FIRST TAKE",
     author: "THE FIRST TAKE",
     content: "asdsadsa",
-    thumbnail: "/3.jpg",
+    thumbnail: "images/3.jpg",
   },
   8: {
     title: "CCC",
     author: "AAA",
     content: "asdsadsa",
-    thumbnail: "/3.jpg",
+    thumbnail: "images/3.jpg",
   },
   9: {
     title: "DDDD",
     author: "AAA",
     content: "asdsadsa",
-    thumbnail: "/3.jpg",
+    thumbnail: "images/3.jpg",
   },
   10: {
     title: "adasdas",
     author: "AAA",
     content: "asdsadsa",
-    thumbnail: "/1.jpg",
+    thumbnail: "images/1.jpg",
   },
   11: {
     title: "adasdas",
     author: "AAA",
     content: "asdsadsa",
-    thumbnail: "/1.jpg",
+    thumbnail: "images/1.jpg",
   },
 };
 
@@ -522,6 +522,7 @@ app.post("/sign-up", async (req, res) => {
     }
 
     const user = await usersTable.generateNewUser(username, password, email);
+    rooms.addRoom(username);
 
     res.status(200).json({
       message: "Register success",
@@ -567,12 +568,17 @@ app.post("/streams", (req, res) => {
 });
 
 app.post("/streams/:username", (req, res) => {
-  const { username } = req.params;
-  if (!username) return;
+  try {
+    const { username } = req.params;
+    if (!username) return;
 
-  const stream = usersTable.getStream(username);
+    const stream = usersTable.getStream(username);
 
-  res.json({ message: "success", stream });
+    res.json({ message: "success", stream });
+  } catch (error) {
+    const { message } = error;
+    res.json({ message });
+  }
 });
 
 app.post("/streams/:username/streamKey", (req, res) => {
@@ -668,7 +674,9 @@ app.post("/comments/:videoId", (req, res) => {
 });
 
 io.on("connection", (socket) => {
+  // 加入假的 user 進 rooms
   rooms.addRoom("user01");
+  rooms.addRoom("123");
 
   socket.on("new-user", (user, roomName) => {
     socket.join(roomName);

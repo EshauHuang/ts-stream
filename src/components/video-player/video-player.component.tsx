@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import Hls from "hls.js";
-import HlsJs from "@/components/hls-js/hls-js.component";
+import HlsJs from "@/components/hls-video-player/hls-video-player.component";
 
 import { Container, Video } from "./video-player.style";
 
@@ -33,7 +33,7 @@ const HlsJsPlayer: React.FC<IVideoPlayerProps> = ({ src, videoId }) => {
       if (!timer) return;
       clearTimeout(timer);
     };
-    
+
     return timerFunc;
   };
 
@@ -50,7 +50,7 @@ const HlsJsPlayer: React.FC<IVideoPlayerProps> = ({ src, videoId }) => {
       hls.attachMedia(video);
 
       hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-        hls.loadSource(`${STREAM_SERVER_URL}/videos/13/index.m3u8`);
+        hls.loadSource(`${STREAM_SERVER_URL}/videos/${videoId}/index.m3u8`);
 
         hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
           video.play();

@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 
 import Chatroom from "@/components/chatroom/chatroom.component";
 import VideoPlayer from "@/components/video-player/video-player.component";
+import HlsVideoPlayer from "@/components/hls-video-player/hls-video-player.component"
 
 import { getStream } from "@/api/stream";
 
@@ -30,8 +31,14 @@ const Live = () => {
   useEffect(() => {
     const fetchStreamData = async () => {
       try {
-        const data = await getStream(username);
-        setStream(data);
+        const {stream} = await getStream(username);
+
+        if (!stream) return
+
+        const { streamKey, ...streamData } = stream
+
+        setStream(streamData);
+        // setStream(data);
       } catch (error) {
         console.log(error);
       }
@@ -42,7 +49,7 @@ const Live = () => {
 
   return (
     <Container>
-      <VideoPlayer videoId={videoId} />
+      <HlsVideoPlayer videoId={videoId} />
       <Chatroom setStream={setStream} roomName={username} />
     </Container>
   );
