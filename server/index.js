@@ -4,7 +4,7 @@ import { Server } from "socket.io";
 import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
-import { Video, Rooms, Users, Comments } from "./models/index.js";
+import { Video, Rooms, Users, Comments } from "./models/stream.js";
 import { genStreamKey, checkStreamKey } from "./utils/streamKey.js";
 import { genSalt, hashPassword, checkPassword } from "./utils/password.js";
 
