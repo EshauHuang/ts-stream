@@ -280,10 +280,11 @@ const LiveBlock = () => {
 const PlayerContainer = styled.div<{ isTheater: boolean; isFull: boolean }>`
   position: relative;
   margin: 0 auto;
-  width: 90%;
+  width: 100%;
   max-width: 100rem;
   max-height: 60rem;
   height: 60rem;
+  background-color: black;
 
   &:hover {
     ${ControlsBarContainer} {
