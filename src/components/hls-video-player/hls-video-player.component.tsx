@@ -426,6 +426,7 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const [hls, setHls] = useState<Hls | null>(null);
+  const tmpTimeRef = useRef<number>(0);
 
   const [videoOptions, setVideoOptions] = useState<IVideoOptions>({
     isLive,
@@ -456,9 +457,22 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
   } = videoOptions;
 
   const handleTogglePlay = () => {
+    let videoTime: number | undefined;
+
+    // When the video was stopped by user, save the current time.
+    if (isPlay && isPlaying) {
+      tmpTimeRef.current = Date.now();
+    } else {
+      const time = Date.now();
+      const tmpTime = parseFloat(tmpTimeRef.current.toFixed(6));
+      videoTime = currentTime + (time - tmpTime) / 1000;
+      tmpTimeRef.current = 0;
+    }
+
     setVideoOptions((prev) => ({
       ...prev,
       isPlay: !prev.isPlay,
+      setTime: videoTime ? videoTime : undefined,
     }));
   };
 
@@ -506,15 +520,14 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
     const timeline = timelineRef.current;
 
     if (!timeline || isScrubbing || !isPlay) return;
-    
+
     const { currentTime, duration } = e.target as HTMLVideoElement;
     const percent = currentTime / duration;
     timeline.style.setProperty("--progress-position", `${percent}`);
 
     setVideoOptions((prev) => ({
       ...prev,
-      // currentTime: isLive ? duration : currentTime,
-      currentTime
+      currentTime,
     }));
   };
 
@@ -649,7 +662,6 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
     const config = isLive
       ? {
           initialLiveManifestSize: 3,
-          // liveSyncDurationCount: 3,
         }
       : {
           startPosition: 0,
@@ -671,7 +683,7 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
         hls.loadSource(url);
       });
 
-      hls.on(Hls.Events.MANIFEST_PARSED, (events, data) => {
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
         setVideoOptions((prev) => ({
           ...prev,
           isPlaying: true,
@@ -679,11 +691,11 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
         }));
       });
 
-      hls.on(Hls.Events.FRAG_CHANGED, function (event, data) {});
+      hls.on(Hls.Events.FRAG_CHANGED, function () {});
 
       hls.on(
         Hls.Events.ERROR,
-        _.throttle(function (event, data) {
+        _.throttle(function (_, data) {
           var errorType = data.type;
 
           switch (errorType) {
