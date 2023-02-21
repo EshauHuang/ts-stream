@@ -462,6 +462,8 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
     }));
   };
 
+  console.log({ currentTime });
+
   const handleChangeVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
 
@@ -502,16 +504,17 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
 
   const handleVideoTime = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const timeline = timelineRef.current;
-    const { currentTime, duration } = e.target as HTMLVideoElement;
 
     if (!timeline || isScrubbing || !isPlay) return;
-    // const { currentTime, duration } = e.target as HTMLVideoElement;
+    
+    const { currentTime, duration } = e.target as HTMLVideoElement;
     const percent = currentTime / duration;
     timeline.style.setProperty("--progress-position", `${percent}`);
 
     setVideoOptions((prev) => ({
       ...prev,
-      currentTime: isLive ? duration : currentTime,
+      // currentTime: isLive ? duration : currentTime,
+      currentTime
     }));
   };
 
@@ -645,7 +648,8 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
 
     const config = isLive
       ? {
-          liveMaxLatencyDurationCount: 10
+          initialLiveManifestSize: 3,
+          // liveSyncDurationCount: 3,
         }
       : {
           startPosition: 0,
