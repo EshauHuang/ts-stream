@@ -15,10 +15,20 @@ import { ReactComponent as TheaterTallSvg } from "@/assets/icons/screen/theater-
 import { ReactComponent as TheaterWideSvg } from "@/assets/icons/screen/theater-wide.svg";
 import { ReactComponent as CaptionsSvg } from "@/assets/icons/captions.svg";
 
+import img5 from "/images/2.jpg";
+
 const Video = styled.video`
   background-color: black;
   width: 100%;
   height: 100%;
+  display: block;
+`;
+
+const Thumbnail = styled.img`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   display: block;
 `;
 
@@ -235,6 +245,38 @@ const StyledTheaterButton = styled.div`
   align-items: center;
 `;
 
+const TimeString = styled.span`
+  color: white;
+  font-size: 1.2rem;
+  margin-left: 0.5rem;
+`;
+
+const StyledLiveBlock = styled.div`
+  display: flex;
+  align-items: center;
+  color: white;
+  margin-left: 0.5rem;
+  gap: 0.2rem;
+  font-size: 1.2rem;
+  cursor: default;
+`;
+
+const RedSpot = styled.div`
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: red;
+`;
+
+const LiveBlock = () => {
+  return (
+    <StyledLiveBlock>
+      <RedSpot />
+      <span>直播</span>
+    </StyledLiveBlock>
+  );
+};
+
 const PlayerContainer = styled.div<{ isTheater: boolean; isFull: boolean }>`
   position: relative;
   margin: 0 auto;
@@ -425,8 +467,8 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
   const STREAM_SERVER_URL = import.meta.env.VITE_GET_STREAM_URL;
   const videoRef = useRef<HTMLVideoElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
-  const [hls, setHls] = useState<Hls | null>(null);
   const tmpTimeRef = useRef<number>(0);
+  const [hls, setHls] = useState<Hls | null>(null);
 
   const [videoOptions, setVideoOptions] = useState<IVideoOptions>({
     isLive,
@@ -456,6 +498,32 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
     setTime,
   } = videoOptions;
 
+  console.log({ currentTime });
+
+  const isSourceLoaded = src || videoId;
+
+  const convertSeconds = (time: number) => ({
+    hours: Math.floor(time / (60 * 60)),
+    minutes: Math.floor(time / 60),
+    seconds: Math.ceil(time % (60 * 60)) % 60,
+  });
+
+  const renderTimeString = (time: number) => {
+    const { hours, minutes, seconds } = convertSeconds(time);
+    let timeStr = "";
+
+    if (hours) {
+      timeStr += `${hours}:`;
+      timeStr += minutes ? `${minutes}:` : "0:";
+      timeStr += seconds ? `${seconds.toString().padStart(2, "0")}` : "00";
+    } else {
+      timeStr += minutes ? `${minutes}:` : "0:";
+      timeStr += seconds ? `${seconds.toString().padStart(2, "0")}` : "00";
+    }
+
+    return timeStr;
+  };
+
   const handleTogglePlay = () => {
     let videoTime: number | undefined;
 
@@ -475,8 +543,6 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
       setTime: videoTime ? videoTime : undefined,
     }));
   };
-
-  console.log({ currentTime });
 
   const handleChangeVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -601,9 +667,10 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
     _.throttle((setTime) => {
       const video = videoRef.current;
 
-      if (!video || !setTime) return;
+      if (!video || setTime === undefined) return;
 
       video.currentTime = setTime;
+
       setVideoOptions((prev) => ({
         ...prev,
         setTime: undefined,
@@ -615,13 +682,13 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
   useEffect(() => {
     const video = videoRef.current;
 
-    if (!video || (!videoId && !src)) return;
+    if (!video || !isSourceLoaded) return;
 
     video.volume = volume;
     video.muted = isMuted;
 
     if (isPlay && video.paused) {
-      console.log("video play");
+      console.log("play video");
       video.play();
 
       setVideoOptions((prev) => ({
@@ -629,7 +696,7 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
         isPlaying: true,
       }));
     } else if (isPlaying && !isPlay && !video.paused) {
-      console.log("video pause");
+      console.log("pause video");
       video.pause();
 
       !isScrubbing &&
@@ -728,58 +795,71 @@ const HlsVideoPlayer: React.FC<IHlsVideoPlayer> = ({
   return (
     <>
       <PlayerContainer isFull={isFull} isTheater={isTheater}>
-        <Video
-          ref={videoRef}
-          onClick={() => handleTogglePlay()}
-          onTimeUpdate={(e) => handleVideoTime(e)}
-          onLoadedMetadata={(e) => handleVideoLoaded(e)}
-        ></Video>
-        <ControlsBarContainer isScrubbing={isScrubbing}>
-          <TimelineSlider
-            ref={timelineRef}
-            isLive={isLive}
-            isScrubbing={isScrubbing}
-            handleUpdateVideoTime={handleUpdateVideoTime}
-            handleMouseUp={handleMouseUp}
-          />
-          <LeftPart>
-            <PlayButton isPlay={isPlay} handleTogglePlay={handleTogglePlay} />
-            <VolumeContainer>
-              <VolumeButton
-                volume={volume}
-                isMuted={isMuted}
-                handleToggleMute={handleToggleMute}
+        <Thumbnail src={img5} />
+        {isSourceLoaded && (
+          <>
+            <Video
+              ref={videoRef}
+              onClick={() => handleTogglePlay()}
+              onTimeUpdate={(e) => handleVideoTime(e)}
+              onLoadedMetadata={(e) => handleVideoLoaded(e)}
+            ></Video>
+            <ControlsBarContainer isScrubbing={isScrubbing}>
+              <TimelineSlider
+                ref={timelineRef}
+                isLive={isLive}
+                isScrubbing={isScrubbing}
+                handleUpdateVideoTime={handleUpdateVideoTime}
+                handleMouseUp={handleMouseUp}
               />
-              <VolumeSlider
-                volume={isMuted ? 0 : volume}
-                type="range"
-                min="0"
-                max="1"
-                step="any"
-                value={isMuted ? 0 : volume}
-                onChange={handleChangeVolume}
-              ></VolumeSlider>
-              <div style={{ color: "#fff" }}>{Math.floor(duration)}</div>
-              <div style={{ color: "#fff", fontSize: "2rem" }}>
-                {Math.floor(currentTime)}
-              </div>
-            </VolumeContainer>
-          </LeftPart>
-          <RightPart>
-            <MiniPlayerButton
-              isFull={isFull}
-              handleToggleMiniMode={handleToggleMiniMode}
-            />
-            <TheaterButton
-              isTheater={isTheater}
-              handleToggleTheaterMode={handleToggleTheaterMode}
-            />
-            <FullScreenButton
-              isFull={isFull}
-              handleToggleFullMode={handleToggleFullMode}
-            />
-          </RightPart>
-        </ControlsBarContainer>
+              <LeftPart>
+                <PlayButton
+                  isPlay={isPlay}
+                  handleTogglePlay={handleTogglePlay}
+                />
+                <VolumeContainer>
+                  <VolumeButton
+                    volume={volume}
+                    isMuted={isMuted}
+                    handleToggleMute={handleToggleMute}
+                  />
+                  <VolumeSlider
+                    volume={isMuted ? 0 : volume}
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="any"
+                    value={isMuted ? 0 : volume}
+                    onChange={handleChangeVolume}
+                  ></VolumeSlider>
+                  {isLive ? (
+                    <LiveBlock />
+                  ) : (
+                    <TimeString>
+                      {renderTimeString(currentTime)} /{" "}
+                      {renderTimeString(duration)}
+                    </TimeString>
+                  )}
+                  {/* <div style={{ color: "#fff" }}>{Math.ceil(duration)}</div> */}
+                </VolumeContainer>
+              </LeftPart>
+              <RightPart>
+                <MiniPlayerButton
+                  isFull={isFull}
+                  handleToggleMiniMode={handleToggleMiniMode}
+                />
+                <TheaterButton
+                  isTheater={isTheater}
+                  handleToggleTheaterMode={handleToggleTheaterMode}
+                />
+                <FullScreenButton
+                  isFull={isFull}
+                  handleToggleFullMode={handleToggleFullMode}
+                />
+              </RightPart>
+            </ControlsBarContainer>
+          </>
+        )}
       </PlayerContainer>
     </>
   );
