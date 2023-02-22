@@ -651,11 +651,6 @@
     "@types/react" "*"
     csstype "^3.0.2"
 
-"@types/video.js@^7.3.43":
-  version "7.3.43"
-  resolved "https://registry.yarnpkg.com/@types/video.js/-/video.js-7.3.43.tgz#08a71d652627333a1693c7d4e8e8c92a25417fc0"
-  integrity sha512-CEq/I6Np/x8b2Uh4cwt/8eHP8QLOF8pRZsw+GGehjCTP/l0fUqFOiIPhmBeDgnWOaO6zVGKPap0Mroz+W/FSlQ==
-
 "@vitejs/plugin-react@^1.3.0":
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/@vitejs/plugin-react/-/plugin-react-1.3.2.tgz#2fcf0b6ce9bcdcd4cec5c760c199779d5657ece1"
