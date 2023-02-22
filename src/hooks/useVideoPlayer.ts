@@ -30,13 +30,13 @@ export interface IVideoControllers {
   handleMouseUp: () => void;
 }
 
-export interface IHlsVideoPlayer {
+export interface IVideoPlayer {
   src?: string;
   isLive?: boolean;
   videoId?: string | number;
 }
 
-const useVideoPlayer = ({ isLive, videoId, src }: IHlsVideoPlayer) => {
+const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   const STREAM_SERVER_URL = import.meta.env.VITE_GET_STREAM_URL;
   const videoRef = useRef<HTMLVideoElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);

@@ -1,94 +1,90 @@
-import { useEffect, useRef, useState } from "react";
+import ControlBar from "@/components/video-player-items/control-bar/control-bar.component";
 
-import Hls from "hls.js";
-import HlsJs from "@/components/hls-video-player/hls-video-player.component";
+import useVideoPlayer from "@/hooks/useVideoPlayer";
 
-import { Container, Video } from "./video-player.style";
+import { PlayerContainer, Video, Thumbnail } from "./video-player.style";
 
-interface IVideoPlayerProps {
+import img5 from "/images/2.jpg";
+
+export interface IVideoOptions {
+  isLive: boolean;
+  volume: number;
+  isScrubbing: boolean;
+  isTheater: boolean;
+  isMuted: boolean;
+  isPlay: boolean;
+  isPlaying: boolean;
+  isMini: boolean;
+  isFull: boolean;
+  setTime: undefined | number;
+  currentTime: number;
+  duration: number;
+}
+
+export interface IVideoControllers {
+  handleTogglePlay: () => void;
+  handleChangeVolume: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleToggleMute: () => void;
+  handleToggleTheaterMode: () => void;
+  handleToggleMiniMode: () => void;
+  handleToggleFullMode: () => void;
+  handleUpdateVideoTimeByTimeline: (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => void;
+  handleMouseUp: () => void;
+}
+
+export interface IVideoPlayer {
   src?: string;
+  isLive?: boolean;
   videoId?: string | number;
 }
 
-const HlsJsPlayer: React.FC<IVideoPlayerProps> = ({ src, videoId }) => {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const STREAM_SERVER_URL = import.meta.env.VITE_GET_STREAM_URL;
+const VideoPlayer: React.FC<IVideoPlayer> = ({
+  src,
+  videoId,
+  isLive = true,
+}) => {
+  const {
+    isSourceLoaded,
+    videoRef,
+    timelineRef,
+    videoOptions,
+    videoControllers,
+  } = useVideoPlayer({
+    src,
+    videoId,
+    isLive,
+  });
+  const { isFull, isTheater, currentTime, isPlay, isPlaying } = videoOptions;
+  const { handleTogglePlay, handleVideoTime, handleVideoLoaded } =
+    videoControllers;
 
-  const debounce = (cb: Function, time = 300) => {
-    let timer: null | ReturnType<typeof setTimeout> = null;
-    let counts = 0;
+  console.log({ currentTime, isPlay, isPlaying });
 
-    const timerFunc = () => {
-      if (timer) return;
-
-      timer = setTimeout(() => {
-        cb();
-        counts++;
-        console.log(counts)
-        timer = null;
-      }, time);
-    };
-
-    timerFunc.clearTimer = function () {
-      if (!timer) return;
-      clearTimeout(timer);
-    };
-
-    return timerFunc;
-  };
-
-  useEffect(() => {
-    const video = videoRef.current;
-
-    if (!video || (!videoId && !src)) return;
-
-    const playVideo = debounce(() => {
-      const hls = new Hls({
-        liveSyncDurationCount: 0,
-        liveMaxLatencyDurationCount: 1,
-      });
-      hls.attachMedia(video);
-
-      hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-        hls.loadSource(`${STREAM_SERVER_URL}/videos/${videoId}/index.m3u8`);
-
-        hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
-          video.play();
-        });
-      });
-
-      hls.on(Hls.Events.ERROR, function (event, data) {
-        var errorType = data.type;
-        var errorDetails = data.details;
-        var errorFatal = data.fatal;
-        switch (errorType) {
-          case Hls.ErrorTypes.NETWORK_ERROR:
-            hls.destroy();
-            playVideo();
-            break;
-          default:
-            break;
-        }
-      });
-    }, 500);
-
-    try {
-      if (Hls.isSupported()) {
-        playVideo();
-      }
-    } catch (err) {
-      console.log("error");
-    }
-
-    return () => {
-      playVideo.clearTimer();
-    };
-  }, [videoRef, src, videoId]);
   return (
-    <Container>
-      <Video ref={videoRef} id="video" muted />
-    </Container>
+    <>
+      <PlayerContainer isFull={isFull} isTheater={isTheater}>
+        {isSourceLoaded ? (
+          <>
+            <Video
+              ref={videoRef}
+              onClick={() => handleTogglePlay()}
+              onTimeUpdate={(e) => handleVideoTime(e)}
+              onLoadedMetadata={(e) => handleVideoLoaded(e)}
+            ></Video>
+            <ControlBar
+              timelineRef={timelineRef}
+              videoOptions={videoOptions}
+              videoControllers={videoControllers}
+            />
+          </>
+        ) : (
+          <Thumbnail src={img5} />
+        )}
+      </PlayerContainer>
+    </>
   );
 };
 
-export default HlsJsPlayer;
+export default VideoPlayer;

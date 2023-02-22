@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 
 import Chatroom from "@/components/chatroom/chatroom.component";
 import VideoPlayer from "@/components/video-player/video-player.component";
-import HlsVideoPlayer from "@/components/hls-video-player/hls-video-player.component";
 
 import { getVideo, getComments } from "@/api/stream";
 
@@ -43,7 +42,7 @@ const Video = () => {
   }, []);
   return (
     <Container>
-      <HlsVideoPlayer isLive={false} videoId={videoId} />
+      <VideoPlayer isLive={false} videoId={videoId} />
       <Chatroom comments={video.comments} />
     </Container>
   );

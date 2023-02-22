@@ -7,7 +7,7 @@ import renderTimeString from "@/utils/renderTimeString";
 import {
   IVideoControllers,
   IVideoOptions,
-} from "@/components/hls-video-player/hls-video-player.component";
+} from "@/components/video-player/video-player.component";
 
 import {
   MiniPlayerIcon,
