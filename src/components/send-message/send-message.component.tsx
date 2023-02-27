@@ -24,6 +24,7 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
   const [message, setMessage] = useState("");
   const inputRef = useRef<HTMLInputElement | null>(null);
   const submitBtnRef = useRef<HTMLButtonElement | null>(null);
+  const [content, setContent] = useState("");
 
   useEffect(() => {
     if (!currentUser) return;
@@ -37,8 +38,8 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
     const { innerText, scrollHeight } = e.target;
     if (scrollHeight >= 100)
       e.target.scrollIntoView({ block: "nearest", inline: "nearest" });
-
-    setMessage(innerText);
+    console.log("handleChangeValue");
+    // setMessage(innerText);
   };
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
@@ -47,8 +48,8 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
 
     if (!currentUser || !message || !inputEle) return;
     const { username } = currentUser;
-    
-    socket?.emit("send-message", message)
+
+    socket?.emit("send-message", message);
 
     // sendCommentByUser({ username, message });
     setMessage("");
@@ -63,11 +64,22 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
       submitBtnRef.current?.click();
     }
   };
+
   const handlePaste: React.ClipboardEventHandler<HTMLDivElement> = (e) => {
     e.preventDefault();
-    let text = e.clipboardData.getData("text/plain");
-    text = text.replace(/[\r\n]/gm, "");
-    document.execCommand("insertText", false, text);
+    const clipboardData = e.clipboardData;
+    const text = clipboardData.getData("text/plain");
+    const selection = window.getSelection();
+    if (!selection) return;
+
+    const range = selection.getRangeAt(0);
+
+    // Insert the modified text into the contenteditable div
+    range.deleteContents();
+    range.insertNode(document.createTextNode(text));
+    range.collapse(false);
+    selection.removeAllRanges();
+    selection.addRange(range);
   };
 
   return (
@@ -81,6 +93,7 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
             onPaste={handlePaste}
             onInput={handleChangeValue}
             onKeyDown={handleKeyDown}
+            suppressContentEditableWarning={true}
             contentEditable
           ></DivInput>
           <Underline />

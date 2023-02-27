@@ -1,4 +1,6 @@
 import * as _ from "lodash-es";
+import { genStreamKey, checkStreamKey } from "../utils/streamKey.js";
+import { genSalt, hashPassword, checkPassword } from "../utils/password.js";
 
 export class Video {
   constructor(videos) {
@@ -185,3 +187,174 @@ export class Rooms {
     return this[room].comments.searchComments();
   }
 }
+
+// 儲存每個用戶的資訊
+export const usersTable = [
+  {
+    id: 1,
+    username: "user01",
+    streamKey: "U2FsdGVkX1__fd2ANVT33jYDE4shKW1l5lzgRRafZN4=",
+    avatar: "/images/avatar/user01.jpg",
+    email: "123@gmail.com",
+    subscribes: 200,
+    videos: {
+      1: {
+        // 關聯到 siteVideosID
+      },
+      length: 1,
+      addVideo(video) {
+        const index = this.length + 1;
+        this[index] = video;
+        this.length++;
+
+        return { [index]: this[index] };
+      },
+    },
+    stream: {
+      isStreamOn: false,
+      type: "stream",
+      author: "user01",
+      title: "user01 的直播間",
+      content: `本家様：
+あの夏が飽和する。2020ver. / 鏡音レン・リン
+https://youtu.be/2hz0lhAs0Kg
+あの夏が飽和する。/鏡音レン・リン
+https://youtu.be/mKaRxty1j7g
+
+歌：天音かなた
+https://twitter.com/amanekanatach
+
+イラスト：つむみ
+https://twitter.com/kandumesss
+
+動画：ろりー / Roly
+https://twitter.com/yosinO_mo
+
+MIX：mutuëmon
+https://twitter.com/mutuemon
+
+Inst：山本こーすけ
+https://twitter.com/kousuke_as
+
+
+※歌ってみた動画です
+
+
+※ホロライブプロダクションから未成年の視聴者の方々へのお願い
+下記リンクをご確認の上、お楽しみください。
+https://www.hololive.tv/request-to-mi...
+`,
+      videoId: "",
+      startTime: "",
+    },
+  },
+  {
+    id: 2,
+    username: "123",
+    password: "$2b$10$J251lEpX3LI8UpxxIuXMiugtELV71EL4gO2bfHyMtUtPI2B4taNJu",
+    streamKey: "U2FsdGVkX194rC63kIDq6ePffAq_cif1QEb1RcHnimk=",
+    avatar: "/images/avatar/123.jpg",
+    email: "123@gmail.com",
+    subscribes: 500,
+    videos: {
+      1: {
+        // 關聯到 siteVideosID
+      },
+      length: 1,
+      addVideo(video) {
+        const index = this.length + 1;
+        this[index] = video;
+        this.length++;
+
+        return { [index]: this[index] };
+      },
+    },
+    stream: {
+      isStreamOn: false,
+      author: "123",
+      type: "stream",
+      title: "123 的直播間",
+      content: "",
+      videoId: "",
+      startTime: "",
+      like: "",
+      dislike: "",
+    },
+  },
+];
+
+usersTable.generateNewUser = async function (username, password, email) {
+  const streamKey = genStreamKey(username);
+  const salt = genSalt();
+  const passwordHash = hashPassword(password, salt);
+  const newUser = {
+    id: this.length,
+    username,
+    password: passwordHash,
+    streamKey: streamKey,
+    email,
+    videos: {
+      length: 0,
+      addVideo(video) {
+        const index = this.length + 1;
+        this[index] = video;
+        this.length++;
+
+        return { [index]: this[index] };
+      },
+    },
+    stream: {
+      isStreamOn: false,
+      type: "stream",
+      author: username,
+      title: `${username} 的直播間`,
+      content: "",
+      startTime: "",
+    },
+  };
+
+  this.push(newUser);
+
+  return {
+    username,
+    email,
+  };
+};
+
+usersTable.verifyUser = function (username, password) {
+  const user = this.find((user) => {
+    if (user.username === username) {
+      const result = checkPassword(password, user.password);
+      return result;
+    }
+  });
+
+  if (!user) return null;
+
+  return {
+    username: user.username,
+    email: user.email,
+  };
+};
+
+usersTable.getStream = function (username) {
+  const user = usersTable.find((user) => user.username === username);
+  const { avatar, subscribes, stream } = user;
+
+  return {
+    user: {
+      avatar,
+      subscribes,
+    },
+    stream,
+  };
+};
+
+usersTable.refreshStreamKey = function (username) {
+  const user = usersTable.find((user) => user.username === username);
+  const streamKey = genStreamKey(username);
+
+  user.streamKey = streamKey;
+
+  return streamKey;
+};

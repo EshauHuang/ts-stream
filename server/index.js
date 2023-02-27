@@ -4,15 +4,15 @@ import { Server } from "socket.io";
 import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
-import { Video, Rooms, Users, Comments } from "./models/stream.js";
-import { genStreamKey, checkStreamKey } from "./utils/streamKey.js";
-import { genSalt, hashPassword, checkPassword } from "./utils/password.js";
+import { Video, Rooms, Users, Comments, usersTable } from "./models/stream.js";
+import { checkStreamKey } from "./utils/streamKey.js";
 
 const PORT = 3535;
 
 // 網站總共有多少部影片
 const siteVideos = {
   1: {
+    type: "video",
     title: "how programmers overprepare for job interviews",
     author: "Joma Tech",
     content: "asdsadsa",
@@ -21,6 +21,7 @@ const siteVideos = {
     comments: new Comments(),
   },
   2: {
+    type: "video",
     title: "年薪300萬工程師辭職重考醫學系 醫: 腦袋壞掉",
     author: "蒼藍鴿的醫學天地",
     content: "asdsadsa",
@@ -41,42 +42,49 @@ const siteVideos = {
     thumbnail: "images/2.jpg",
   },
   5: {
+    type: "video",
     title: "是什麼讓事情變得「卡夫卡式」？　諾亞.泰夫林",
     author: "TED-Ed",
     content: "asdsadsa",
     thumbnail: "images/1.jpg",
   },
   6: {
+    type: "video",
     title: "【アニメ】あっははインドネシア〜！",
     author: "hololive ホロライブ - VTuber Group",
     content: "asdsadsa",
     thumbnail: "images/3.jpg",
   },
   7: {
+    type: "video",
     title: "星街すいせい - みちづれ / THE FIRST TAKE",
     author: "THE FIRST TAKE",
     content: "asdsadsa",
     thumbnail: "images/3.jpg",
   },
   8: {
+    type: "video",
     title: "CCC",
     author: "AAA",
     content: "asdsadsa",
     thumbnail: "images/3.jpg",
   },
   9: {
+    type: "video",
     title: "DDDD",
     author: "AAA",
     content: "asdsadsa",
     thumbnail: "images/3.jpg",
   },
   10: {
+    type: "video",
     title: "adasdas",
     author: "AAA",
     content: "asdsadsa",
     thumbnail: "images/1.jpg",
   },
   11: {
+    type: "video",
     title: "adasdas",
     author: "AAA",
     content: "asdsadsa",
@@ -261,130 +269,6 @@ comments.map((comment) => {
   video.comments.addFakeComment(c.user, c.message);
 });
 
-// 儲存每個用戶的資訊
-const usersTable = [
-  {
-    id: 1,
-    username: "user01",
-    videos: {
-      1: {
-        // 關聯到 siteVideosID
-      },
-      length: 1,
-      addVideo(video) {
-        const index = this.length + 1;
-        this[index] = video;
-        this.length++;
-
-        return { [index]: this[index] };
-      },
-    },
-    stream: {
-      streamKey: "U2FsdGVkX1__fd2ANVT33jYDE4shKW1l5lzgRRafZN4=",
-      isStreamOn: false,
-      title: "user01 的直播間",
-      content: "",
-      videoId: "",
-      startTime: "",
-    },
-  },
-  {
-    id: 2,
-    username: "123",
-    password: "$2b$10$J251lEpX3LI8UpxxIuXMiugtELV71EL4gO2bfHyMtUtPI2B4taNJu",
-    email: "123@gmail.com",
-    videos: {
-      1: {
-        // 關聯到 siteVideosID
-      },
-      length: 1,
-      addVideo(video) {
-        const index = this.length + 1;
-        this[index] = video;
-        this.length++;
-
-        return { [index]: this[index] };
-      },
-    },
-    stream: {
-      streamKey: "U2FsdGVkX194rC63kIDq6ePffAq_cif1QEb1RcHnimk=",
-      isStreamOn: false,
-      title: "123 的直播間",
-      content: "",
-      videoId: "",
-      startTime: "",
-    },
-  },
-];
-
-usersTable.generateNewUser = async function (username, password, email) {
-  const streamKey = genStreamKey(username);
-  const salt = genSalt();
-  const passwordHash = hashPassword(password, salt);
-  const newUser = {
-    id: this.length,
-    username,
-    password: passwordHash,
-    email,
-    videos: {
-      length: 0,
-      addVideo(video) {
-        const index = this.length + 1;
-        this[index] = video;
-        this.length++;
-
-        return { [index]: this[index] };
-      },
-    },
-    stream: {
-      streamKey: streamKey,
-      isStreamOn: false,
-      title: `${username} 的直播間`,
-      content: "",
-      startTime: "",
-    },
-  };
-
-  this.push(newUser);
-
-  return {
-    username,
-    email,
-  };
-};
-
-usersTable.verifyUser = function (username, password) {
-  const user = this.find((user) => {
-    if (user.username === username) {
-      const result = checkPassword(password, user.password);
-      return result;
-    }
-  });
-
-  if (!user) return null;
-
-  return {
-    username: user.username,
-    email: user.email,
-  };
-};
-
-usersTable.getStream = function (username) {
-  const user = usersTable.find((user) => user.username === username);
-  const { stream } = user;
-
-  return stream;
-};
-
-usersTable.refreshStreamKey = function (username) {
-  const user = usersTable.find((user) => user.username === username);
-  const streamKey = genStreamKey(username);
-
-  user.stream.streamKey = streamKey;
-
-  return streamKey;
-};
-
 export const videos = new Video(siteVideos);
 export const rooms = new Rooms();
 export const users = new Users();
@@ -490,18 +374,9 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
   res.status(204).end();
 });
 
-// nginx 代理 server
-// app.get("/video", (req, res) => {
-//   res.status(301).redirect(`http://192.168.64.2/12/index.m3u8`);
-// });
 
 // 初次建立直播間，未建立直播間則無法開實況
 app.post("/u/:username/stream-room", (req, res) => {
-  console.log(req.body);
-  // const { username, title, content } = req.body;
-  // const user = usersTable.find((user) => user.streamKey === streamKey);
-
-  // console.log("query", query);
   res.send("success");
 });
 
@@ -562,9 +437,17 @@ app.post("/sign-in", async (req, res) => {
 });
 
 app.post("/streams", (req, res) => {
-  const liveStreams = usersTable.find((user) => user.stream.isStreamOn) || [];
+  const { page, limit } = req.body;
 
-  res.json({ message: "success", liveStreams });
+  const start = (page - 1) * limit;
+  const end = page * limit;
+
+  const streams = usersTable
+    .filter((user) => user.stream.isStreamOn)
+    .slice(start, end)
+    .map((user) => user.stream);
+
+  res.json({ message: "success", streams });
 });
 
 app.post("/streams/:username", (req, res) => {
@@ -572,9 +455,16 @@ app.post("/streams/:username", (req, res) => {
     const { username } = req.params;
     if (!username) return;
 
-    const stream = usersTable.getStream(username);
+    const streamMeta = usersTable.getStream(username);
 
-    res.json({ message: "success", stream });
+    console.log({ streamMeta });
+
+    res.json({
+      message: "success",
+      data: {
+        ...streamMeta,
+      },
+    });
   } catch (error) {
     const { message } = error;
     res.json({ message });

@@ -1,16 +1,13 @@
 import { useState, useEffect, useRef, useContext, useMemo } from "react";
 import { io, Socket } from "socket.io-client";
 
-import {
-  CommentsContext,
-  IComment,
-} from "@/contexts/commentsContext";
+import { CommentsContext, IComment } from "@/contexts/commentsContext";
 import { CommentsProvider } from "@/contexts/commentsContext";
 
 import ChatMessages from "@/components/chat-messages/chat-messages.component";
 import SendMessage from "@/components/send-message/send-message.component";
 
-import { IStreamData } from "@/routes/live/live.component";
+import { IStreamMeta } from "@/routes/live/live.component";
 
 import { Container, ViewModeBar } from "./chatroom.style";
 
@@ -35,7 +32,7 @@ const user = {
 interface IChatroomProps {
   roomName?: string;
   comments?: IComment[];
-  setStream?: React.Dispatch<React.SetStateAction<IStreamData>>;
+  setStream?: React.Dispatch<React.SetStateAction<IStreamMeta>>;
 }
 
 const Chatroom: React.FC<IChatroomProps> = ({
@@ -76,8 +73,11 @@ const Chatroom: React.FC<IChatroomProps> = ({
       console.log("stream connected");
       setStream((prev) => ({
         ...prev,
-        isStreamOn: true,
-        videoId,
+        stream: {
+          ...prev.stream,
+          isStreamOn: true,
+          videoId,
+        },
       }));
     });
 

@@ -20,7 +20,8 @@
       "@/*": ["src/*"],
       "view/*": ["src/views/*"],
       "components/*": ["src/component/*"],
-      "assets/*": ["src/assets/*"]
+      "assets/*": ["src/assets/*"],
+      "@mui/styled-engine": ["./node_modules/@mui/styled-engine-sc"]
     },
     // "types": ["vite-plugin-svgr/client"] or add in vite-env.d.ts
   },

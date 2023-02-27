@@ -60,7 +60,7 @@ const VideoPlayer: React.FC<IVideoPlayer> = ({
   const { handleTogglePlay, handleVideoTime, handleVideoLoaded } =
     videoControllers;
 
-  console.log({ currentTime, isPlay, isPlaying });
+  // console.log({ currentTime, isPlay, isPlaying });
 
   return (
     <>

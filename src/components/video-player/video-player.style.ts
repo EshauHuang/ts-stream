@@ -22,8 +22,8 @@ export const PlayerContainer = styled.div<{ isTheater: boolean; isFull: boolean 
   margin: 0 auto;
   width: 100%;
   max-width: 100rem;
-  max-height: 60rem;
-  height: 60rem;
+  max-height: 45rem;
+  height: 45rem;
   background-color: black;
 
   &:hover {

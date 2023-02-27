@@ -1,4 +1,4 @@
-import { CommentsProps } from "@/contexts/commentsContext"
+import { IComment } from "@/contexts/commentsContext"
 
 import {
   Container,
@@ -9,9 +9,9 @@ import {
   MemberIcon,
   Message,
   Timestamp,
-} from "./chat.message.style";
+} from "./chat-message.style";
 
-const ChatMessage: React.FC<CommentsProps> = ({ id, user, message }) => {
+const ChatMessage: React.FC<IComment> = ({ user, message }) => {
 
   return (
     <Container>
