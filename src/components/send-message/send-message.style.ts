@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import ContentEditable from "@/components/content-editable/content-editable.component";
 
 export const Container = styled.div`
   width: 100%;
@@ -35,7 +36,7 @@ export const Input = styled.input`
   width: 100%;
 `;
 
-export const DivInput = styled.div`
+export const StyledContentEditable = styled(ContentEditable)`
   color: white;
   word-break: break-word;
   max-width: 100%;

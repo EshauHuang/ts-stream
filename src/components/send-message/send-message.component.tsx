@@ -1,5 +1,6 @@
 import { useContext, useState, useEffect, useRef } from "react";
 import { Socket } from "socket.io-client";
+import { ContentEditableEvent } from "react-contenteditable";
 
 import { UserContext } from "@/contexts/userContext";
 
@@ -8,7 +9,7 @@ import {
   TopField,
   Photo,
   InputField,
-  DivInput,
+  StyledContentEditable,
   Underline,
   BottomField,
   EmojiPicker,
@@ -22,38 +23,23 @@ interface ISendMessage {
 const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
   const { currentUser } = useContext(UserContext);
   const [message, setMessage] = useState("");
-  const inputRef = useRef<HTMLInputElement | null>(null);
   const submitBtnRef = useRef<HTMLButtonElement | null>(null);
-  const [content, setContent] = useState("");
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!currentUser) return;
   }, [currentUser]);
 
-  useEffect(() => {
-    if (!inputRef.current) return;
-  }, [inputRef]);
-
-  const handleChangeValue: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    const { innerText, scrollHeight } = e.target;
-    if (scrollHeight >= 100)
-      e.target.scrollIntoView({ block: "nearest", inline: "nearest" });
-    console.log("handleChangeValue");
-    // setMessage(innerText);
-  };
-
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
-    const inputEle = inputRef.current;
 
-    if (!currentUser || !message || !inputEle) return;
+    if (!currentUser || !message) return;
     const { username } = currentUser;
 
     socket?.emit("send-message", message);
 
     // sendCommentByUser({ username, message });
     setMessage("");
-    inputEle.innerText = "";
   };
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
@@ -82,20 +68,31 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
     selection.addRange(range);
   };
 
+  const handleChangeValue = (e: ContentEditableEvent) => {
+    const content = contentRef.current;
+
+    if (!content) return;
+
+    const { value } = e.target;
+    const { scrollHeight } = content;
+
+    if (scrollHeight >= 100)
+      content.scrollIntoView({ block: "nearest", inline: "nearest" });
+    setMessage(value);
+  };
+  
   return (
     <Container as="form" onSubmit={handleSubmit}>
       <TopField>
         <Photo />
         <InputField>
           <div>Eshau</div>
-          <DivInput
-            ref={inputRef}
+          <StyledContentEditable
+            html={message}
+            innerRef={contentRef}
             onPaste={handlePaste}
-            onInput={handleChangeValue}
-            onKeyDown={handleKeyDown}
-            suppressContentEditableWarning={true}
-            contentEditable
-          ></DivInput>
+            onChange={handleChangeValue}
+          />
           <Underline />
         </InputField>
       </TopField>

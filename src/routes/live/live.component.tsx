@@ -68,7 +68,7 @@ const Body = styled.div`
   color: white;
 `;
 
-const Title = styled.h1`       
+const Title = styled.h1`
   font-size: 2rem;
   color: #fff;
 `;
@@ -199,7 +199,15 @@ const Share = styled.div``;
 
 const Content = styled.div`
   white-space: pre-wrap;
-`
+
+  span {
+    font-size: 1.4rem;
+  }
+
+  a {
+    color: rgba(62, 166, 255);
+  }
+`;
 export interface IStreamMeta {
   stream: {
     isStreamOn: boolean;
@@ -231,12 +239,26 @@ const initialStreamData = {
 const Live = () => {
   const { username } = useParams() as { username: string };
   const [streamMeta, setStreamMeta] = useState<IStreamMeta>(initialStreamData);
-  console.log({ streamMeta });
+
   const {
     stream: { isStreamOn, title, content, author, videoId },
     user: { avatar, subscribes },
   } = streamMeta;
   const { ref: containerRef, dimensions } = useResizeObserver();
+
+  const textArray = content.split("\n");
+
+  const newText = textArray
+    .map((text) => {
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      const newText = `<div><span>${text || "  "}</span></div>`;
+
+      return newText.replace(
+        urlRegex,
+        (url) => `<a href="${url}" target="_blank">${url}</a>`
+      );
+    })
+    .join("");
 
   useEffect(() => {
     const fetchStreamData = async () => {
@@ -289,7 +311,7 @@ const Live = () => {
               <MoreHorizIconButton />
             </FeedbackMeta>
           </ActionRow>
-          <Content>{content}</Content>
+          <Content dangerouslySetInnerHTML={{ __html: newText }}></Content>
         </Meta>
       </Body>
 

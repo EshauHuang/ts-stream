@@ -319,7 +319,6 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
           var errorType = data.type;
           switch (errorType) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              console.log(data)
               hls.recoverMediaError();
               break;
             case Hls.ErrorDetails.BUFFER_NUDGE_ON_STALL:

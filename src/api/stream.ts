@@ -1,5 +1,16 @@
 const SERVER_URL = import.meta.env.VITE_SERVER_URL
 
+export const getMe = async (username: string) => {
+  const response = await fetch(`${SERVER_URL}/users/${username}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    }
+  })
+
+  return await response.json()
+} 
+
 export const getStream = async (username: string) => {
   const response = await fetch(`${SERVER_URL}/streams/${username}`, {
     method: "POST",
@@ -68,8 +79,8 @@ interface IStream {
   content: string;
 }
 
-export const editStream = async (username: string, stream: IStream) => {
-  const response = await fetch(`${SERVER_URL}/streams/${username}`, {
+export const editUserMeta = async (username: string, stream: IStream) => {
+  const response = await fetch(`${SERVER_URL}/users/${username}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json; charset=utf-8",

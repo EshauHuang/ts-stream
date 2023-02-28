@@ -374,7 +374,6 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
   res.status(204).end();
 });
 
-
 // 初次建立直播間，未建立直播間則無法開實況
 app.post("/u/:username/stream-room", (req, res) => {
   res.send("success");
@@ -436,6 +435,19 @@ app.post("/sign-in", async (req, res) => {
   }
 });
 
+app.post("/users/:username", (req, res) => {
+  try {
+    const { username } = req.params;
+    if (!username) return;
+    const data = usersTable.getMe(username);
+
+    res.json({ message: "success", data });
+  } catch (error) {
+    const { message } = error;
+    res.json({ message });
+  }
+});
+
 app.post("/streams", (req, res) => {
   const { page, limit } = req.body;
 
@@ -455,9 +467,7 @@ app.post("/streams/:username", (req, res) => {
     const { username } = req.params;
     if (!username) return;
 
-    const streamMeta = usersTable.getStream(username);
-
-    console.log({ streamMeta });
+    const streamMeta = usersTable.getMe(username);
 
     res.json({
       message: "success",
@@ -489,7 +499,7 @@ app.post("/streams/:username/streamKey", (req, res) => {
   }
 });
 
-app.put("/streams/:username", (req, res) => {
+app.put("/users/:username", (req, res) => {
   try {
     const { username } = req.params;
     const { title, content } = req.body;
@@ -498,12 +508,19 @@ app.put("/streams/:username", (req, res) => {
       throw new Error("Empty data!");
     }
 
-    const stream = usersTable.getStream(username);
+    const userMeta = usersTable.editUserMeta(username, {
+      stream: {
+        title,
+        content,
+      },
+    });
 
-    stream.title = title;
-    stream.content = content;
-
-    res.json({ message: "success", stream });
+    res.json({
+      message: "success",
+      data: {
+        ...userMeta,
+      },
+    });
   } catch (error) {
     const { message } = error;
 
@@ -534,8 +551,6 @@ app.post("/videos/:videoId", (req, res) => {
   try {
     const { videoId } = req.params;
     const video = videos.getVideo(videoId);
-
-    console.log({ video });
 
     res.json({ message: "success", video });
   } catch (error) {

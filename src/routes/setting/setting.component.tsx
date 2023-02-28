@@ -1,8 +1,10 @@
 import { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
+import _ from "lodash-es"
 
 import Input from "@/components/input/input.component";
 import TextareaField from "@/components/textarea-field/textarea-field.component";
+import ContentEditableField from "@/components/content-editable-field/content-editable-field.component"
 import StreamKeyField from "@/components/stream-key/stream-key.component";
 import { Layout, LayoutContainer } from "@/components/ui/ui.style";
 import { Button, ButtonField } from "@/components/ui/button.style";
@@ -10,23 +12,55 @@ import { Container, Form, Title } from "./setting.style";
 
 import { UserContext } from "@/contexts/userContext";
 
-import { getStream, editStream, refreshStreamKey } from "@/api/stream";
+import { getMe, editUserMeta, refreshStreamKey } from "@/api/stream";
 
 import {
   inputValidate,
   formatInputAndValidateOptions,
 } from "@/utils/inputValidate";
 
-interface IStreamMeta {
-  title: string;
-  content: string;
-  streamKey: string;
+interface ISettingData {
+  user: {
+    avatar: string;
+    email: string;
+    id: string;
+    streamKey: string;
+    subscribes: string;
+    username: string;
+  };
+  stream: {
+    author: string;
+    content: string;
+    dislike: string;
+    isStreamOn: boolean;
+    like: string;
+    startTime: string;
+    title: string;
+    type: string;
+    videoId: string;
+  };
 }
 
-const initialStreamMeta = {
-  title: "",
-  content: "",
-  streamKey: "",
+const initialSettingData = {
+  user: {
+    avatar: "",
+    email: "",
+    id: "",
+    streamKey: "",
+    subscribes: "",
+    username: "",
+  },
+  stream: {
+    author: "",
+    content: "",
+    dislike: "",
+    isStreamOn: false,
+    like: "",
+    startTime: "",
+    title: "",
+    type: "",
+    videoId: "",
+  },
 };
 
 const initialError = {
@@ -42,24 +76,43 @@ const validateRulesOptions = {
 
 const Setting = () => {
   const { currentUser } = useContext(UserContext);
-  const [streamMeta, setStreamMeta] = useState<IStreamMeta>(initialStreamMeta);
+  const [settingData, setSettingData] = useState<ISettingData>(initialSettingData);
   const [error, setError] = useState(initialError);
   const { username } = useParams();
+  const { stream, user } = settingData;
 
   const handleChangeValue: React.ChangeEventHandler<
     HTMLInputElement | HTMLTextAreaElement
   > = (e) => {
     const { value, name } = e.target;
 
-    setStreamMeta((prev) => ({ ...prev, [name]: value }));
+    setSettingData((prev) => {
+
+      const tmpData = _.cloneDeep(prev)
+
+      const newSettingData = Object.entries(prev).reduce(
+        (obj, [dataKey, dataValue]) => {
+          if (dataValue.hasOwnProperty(name))
+            return {
+              ...obj,
+              [dataKey]: {
+                ...dataValue,
+                [name]: value,
+              },
+            };
+          return obj
+        },
+        tmpData
+      );
+
+      return newSettingData;
+    });
   };
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     if (!username) return;
-
-    const { title } = streamMeta;
-
+    const { title, content } = stream;
     const inputValidateOptions = formatInputAndValidateOptions(
       { title },
       validateRulesOptions
@@ -76,9 +129,9 @@ const Setting = () => {
       setError(newErrorMessages);
     } else {
       setError(initialError);
-      const data = await editStream(username, {
-        title: streamMeta.title,
-        content: streamMeta.content,
+      const data = await editUserMeta(username, {
+        title,
+        content,
       });
 
       console.log({ data });
@@ -89,7 +142,7 @@ const Setting = () => {
     if (!username) return;
 
     const { streamKey } = await refreshStreamKey(username);
-    setStreamMeta((prev) => ({
+    setSettingData((prev) => ({
       ...prev,
       streamKey,
     }));
@@ -97,10 +150,9 @@ const Setting = () => {
   };
 
   const handleCopyText = async () => {
-    const { streamKey } = streamMeta;
+    const { streamKey } = user;
     await navigator.clipboard.writeText(streamKey);
 
-    console.log({ streamKey });
     alert("複製成功");
   };
 
@@ -110,14 +162,9 @@ const Setting = () => {
     const { username } = currentUser;
 
     const fetchStream = async () => {
-      const { stream } = await getStream(username);
-      const { streamKey, title, content } = stream;
+      const {data} = await getMe(username);
 
-      setStreamMeta({
-        streamKey,
-        title,
-        content,
-      });
+      setSettingData(data);
     };
 
     fetchStream();
@@ -131,7 +178,7 @@ const Setting = () => {
           <Layout>
             <StreamKeyField
               label="Primary Stream key"
-              streamKey={streamMeta.streamKey}
+              streamKey={user.streamKey}
               handleRefreshStreamKey={handleRefreshStreamKey}
               handleCopyText={handleCopyText}
             />
@@ -141,20 +188,35 @@ const Setting = () => {
               label="Stream Title"
               type="text"
               name="title"
-              value={streamMeta.title}
+              value={stream.title}
               error={error.title}
               onChange={handleChangeValue}
             />
           </Layout>
           <Layout>
-            <TextareaField
+            <ContentEditableField
+            setValue={(content: string) => {
+              setSettingData((prev) => ({
+                ...prev,
+                stream: {
+                  ...prev.stream,
+                  content,
+                },
+              }));
+            }}
+              label="Stream Information"
+              name="content"
+              placeholder="about your stream..."
+              value={stream.content}
+            />
+            {/* <TextareaField
               label="Stream Information"
               rows={5}
               name="content"
               placeholder="about your stream..."
-              value={streamMeta.content}
+              value={stream.content}
               onChange={handleChangeValue}
-            />
+            /> */}
           </Layout>
         </LayoutContainer>
         <Layout>

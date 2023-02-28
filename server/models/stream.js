@@ -337,6 +337,18 @@ usersTable.verifyUser = function (username, password) {
   };
 };
 
+
+usersTable.getMe = function (username) {
+  const user = usersTable.find((user) => user.username === username);
+  const { password, stream, ...userData } = user;
+
+  return {
+    user: userData,
+    stream,
+  };
+};
+
+
 usersTable.getStream = function (username) {
   const user = usersTable.find((user) => user.username === username);
   const { avatar, subscribes, stream } = user;
@@ -347,6 +359,33 @@ usersTable.getStream = function (username) {
       subscribes,
     },
     stream,
+  };
+};
+
+usersTable.editUserMeta = function (username, options) {
+  const user = usersTable.find((user) => user.username === username);
+  const { avatar, subscribes, stream } = user;
+
+  Object.entries(options).forEach(([key, value]) => {
+    if (Object.prototype.toString.call(value) === "[object Object]") {
+      user[key] = {
+        ...user[key],
+        ...value,
+      };
+    } else {
+      user[key] = value;
+    }
+  });
+  
+  return {
+    user: {
+      avatar,
+      subscribes,
+    },
+    stream: {
+      ...stream,
+      ...options.stream,
+    },
   };
 };
 
