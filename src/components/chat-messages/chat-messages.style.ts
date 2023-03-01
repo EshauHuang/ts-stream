@@ -5,5 +5,4 @@ export const Container = styled.div`
   min-height: 20px;
   height: 420px;
   overflow-y: scroll;
-  background-color: #333;
 `;

@@ -13,6 +13,8 @@ import Chatroom from "@/components/chatroom/chatroom.component";
 import VideoPlayer from "@/components/video-player/video-player.component";
 import ChannelInfo from "@/components/channel-detail/channel-detail.component";
 
+import { StyledContentEditable } from "@/components/send-message/send-message.style";
+
 import { getStream } from "@/api/stream";
 
 import useResizeObserver from "@/hooks/useResizeObserver";
@@ -127,7 +129,7 @@ const SubscribeButton = styled.button`
   cursor: pointer;
 
   &:hover {
-    background-color: rgba(255, 255, 255, .8);
+    background-color: rgba(255, 255, 255, 0.8);
   }
 `;
 
@@ -226,12 +228,13 @@ const initialStreamData = {
 const Live = () => {
   const { username } = useParams() as { username: string };
   const [streamMeta, setStreamMeta] = useState<IStreamMeta>(initialStreamData);
+  const [message, setMessage] = useState("");
 
   const {
     stream: { isStreamOn, title, content, author, videoId },
     user: { avatar, subscribes },
   } = streamMeta;
-  const { ref: containerRef, dimensions } = useResizeObserver();
+  // const { ref: containerRef, dimensions } = useResizeObserver();
 
   useEffect(() => {
     const fetchStreamData = async () => {
@@ -249,13 +252,30 @@ const Live = () => {
     fetchStreamData();
   }, [username]);
 
+  const handlePaste: React.ClipboardEventHandler<HTMLDivElement> = (e) => {
+    e.preventDefault();
+    const clipboardData = e.clipboardData;
+    const text = clipboardData.getData("text/plain");
+    const selection = window.getSelection();
+    if (!selection) return;
+
+    const range = selection.getRangeAt(0);
+
+    // Insert the modified text into the contenteditable div
+    range.deleteContents();
+    range.insertNode(document.createTextNode(text));
+    range.collapse(false);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  };
+
   return (
-    <Container ref={containerRef}>
+    <Container>
       <Body>
         <VideoPlayer videoId={videoId} />
-        {dimensions && dimensions.width < 1000 && (
+        {/* {dimensions && dimensions.width < 1000 && ( */}
           <Chatroom setStream={setStreamMeta} roomName={username} />
-        )}
+        {/* )} */}
         <Meta>
           <Title>{title}</Title>
           <ActionRow>
@@ -284,13 +304,12 @@ const Live = () => {
               <MoreHorizIconButton />
             </FeedbackMeta>
           </ActionRow>
-         <ChannelInfo content={content}/>
+          <ChannelInfo content={content} />
         </Meta>
       </Body>
-
-      {dimensions && dimensions.width >= 1000 && (
+      {/* {dimensions && dimensions.width >= 1000 && (
         <Chatroom setStream={setStreamMeta} roomName={username} />
-      )}
+      )} */}
     </Container>
   );
 };

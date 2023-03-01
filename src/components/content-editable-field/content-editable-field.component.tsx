@@ -56,6 +56,8 @@ const ContentEditableField = ({
     setValue(value);
   };
 
+  console.log({ otherProps });
+
   return (
     <StyledContentEditableField>
       <LabelWrap>
@@ -64,8 +66,8 @@ const ContentEditableField = ({
       <ContentEditableWrap>
         <StyledContentEditable
           html={value}
-          onPaste={handlePaste}
           innerRef={contentRef}
+          onPaste={handlePaste}
           onChange={handleChangeValue}
           {...otherProps}
         />

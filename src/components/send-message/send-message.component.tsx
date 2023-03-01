@@ -26,6 +26,8 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
   const submitBtnRef = useRef<HTMLButtonElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
 
+  console.log({ message });
+
   useEffect(() => {
     if (!currentUser) return;
   }, [currentUser]);
@@ -78,9 +80,10 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
 
     if (scrollHeight >= 100)
       content.scrollIntoView({ block: "nearest", inline: "nearest" });
+
     setMessage(value);
   };
-  
+
   return (
     <Container as="form" onSubmit={handleSubmit}>
       <TopField>
@@ -88,10 +91,18 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
         <InputField>
           <div>Eshau</div>
           <StyledContentEditable
-            html={message}
             innerRef={contentRef}
+            html={message}
             onPaste={handlePaste}
             onChange={handleChangeValue}
+            onKeyDown={(event) => {
+              const submitBtn = submitBtnRef.current;
+              
+              if (event.keyCode === 13) {
+                event.preventDefault();
+                submitBtn?.click();
+              }
+            }}
           />
           <Underline />
         </InputField>

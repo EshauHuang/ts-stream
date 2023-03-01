@@ -8,7 +8,6 @@ export const ContentEditableWrap = styled.div``;
 
 export const StyledContentEditable = styled(ContentEditable)`
   width: 100%;
-  resize: none;
   background-color: rgba(255, 255, 255, 0.16);
   min-height: 150px;
   border-width: 2px;
@@ -19,6 +18,9 @@ export const StyledContentEditable = styled(ContentEditable)`
   padding: 8px;
   transition: border 100ms ease-in, background-color 100ms ease-in;
   white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 30px;
+  overflow-y: auto;
 
   &:hover {
     border-color: rgba(255, 255, 255, 0.65);

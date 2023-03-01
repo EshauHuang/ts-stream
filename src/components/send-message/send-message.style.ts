@@ -40,12 +40,12 @@ export const StyledContentEditable = styled(ContentEditable)`
   color: white;
   word-break: break-word;
   max-width: 100%;
-  min-height: 18px;
-  max-height: 100px;
+  font-size: 1.2rem;
+  line-height: 1.8rem;
+  max-height: 10rem;
   overflow-y: auto;
   overflow-x: hidden;
   overflow-wrap: break-word;
-  font-size: 1.1625rem;
 
   &:hover {
     border: 0;
