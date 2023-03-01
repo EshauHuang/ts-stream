@@ -11,6 +11,7 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 
 import Chatroom from "@/components/chatroom/chatroom.component";
 import VideoPlayer from "@/components/video-player/video-player.component";
+import ChannelInfo from "@/components/channel-detail/channel-detail.component";
 
 import { getStream } from "@/api/stream";
 
@@ -41,15 +42,6 @@ const StyledThumbDownOffAltIcon = styled(ThumbDownOffAltIcon)`
   ${IconStyle}
 `;
 
-// const MoreHorizIconWrap = styled.div`
-//   padding: 5px;
-//   width: 40px;
-//   height: 40px;
-//   background-color: rgba(255, 255, 255, 0.1);
-//   border-radius: 50%;
-//   color: #fff;
-// `;
-
 const MoreHorizIconButton = styled(MoreHorizIcon)`
   ${IconStyle}
   background-color: rgba(255, 255, 255, 0.1);
@@ -73,7 +65,9 @@ const Title = styled.h1`
   color: #fff;
 `;
 
-const Meta = styled.div``;
+const Meta = styled.div`
+  padding: 1rem;
+`;
 
 const ActionRow = styled.div`
   display: flex;
@@ -123,12 +117,18 @@ const Subscribe = styled.div`
 `;
 
 const SubscribeButton = styled.button`
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 1);
   color: black;
   padding: 0 1.6rem;
   height: 3.6rem;
   line-height: 3.6rem;
   border-radius: 1.8rem;
+  font-weight: bold;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, .8);
+  }
 `;
 
 const FeedbackMeta = styled.div`
@@ -195,19 +195,6 @@ const Dislike = styled.div`
   }
 `;
 
-const Share = styled.div``;
-
-const Content = styled.div`
-  white-space: pre-wrap;
-
-  span {
-    font-size: 1.4rem;
-  }
-
-  a {
-    color: rgba(62, 166, 255);
-  }
-`;
 export interface IStreamMeta {
   stream: {
     isStreamOn: boolean;
@@ -245,20 +232,6 @@ const Live = () => {
     user: { avatar, subscribes },
   } = streamMeta;
   const { ref: containerRef, dimensions } = useResizeObserver();
-
-  const textArray = content.split("\n");
-
-  const newText = textArray
-    .map((text) => {
-      const urlRegex = /(https?:\/\/[^\s]+)/g;
-      const newText = `<div><span>${text || "  "}</span></div>`;
-
-      return newText.replace(
-        urlRegex,
-        (url) => `<a href="${url}" target="_blank">${url}</a>`
-      );
-    })
-    .join("");
 
   useEffect(() => {
     const fetchStreamData = async () => {
@@ -311,7 +284,7 @@ const Live = () => {
               <MoreHorizIconButton />
             </FeedbackMeta>
           </ActionRow>
-          <Content dangerouslySetInnerHTML={{ __html: newText }}></Content>
+         <ChannelInfo content={content}/>
         </Meta>
       </Body>
 
