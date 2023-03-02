@@ -1,13 +1,16 @@
 import { useContext, useState, useEffect, useRef } from "react";
+import styled from "styled-components";
 import { Socket } from "socket.io-client";
 import { ContentEditableEvent } from "react-contenteditable";
+
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 
 import { Button, ButtonField } from "@/components/ui/button.style";
 
 import { UserContext } from "@/contexts/userContext";
 
 import {
-  Container,
+  Form,
   Username,
   TopField,
   Photo,
@@ -17,6 +20,28 @@ import {
   BottomField,
   EmojiPicker,
 } from "./send-message.style";
+
+const ReadOnly = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const Container = styled.div`
+  width: 100%;
+  padding: 20px;
+`;
+
+const ErrorOutlineButton = styled(ErrorOutlineIcon)`
+  width: 24px;
+  height: 24px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-right: 1.6rem;
+`;
+
+const Text = styled.span`
+  font-size: 1.4rem;
+  color: rgba(255, 255, 255, 0.7);
+`;
 
 interface ISendMessage {
   socket: Socket | null;
@@ -29,6 +54,8 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
   const contentRef = useRef<HTMLDivElement | null>(null);
   const placeHolderRef = useRef<HTMLLabelElement | null>(null);
 
+  const { username } = currentUser || {};
+
   useEffect(() => {
     if (!currentUser) return;
   }, [currentUser]);
@@ -37,11 +64,9 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
     e.preventDefault();
 
     if (!currentUser || !message) return;
-    const { username } = currentUser;
 
     socket?.emit("send-message", message);
 
-    // sendCommentByUser({ username, message });
     setMessage("");
   };
 
@@ -88,45 +113,56 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
     setMessage(value);
   };
 
-  return (
-    <Container as="form" onSubmit={handleSubmit}>
-      <TopField>
-        <Photo />
-        <InputField>
-          <Username>Eshau</Username>
-          <StyledContentEditable
-            innerRef={contentRef}
-            html={message}
-            onPaste={handlePaste}
-            onChange={handleChangeValue}
-            placeHolderRef={placeHolderRef}
-            placeholder="以 Eshau 的身分發表公開留言...(已啟用慢速模式)"
-            onKeyDown={(event) => {
-              const submitBtn = sendBtnRef.current;
+  console.log({ currentUser });
 
-              if (event.keyCode === 13) {
-                event.preventDefault();
-                submitBtn?.click();
-              }
-            }}
-          />
-          <Underline />
-        </InputField>
-      </TopField>
-      <BottomField>
-        <EmojiPicker />
-        <ButtonField>
-          <Button
-            ref={sendBtnRef}
-            type="submit"
-            fColor="#fff"
-            bgColor="#f2711c"
-            bgHover="#f26202"
-          >
-            送出
-          </Button>
-        </ButtonField>
-      </BottomField>
+  return (
+    <Container>
+      {currentUser ? (
+        <Form onSubmit={handleSubmit}>
+          <TopField>
+            <Photo />
+            <InputField>
+              <Username>{username}</Username>
+              <StyledContentEditable
+                innerRef={contentRef}
+                html={message}
+                onPaste={handlePaste}
+                onChange={handleChangeValue}
+                placeHolderRef={placeHolderRef}
+                placeholder={`以 ${username} 的身分發表公開留言...`}
+                onKeyDown={(event) => {
+                  const submitBtn = sendBtnRef.current;
+
+                  if (event.keyCode === 13) {
+                    event.preventDefault();
+                    submitBtn?.click();
+                  }
+                }}
+              />
+              <Underline />
+            </InputField>
+          </TopField>
+          <BottomField>
+            <EmojiPicker />
+            <ButtonField>
+              <Button
+                ref={sendBtnRef}
+                type="submit"
+                fColor="#fff"
+                bgColor="#f2711c"
+                bgHover="#f26202"
+              >
+                送出
+              </Button>
+            </ButtonField>
+          </BottomField>
+        </Form>
+      ) : (
+        <ReadOnly>
+          <ErrorOutlineButton />
+          <Text>登入後才可留言</Text>
+        </ReadOnly>
+      )}
     </Container>
   );
 };

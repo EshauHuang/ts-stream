@@ -75,13 +75,13 @@ const ChannelInfo = ({ content }: { content: string }) => {
       onClick={() => (!showMore ? setShowMore(true) : {})}
     >
       <Info>
-        {textArray.map((text) => {
+        {textArray.map((text, index) => {
           const urlRegex = /(https?:\/\/[^\s]+)/g;
           const matchUrl = text.match(urlRegex);
 
           if (matchUrl) {
             return (
-              <div>
+              <div key={`${index}`}>
                 <span>
                   <a href={`${matchUrl[0]}`}>{matchUrl[0]}</a>
                 </span>
@@ -89,7 +89,7 @@ const ChannelInfo = ({ content }: { content: string }) => {
             );
           } else {
             return (
-              <div>
+              <div key={`${index}`}>
                 <span>{text || "  "}</span>
               </div>
             );

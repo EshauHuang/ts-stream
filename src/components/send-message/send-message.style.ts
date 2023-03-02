@@ -1,10 +1,7 @@
 import styled from "styled-components";
 import ContentEditable from "@/components/content-editable/content-editable.component";
 
-export const Container = styled.div`
-  width: 100%;
-  padding: 20px;
-`;
+export const Form = styled.form``;
 
 export const Username = styled.p`
       font-size: 1.2rem;
