@@ -6,6 +6,12 @@ export const Container = styled.div`
   padding: 20px;
 `;
 
+export const Username = styled.p`
+      font-size: 1.2rem;
+    color: rgba(255,255,255,0.5);
+    font-weight: bold;
+`
+
 export const TopField = styled.div`
   display: flex;
 `;
@@ -21,7 +27,7 @@ export const Photo = styled.div`
 export const InputField = styled.div`
   color: white;
   flex-grow: 1;
-  margin-left: 20px;
+  margin-left: 1.6rem;
 `;
 
 export const Underline = styled.div`
@@ -63,11 +69,3 @@ export const BottomField = styled.div`
 `;
 
 export const EmojiPicker = styled.div``;
-
-export const SendButton = styled.button`
-  font-size: 1.1625rem;
-  padding: 5px;
-  background-color: #fff;
-  cursor: pointer;
-  color: black;
-`;

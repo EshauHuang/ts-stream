@@ -13,8 +13,9 @@ interface IContentEditable {
   label: string;
   name: string;
   value: string;
-  placeholder: string;
+  placeholder?: string;
   error?: string;
+  padding?: string;
   setValue: (content: string) => void;
 }
 
@@ -55,8 +56,6 @@ const ContentEditableField = ({
       content.scrollIntoView({ block: "nearest", inline: "nearest" });
     setValue(value);
   };
-
-  console.log({ otherProps });
 
   return (
     <StyledContentEditableField>

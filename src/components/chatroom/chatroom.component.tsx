@@ -97,7 +97,7 @@ const Chatroom: React.FC<IChatroomProps> = ({
 
   return (
     <Container>
-      <ViewModeBar>ViewModeBar</ViewModeBar>
+      <ViewModeBar>Stream Chat</ViewModeBar>
       <ChatMessages />
       <SendMessage socket={socket} />
     </Container>

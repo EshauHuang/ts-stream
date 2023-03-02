@@ -1,23 +1,32 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import ReactContentEditable, {
   ContentEditableEvent,
 } from "react-contenteditable";
 
-const ReactContentEditableWrap = styled.div`
-  position: relative;
-  z-index: 1;
-`;
-
 const Label = styled.label`
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
   font-size: 1.2rem;
   line-height: 1.8rem;
   max-height: 10rem;
   color: rgba(255, 255, 255, 0.5);
   z-index: -1;
+
+  &.has-text {
+    display: none;
+  }
+`;
+
+const ReactContentEditableWrap = styled.div<{ padding?: string }>`
+  position: relative;
+  z-index: 1;
+
+  ${Label} {
+    top: ${({ padding }) => (padding ? `${padding}px` : "0px")};
+    left: ${({ padding }) => (padding ? `${padding}px` : "0px")};
+  }
 `;
 
 interface ContentEditableProps {
@@ -28,8 +37,11 @@ interface ContentEditableProps {
   onKeyPress?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
   onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
   html: string;
+  padding?: string;
   className?: string;
   innerRef?: React.RefObject<HTMLDivElement>;
+  placeholder?: string;
+  placeHolderRef?: React.RefObject<HTMLLabelElement>;
 }
 
 export const ContentEditable: React.FC<ContentEditableProps> = ({
@@ -38,6 +50,9 @@ export const ContentEditable: React.FC<ContentEditableProps> = ({
   onBlur,
   onKeyPress,
   onKeyDown,
+  padding,
+  placeholder,
+  placeHolderRef,
   ...props
 }) => {
   const onChangeRef = useRef(onChange);
@@ -65,11 +80,10 @@ export const ContentEditable: React.FC<ContentEditableProps> = ({
   }, [onKeyDown]);
 
   return (
-    <ReactContentEditableWrap>
-      {!hasText && (
-        <Label>以 Eshau 的身分發表公開留言...(已啟用慢速模式)</Label>
-      )}
-
+    <ReactContentEditableWrap padding={padding}>
+      <Label className={`${hasText ? "has-text" : ""}`} ref={placeHolderRef}>
+        {placeholder}
+      </Label>
       <ReactContentEditable
         {...props}
         onChange={

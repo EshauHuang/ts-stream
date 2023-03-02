@@ -206,17 +206,10 @@ const Setting = () => {
             }}
               label="Stream Information"
               name="content"
-              placeholder="about your stream..."
+              placeholder="About your stream..."
+              padding="8"
               value={stream.content}
             />
-            {/* <TextareaField
-              label="Stream Information"
-              rows={5}
-              name="content"
-              placeholder="about your stream..."
-              value={stream.content}
-              onChange={handleChangeValue}
-            /> */}
           </Layout>
         </LayoutContainer>
         <Layout>

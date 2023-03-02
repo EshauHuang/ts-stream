@@ -2,10 +2,13 @@ import { useContext, useState, useEffect, useRef } from "react";
 import { Socket } from "socket.io-client";
 import { ContentEditableEvent } from "react-contenteditable";
 
+import { Button, ButtonField } from "@/components/ui/button.style";
+
 import { UserContext } from "@/contexts/userContext";
 
 import {
   Container,
+  Username,
   TopField,
   Photo,
   InputField,
@@ -13,7 +16,6 @@ import {
   Underline,
   BottomField,
   EmojiPicker,
-  SendButton,
 } from "./send-message.style";
 
 interface ISendMessage {
@@ -23,10 +25,9 @@ interface ISendMessage {
 const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
   const { currentUser } = useContext(UserContext);
   const [message, setMessage] = useState("");
-  const submitBtnRef = useRef<HTMLButtonElement | null>(null);
+  const sendBtnRef = useRef<HTMLButtonElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
-
-  console.log({ message });
+  const placeHolderRef = useRef<HTMLLabelElement | null>(null);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -49,7 +50,7 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
       e.preventDefault();
       if (!e.target.innerText) return;
 
-      submitBtnRef.current?.click();
+      sendBtnRef.current?.click();
     }
   };
 
@@ -68,11 +69,14 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
     range.collapse(false);
     selection.removeAllRanges();
     selection.addRange(range);
+
+    if (text && placeHolderRef.current) {
+      placeHolderRef.current.classList.add("has-text");
+    }
   };
 
   const handleChangeValue = (e: ContentEditableEvent) => {
     const content = contentRef.current;
-
     if (!content) return;
 
     const { value } = e.target;
@@ -89,15 +93,17 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
       <TopField>
         <Photo />
         <InputField>
-          <div>Eshau</div>
+          <Username>Eshau</Username>
           <StyledContentEditable
             innerRef={contentRef}
             html={message}
             onPaste={handlePaste}
             onChange={handleChangeValue}
+            placeHolderRef={placeHolderRef}
+            placeholder="以 Eshau 的身分發表公開留言...(已啟用慢速模式)"
             onKeyDown={(event) => {
-              const submitBtn = submitBtnRef.current;
-              
+              const submitBtn = sendBtnRef.current;
+
               if (event.keyCode === 13) {
                 event.preventDefault();
                 submitBtn?.click();
@@ -109,9 +115,17 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
       </TopField>
       <BottomField>
         <EmojiPicker />
-        <SendButton type="submit" ref={submitBtnRef}>
-          送出
-        </SendButton>
+        <ButtonField>
+          <Button
+            ref={sendBtnRef}
+            type="submit"
+            fColor="#fff"
+            bgColor="#f2711c"
+            bgHover="#f26202"
+          >
+            送出
+          </Button>
+        </ButtonField>
       </BottomField>
     </Container>
   );
