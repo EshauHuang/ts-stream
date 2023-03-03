@@ -4,7 +4,8 @@ import { Server } from "socket.io";
 import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
-import { Video, Rooms, Users, Comments, usersTable } from "./models/stream.js";
+import { Video, Rooms, Comments, usersTable } from "./models/stream.js";
+import { startIo } from "./socket/chatroom.js";
 import { checkStreamKey } from "./utils/streamKey.js";
 
 const PORT = 3535;
@@ -271,7 +272,6 @@ comments.map((comment) => {
 
 export const videos = new Video(siteVideos);
 export const rooms = new Rooms();
-export const users = new Users();
 
 const app = express();
 
@@ -286,6 +286,8 @@ export const io = new Server(server, {
     origin: "*",
   },
 });
+
+startIo(io)
 
 app.post("/auth/on_publish", (req, res) => {
   console.log("驗證 stream key '/auth/on_publish");
@@ -575,51 +577,6 @@ app.post("/comments/:videoId", (req, res) => {
     res.status(400).json({
       message,
     });
-  }
-});
-
-io.on("connection", (socket) => {
-  // 加入假的 user 進 rooms
-  rooms.addRoom("user01");
-  rooms.addRoom("123");
-
-  socket.on("new-user", (user, roomName) => {
-    socket.join(roomName);
-
-    rooms.addUserToRoom(roomName, socket.id, user);
-
-    users.addUser(socket.id, user);
-  });
-
-  socket.on("send-message", (message, callback) => {
-    const { user } = users[socket.id];
-
-    currentRoomToDo((room) => {
-      const comment = rooms.addCommentToRoom(room, user, message);
-      io.in(room).emit("chat-message", comment);
-
-      if (!callback) return;
-      callback({
-        status: "ok",
-      });
-    });
-  });
-
-  socket.on("disconnecting", function () {
-    // const { user } = users[socket.id];
-    // currentRoomToDo((room) => {
-    //   socket.to(room).emit("user-left", user);
-    //   rooms.removeUserFromRoom(room, socket.id);
-    // });
-    // users.removeUser(socket.id);
-  });
-
-  function currentRoomToDo(func) {
-    for (const room of socket.rooms) {
-      if (room !== socket.id) {
-        func(room);
-      }
-    }
   }
 });
 

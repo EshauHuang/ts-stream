@@ -113,8 +113,6 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
     setMessage(value);
   };
 
-  console.log({ currentUser });
-
   return (
     <Container>
       {currentUser ? (

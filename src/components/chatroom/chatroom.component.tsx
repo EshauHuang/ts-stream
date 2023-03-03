@@ -1,5 +1,7 @@
-import { useState, useEffect, useRef, useContext, useMemo } from "react";
+import { useState, useEffect, useContext } from "react";
 import { io, Socket } from "socket.io-client";
+
+import { UserContext } from "@/contexts/userContext";
 
 import { CommentsContext, IComment } from "@/contexts/commentsContext";
 import { CommentsProvider } from "@/contexts/commentsContext";
@@ -22,7 +24,7 @@ interface ServerToClientEvents {
 }
 
 interface ClientToServerEvents {
-  "new-user": (user: User, roomName: string) => void;
+  "user-connect": (user: User | null, roomName: string) => void;
 }
 
 const user = {
@@ -41,10 +43,11 @@ const Chatroom: React.FC<IChatroomProps> = ({
   comments,
 }) => {
   const { sendCommentByUser, setCurrentComments } = useContext(CommentsContext);
+  const { currentUser } = useContext(UserContext);
 
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [currentUser, setCurrentUser] = useState(() => user);
+  const { username } = currentUser || {};
 
   useEffect(() => {
     if (!roomName) return;
@@ -57,13 +60,20 @@ const Chatroom: React.FC<IChatroomProps> = ({
       setIsConnected(true);
     });
 
-    socket.emit("new-user", currentUser, roomName);
+    if (username) {
+      socket.emit("user-connect", { username }, roomName);
+    } else {
+      socket.emit("user-connect", null, roomName);
+    }
+
+    // socket.emit("new-user", currentUser, roomName);
 
     socket.on("disconnect", () => {
       setIsConnected(false);
     });
 
     socket.on("chat-message", (comment) => {
+      console.log({ comment });
       sendCommentByUser(comment);
     });
 
@@ -84,11 +94,10 @@ const Chatroom: React.FC<IChatroomProps> = ({
     setSocket(socket);
 
     return () => {
-      socket.off("connect");
-      socket.off("chat-message");
-      socket.off("disconnect");
+      socket.off();
+      socket.disconnect();
     };
-  }, [roomName]);
+  }, [roomName, username]);
 
   useEffect(() => {
     if (!comments || !comments.length) return;

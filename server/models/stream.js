@@ -1,5 +1,5 @@
 import * as _ from "lodash-es";
-import { genStreamKey, checkStreamKey } from "../utils/streamKey.js";
+import { genStreamKey } from "../utils/streamKey.js";
 import { genSalt, hashPassword, checkPassword } from "../utils/password.js";
 
 export class Video {
@@ -175,16 +175,25 @@ export class Rooms {
     this[room].users.removeUser(socketId);
   }
 
-  addCommentToRoom(room, message, user) {
-    if (!room || !message || !user) return;
+  addCommentToRoom(room, message, socketId) {
+    if (!room || !message || !socketId) return;
+    const user = this.searchUserFromRoom(room, socketId);
+
     if (!this[room] || !this[room].comments) return;
-    const comment = this[room].comments.addComment(message, user);
+    const comment = this[room].comments.addComment(user, message);
     return comment;
   }
 
   searchRoomComments(room) {
     if (!this[room]) return;
     return this[room].comments.searchComments();
+  }
+
+  searchUserFromRoom(room, socketId) {
+    if (!room || !socketId) return;
+    if (!this[room] || !this[room].users) return;
+
+    return this[room].users[socketId];
   }
 }
 
