@@ -7,6 +7,7 @@ dotenv.config();
 import { Video, Rooms, Comments, usersTable } from "./models/stream.js";
 import { startIo } from "./socket/chatroom.js";
 import { checkStreamKey } from "./utils/streamKey.js";
+import { writeFile } from "node:fs/promises";
 
 const PORT = 3535;
 
@@ -18,7 +19,7 @@ const siteVideos = {
     author: "Joma Tech",
     content: "asdsadsa",
     thumbnail: "images/2.jpg",
-    startTime: 1675759497647,
+    startTime: 167575949764,
     comments: new Comments(),
   },
   2: {
@@ -98,176 +99,204 @@ const video = siteVideos[1];
 const comments = [
   {
     comment: {
+      time: 1675759497647,
       user: { username: "Sans" },
-      message: { text: "asd", date: 1675759497647 },
+      message: { text: "asd" },
     },
   },
   {
     comment: {
+      time: 1675759497786,
       user: { username: "Sans" },
-      message: { text: "asd", date: 1675759497786 },
+      message: { text: "asd" },
     },
   },
   {
     comment: {
+      time: 1675759498151,
       user: { username: "Sans" },
-      message: { text: "asdas", date: 1675759498151 },
+      message: { text: "asdas" },
     },
   },
   {
     comment: {
+      time: 1675759498217,
       user: { username: "Sans" },
-      message: { text: "d", date: 1675759498217 },
+      message: { text: "d" },
     },
   },
   {
     comment: {
+      time: 1675759498330,
       user: { username: "Sans" },
-      message: { text: "a", date: 1675759498330 },
+      message: { text: "a" },
     },
   },
   {
     comment: {
+      time: 1675759498456,
       user: { username: "Sans" },
-      message: { text: "da", date: 1675759498456 },
+      message: { text: "da" },
     },
   },
   {
     comment: {
+      time: 1675759498557,
       user: { username: "Sans" },
-      message: { text: "sd", date: 1675759498557 },
+      message: { text: "sd" },
     },
   },
   {
     comment: {
+      time: 1675759498662,
       user: { username: "Sans" },
-      message: { text: "a", date: 1675759498662 },
+      message: { text: "adfadadadsa" },
     },
   },
   {
     comment: {
+      time: 1675759498790,
       user: { username: "Sans" },
-      message: { text: "d", date: 1675759498790 },
+      message: { text: "d" },
     },
   },
   {
     comment: {
+      time: 1675759508790,
       user: { username: "Sans" },
-      message: { text: "a", date: 1675759498916 },
+      message: { text: "BBBBBBB" },
     },
   },
   {
     comment: {
+      time: 1675759499006,
       user: { username: "Sans" },
-      message: { text: "d", date: 1675759499006 },
+      message: { text: "d" },
     },
   },
   {
     comment: {
+      time: 1675759499106,
       user: { username: "Sans" },
-      message: { text: "a", date: 1675759499106 },
+      message: { text: "a" },
     },
   },
   {
     comment: {
+      time: 1675759499211,
       user: { username: "Sans" },
-      message: { text: "d", date: 1675759499211 },
+      message: { text: "d" },
     },
   },
   {
     comment: {
+      time: 1675759501410,
       user: { username: "Sans" },
-      message: { text: "csfsdf", date: 1675759501410 },
+      message: { text: "csfsdf" },
     },
   },
   {
     comment: {
+      time: 1675759501574,
       user: { username: "Sans" },
-      message: { text: "s", date: 1675759501574 },
+      message: { text: "s" },
     },
   },
   {
     comment: {
+      time: 1675759501999,
       user: { username: "Sans" },
-      message: { text: "sdf", date: 1675759501999 },
+      message: { text: "sdf" },
     },
   },
   {
     comment: {
+      time: 1675759502141,
       user: { username: "Sans" },
-      message: { text: "sd", date: 1675759502141 },
+      message: { text: "sd" },
     },
   },
   {
     comment: {
+      time: 1675759502269,
       user: { username: "Sans" },
-      message: { text: "fs", date: 1675759502269 },
+      message: { text: "fs" },
     },
   },
   {
     comment: {
+      time: 1675759502416,
       user: { username: "Sans" },
-      message: { text: "f", date: 1675759502416 },
+      message: { text: "f" },
     },
   },
   {
     comment: {
+      time: 1675759502557,
       user: { username: "Sans" },
-      message: { text: "sf", date: 1675759502557 },
+      message: { text: "sf" },
     },
   },
   {
     comment: {
+      time: 1675759502708,
       user: { username: "Sans" },
-      message: { text: "s", date: 1675759502708 },
+      message: { text: "s" },
     },
   },
   {
     comment: {
+      time: 1675759502866,
       user: { username: "Sans" },
-      message: { text: "fs", date: 1675759502866 },
+      message: { text: "fs" },
     },
   },
   {
     comment: {
+      time: 1675759503008,
       user: { username: "Sans" },
-      message: { text: "df", date: 1675759503008 },
+      message: { text: "df" },
     },
   },
   {
     comment: {
+      time: 1675759503191,
       user: { username: "Sans" },
-      message: { text: "sf", date: 1675759503191 },
+      message: { text: "sf" },
     },
   },
   {
     comment: {
+      time: 1675759503341,
       user: { username: "Sans" },
-      message: { text: "s", date: 1675759503341 },
+      message: { text: "s" },
     },
   },
   {
     comment: {
+      time: 1675759503472,
       user: { username: "Sans" },
-      message: { text: "fs", date: 1675759503472 },
+      message: { text: "fs" },
     },
   },
   {
     comment: {
+      time: 1675759503624,
       user: { username: "Sans" },
-      message: { text: "f", date: 1675759503624 },
+      message: { text: "f" },
     },
   },
   {
     comment: {
+      time: 1675759803756,
       user: { username: "Sans" },
-      message: { text: "s", date: 1675759503756 },
+      message: { text: "s" },
     },
   },
 ];
 comments.map((comment) => {
   const c = comment.comment;
-  video.comments.addFakeComment(c.user, c.message);
+  video.comments.addFakeComment(c.time, c.user, c.message);
 });
 
 export const videos = new Video(siteVideos);
@@ -287,7 +316,7 @@ export const io = new Server(server, {
   },
 });
 
-startIo(io)
+startIo(io);
 
 app.post("/auth/on_publish", (req, res) => {
   console.log("驗證 stream key '/auth/on_publish");
@@ -333,8 +362,6 @@ app.post("/rtmp/on_publish", (req, res) => {
   user.stream.isStreamOn = true;
   user.stream.videoId = videoId;
 
-  rooms.addRoom(username);
-
   // 傳送直播開始訊息，用於刷新影片
   io.to(username).emit("stream-connected", { videoId });
 
@@ -349,6 +376,8 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
   const user = usersTable.find((user) => user.username === username);
   // room 名稱與 username 相同，取得此 room 的 comments
   const { comments } = rooms[username];
+
+  // console.log({ comments });
   const { title, content, startTime } = user.stream;
 
   // 將此直播紀錄(影片、聊天室)儲存在 siteVideos 內
@@ -371,7 +400,10 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
   user.stream.isStreamOn = false;
   user.stream.videoId = "";
 
-  rooms.removeRoom(username);
+  rooms.initialRoom(username);
+
+  writeFile("video.json", JSON.stringify(user.videos));
+  // console.log(user.videos);
 
   res.status(204).end();
 });
@@ -561,6 +593,18 @@ app.post("/videos/:videoId", (req, res) => {
       message,
     });
   }
+});
+
+app.post("/videos/:videoId/comments", (req, res) => {
+  const { videoId } = req.params;
+  const { time } = req.body;
+
+  const video = videos.getVideo(videoId);
+
+
+  const comments = videos.getSliceComments(videoId, time);
+
+  res.json({ message: "success", comments, video });
 });
 
 app.post("/comments/:videoId", (req, res) => {

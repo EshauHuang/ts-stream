@@ -9,7 +9,7 @@ export const getMe = async (username: string) => {
   })
 
   return await response.json()
-} 
+}
 
 export const getStream = async (username: string) => {
   const response = await fetch(`${SERVER_URL}/streams/${username}`, {
@@ -63,12 +63,16 @@ export const getVideo = async (videoId: string) => {
   return await response.json()
 }
 
-export const getComments = async (videoId: string) => {
-  const response = await fetch(`${SERVER_URL}/comments/${videoId}?date=1675759497647`, {
+export const getComments = async (videoId: string, time: number | string = 0) => {
+
+  const response = await fetch(`${SERVER_URL}/videos/${videoId}/comments`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json; charset=utf-8",
     },
+    body: JSON.stringify({
+      time
+    })
   })
 
   return await response.json()

@@ -54,7 +54,11 @@ export class Video {
 
     const { comments } = this[id];
 
-    if (!comments) return;
+    if (!comments || !startTime) return;
+
+    console.log(startTime);
+
+    console.log(comments.sliceComments(startTime));
 
     return comments.sliceComments(startTime);
   }
@@ -81,10 +85,10 @@ export class Comments {
     if (!user || !text) return;
 
     const comment = {
+      time: new Date().getTime(),
       user,
       message: {
         text,
-        date: new Date().getTime(),
       },
     };
     this[this.length + 1] = comment;
@@ -93,10 +97,11 @@ export class Comments {
     return comment;
   }
 
-  addFakeComment(user, message) {
-    if (!user || !message) return;
+  addFakeComment(time, user, message) {
+    if (!time || !user || !message) return;
 
     const comment = {
+      time,
       user,
       message,
     };
@@ -111,15 +116,17 @@ export class Comments {
   }
 
   filterCommentsByStartTime(startTime) {
-    const comments = Object.values(this).filter(
-      (comment) => comment.message && comment.message.date >= Number(startTime)
-    );
+    const comments = Object.values(this).filter((comment) => {
+
+
+      return comment.time >= Number(startTime);
+    });
 
     return comments;
   }
 
   sliceComments(startTime, limit = 10) {
-    return this.filterCommentsByStartTime(startTime).slice(0, (limit = 10));
+    return this.filterCommentsByStartTime(startTime).slice(0, limit);
   }
 }
 
@@ -154,6 +161,14 @@ export class Rooms {
       comments: new Comments(),
     };
     this.length++;
+  }
+
+  initialRoom(room) {
+    if (!this[room]) return;
+    this[room] = {
+      users: new Users(),
+      comments: new Comments(),
+    };
   }
 
   removeRoom(room) {
@@ -346,7 +361,6 @@ usersTable.verifyUser = function (username, password) {
   };
 };
 
-
 usersTable.getMe = function (username) {
   const user = usersTable.find((user) => user.username === username);
   const { password, stream, ...userData } = user;
@@ -356,7 +370,6 @@ usersTable.getMe = function (username) {
     stream,
   };
 };
-
 
 usersTable.getStream = function (username) {
   const user = usersTable.find((user) => user.username === username);
@@ -385,7 +398,7 @@ usersTable.editUserMeta = function (username, options) {
       user[key] = value;
     }
   });
-  
+
   return {
     user: {
       avatar,

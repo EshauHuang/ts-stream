@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 
 import Chatroom from "@/components/chatroom/chatroom.component";
 import VideoPlayer from "@/components/video-player/video-player.component";
-
+import { CommentsProvider } from "@/contexts/commentsContext";
 import { getVideo, getComments } from "@/api/stream";
 
 import { IComment } from "@/contexts/commentsContext";
@@ -40,11 +40,14 @@ const Video = () => {
 
     fetchVideoData();
   }, []);
+
   return (
-    <Container>
-      <VideoPlayer isLive={false} videoId={videoId} />
-      <Chatroom comments={video.comments} />
-    </Container>
+    <CommentsProvider>
+      <Container>
+        <VideoPlayer isLive={false} videoId={videoId} />
+        <Chatroom comments={video.comments} />
+      </Container>
+    </CommentsProvider>
   );
 };
 

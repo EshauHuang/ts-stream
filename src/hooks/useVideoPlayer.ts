@@ -135,6 +135,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
 
   const handleVideoTime = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const timeline = timelineRef.current;
+    console.log("handleVideoTime")
 
     if (!timeline || isScrubbing || !isPlay) return;
 
