@@ -63,7 +63,8 @@ export const getVideo = async (videoId: string) => {
   return await response.json()
 }
 
-export const getComments = async (videoId: string, time: number | string = 0) => {
+export const getComments = async (videoId?: string | number, time: number | string = 0, mode: number = 1) => {
+  if (!videoId) return
 
   const response = await fetch(`${SERVER_URL}/videos/${videoId}/comments`, {
     method: "POST",
@@ -71,7 +72,8 @@ export const getComments = async (videoId: string, time: number | string = 0) =>
       "Content-Type": "application/json; charset=utf-8",
     },
     body: JSON.stringify({
-      time
+      time,
+      mode
     })
   })
 

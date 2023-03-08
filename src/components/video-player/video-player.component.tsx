@@ -62,26 +62,7 @@ const VideoPlayer: React.FC<IVideoPlayer> = ({
   const { isFull, isTheater, currentTime, isPlay, isPlaying } = videoOptions;
   const { handleTogglePlay, handleVideoTime, handleVideoLoaded } =
     videoControllers;
-  const realTimeRef = useRef(0);
 
-  const { setChatTime } = useContext(CommentsContext);
-
-  // e: React.SyntheticEvent<HTMLVideoElement>
-  const commentsUpdate = async () => {
-    // const { currentTime } = e.target as HTMLVideoElement;
-    // 依據 currentTime 去抓取 comments
-    const realTime = 1675759497647 + currentTime * 1000;
-    setChatTime(realTime);
-    const comments = await getComments("1", realTime);
-
-    // console.log(comments);
-
-    // 依據 comments time 將留言加至聊天室
-
-    // 如抓到的 comments 已經都加進聊天室，則以最後一則留言的時間在次數抓取留言
-  };
-
-  commentsUpdate();
 
   return (
     <>
@@ -91,9 +72,7 @@ const VideoPlayer: React.FC<IVideoPlayer> = ({
             <Video
               ref={videoRef}
               onClick={() => handleTogglePlay()}
-              onTimeUpdate={(e) => {
-                handleVideoTime(e);
-              }}
+              onTimeUpdate={(e) => handleVideoTime(e)}
               onLoadedMetadata={(e) => handleVideoLoaded(e)}
             ></Video>
             <ControlBar

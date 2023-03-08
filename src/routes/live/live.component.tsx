@@ -3,6 +3,9 @@ import { useParams } from "react-router-dom";
 import styled, { css } from "styled-components";
 import _ from "lodash-es";
 
+import { CommentsProvider } from "@/contexts/commentsContext";
+import { VideoOptionsProvider } from "@/contexts/videoOptionsContext";
+
 import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
 import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
@@ -270,11 +273,13 @@ const Live = () => {
   };
 
   return (
+    <VideoOptionsProvider>
+      <CommentsProvider>
     <Container>
       <Body>
         <VideoPlayer videoId={videoId} />
         {/* {dimensions && dimensions.width < 1000 && ( */}
-          <Chatroom setStream={setStreamMeta} roomName={username} />
+          <Chatroom setStream={setStreamMeta} roomName={username} isLive={true}/>
         {/* )} */}
         <Meta>
           <Title>{title}</Title>
@@ -311,6 +316,8 @@ const Live = () => {
         <Chatroom setStream={setStreamMeta} roomName={username} />
       )} */}
     </Container>
+    </CommentsProvider>
+    </VideoOptionsProvider>
   );
 };
 

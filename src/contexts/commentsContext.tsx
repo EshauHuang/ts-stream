@@ -1,8 +1,8 @@
-import { createContext, useState, useEffect, useRef } from "react";
+import { createContext, useState, useEffect, useRef, useContext } from "react";
 import _ from "lodash-es";
 
-import { getMessages } from "@/json/messages";
-import { getUsers } from "@/json/users";
+import { getComments } from "@/api/stream";
+import { VideoOptionsContext } from "@/contexts/videoOptionsContext";
 
 export interface IUser {
   photo?: string;
@@ -12,7 +12,6 @@ export interface IUser {
 
 export interface IMessage {
   text: string;
-  time: string;
 }
 
 export interface IComment {
@@ -28,7 +27,7 @@ interface CommentsContextProps {
   commentsDelay: IComment[] | [];
   setCommentsDelay: React.Dispatch<React.SetStateAction<IComment[] | []>>;
   addNewDelayComments: (comments: IComment[]) => void;
-  setChatTime: (time: number) => void;
+  fetchNewCommentsAndAddToDelayComments: () => void;
 }
 
 interface CommentsProviderProps {
@@ -43,11 +42,11 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
   const [currentComments, setCurrentComments] = useState<IComment[] | []>([]);
   const [commentsDelay, setCommentsDelay] = useState<IComment[] | []>([]);
   const timerRef = useRef<NodeJS.Timer | null>(null);
-  const chatTime = useRef<number>(0);
-
-  const setChatTime = (time: number) => {
-    chatTime.current = time;
-  };
+  const [isFetchNewComments, setIsFetchNewComments] = useState(false);
+  const [isNextComments, setIsNextComments] = useState(true);
+  const {
+    videoOptions: { currentTime, videoId, isScrubbing },
+  } = useContext(VideoOptionsContext);
 
   const addNewComment = ({ time, user, message }: IComment) => {
     setCurrentComments((prev) => [
@@ -65,10 +64,30 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
   };
 
   const addNewDelayComments = (comments: IComment[]) => {
-    setCommentsDelay(comments);
+    setCommentsDelay((prev) => [...prev, ...comments]);
   };
 
-  // const addNewComments = ({user, message})
+  const fetchNewCommentsAndAddToDelayComments = async () => {
+    const videoRealTime =
+      (currentTime - 1 < 0 ? 0 : currentTime - 1) * 1000 + 1675759497647;
+    const { comments } = await getComments(videoId, videoRealTime, -1);
+
+    const { time: lastCommentTime } = comments[comments.length - 1] || {};
+
+    setCurrentComments(comments);
+
+    if (lastCommentTime) {
+      const { comments: nextComments } = await getComments(
+        videoId,
+        lastCommentTime
+      );
+
+      setCommentsDelay(nextComments);
+      nextComments.length >= 10
+        ? setIsNextComments(true)
+        : setIsNextComments(false);
+    }
+  };
 
   useEffect(() => {
     return () => {
@@ -76,40 +95,65 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
       setCommentsDelay([]);
       timerRef.current && clearInterval(timerRef.current);
       timerRef.current = null;
-      chatTime.current = 0;
     };
   }, []);
 
   useEffect(() => {
-    //  沒有待加入的留言則清除 timer 並將暫存的 timerId 刪除
-    if (!commentsDelay.length && timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
+    if (isScrubbing) return;
 
-    if (timerRef.current || !commentsDelay.length) return;
+    if (!commentsDelay.length) return;
     let copyCommentsDelay = _.cloneDeep(commentsDelay);
 
-    timerRef.current = setInterval(() => {
-      const [comment] = copyCommentsDelay;
+    const [comment] = copyCommentsDelay;
 
-      if (comment.time > chatTime.current) return;
+    if (comment.time > currentTime * 1000 + 1675759497647) return;
 
-      copyCommentsDelay.shift();
+    copyCommentsDelay.shift();
 
-      if (!copyCommentsDelay.length) {
-        timerRef.current && clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
+    addNewComment(comment);
+    setCommentsDelay((prev) => {
+      const [_, ...newComments] = prev;
+      return newComments;
+    });
+  }, [commentsDelay, currentTime, currentTime, isScrubbing]);
 
-      addNewComment(comment);
-      setCommentsDelay((prev) => {
-        const [_, ...newComments] = prev;
-        return newComments;
-      });
-    }, 300);
-  }, [commentsDelay]);
-  // console.log({ commentsDelay });
+  useEffect(() => {
+    if (isScrubbing || !isNextComments) return;
+
+    if (
+      commentsDelay.length &&
+      commentsDelay.length <= 2 &&
+      !isFetchNewComments
+    ) {
+      setIsFetchNewComments(true);
+
+      const fetchNewComments = async () => {
+        const { time } = commentsDelay[commentsDelay.length - 1] || {};
+
+        if (time) {
+          const { comments } = (await getComments(videoId, time)) || {};
+
+          if (comments && comments.length >= 10) {
+            addNewDelayComments(comments);
+            setIsFetchNewComments(false);
+          } else if (comments && comments.length < 10) {
+            addNewDelayComments(comments);
+            setIsNextComments(false);
+            setIsFetchNewComments(false);
+          }
+        }
+      };
+
+      fetchNewComments();
+    }
+  }, [
+    videoId,
+    commentsDelay,
+    isFetchNewComments,
+    isScrubbing,
+    isNextComments,
+    isFetchNewComments,
+  ]);
 
   const value = {
     currentComments,
@@ -118,7 +162,7 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
     commentsDelay,
     setCommentsDelay,
     addNewDelayComments,
-    setChatTime,
+    fetchNewCommentsAndAddToDelayComments,
   };
 
   return (

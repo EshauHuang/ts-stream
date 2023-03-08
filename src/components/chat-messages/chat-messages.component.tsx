@@ -7,18 +7,20 @@ import { Container } from "./chat-messages.style";
 
 const ChatMessages = () => {
   const { currentComments } = useContext(CommentsContext);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const roomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ block: "nearest", inline: "nearest" });
+    const room = roomRef.current;
+
+    if (!room) return;
+    room.scrollTop = room.scrollHeight;
   }, [currentComments]);
 
   return (
-    <Container>
+    <Container ref={roomRef}>
       {currentComments.map((comment, index) => (
         <ChatMessage key={`${index}`} {...comment} />
       ))}
-      <div ref={bottomRef}></div>
     </Container>
   );
 };

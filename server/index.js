@@ -101,196 +101,252 @@ const comments = [
     comment: {
       time: 1675759497647,
       user: { username: "Sans" },
-      message: { text: "asd" },
+      message: { text: "1" },
     },
   },
   {
     comment: {
       time: 1675759497786,
       user: { username: "Sans" },
-      message: { text: "asd" },
+      message: { text: "2" },
     },
   },
   {
     comment: {
       time: 1675759498151,
       user: { username: "Sans" },
-      message: { text: "asdas" },
+      message: { text: "3" },
     },
   },
   {
     comment: {
       time: 1675759498217,
       user: { username: "Sans" },
-      message: { text: "d" },
+      message: { text: "4" },
     },
   },
   {
     comment: {
       time: 1675759498330,
       user: { username: "Sans" },
-      message: { text: "a" },
+      message: { text: "5" },
     },
   },
   {
     comment: {
       time: 1675759498456,
       user: { username: "Sans" },
-      message: { text: "da" },
+      message: { text: "6" },
     },
   },
   {
     comment: {
       time: 1675759498557,
       user: { username: "Sans" },
-      message: { text: "sd" },
+      message: { text: "7" },
     },
   },
   {
     comment: {
       time: 1675759498662,
       user: { username: "Sans" },
-      message: { text: "adfadadadsa" },
+      message: { text: "8" },
     },
   },
   {
     comment: {
       time: 1675759498790,
       user: { username: "Sans" },
-      message: { text: "d" },
+      message: { text: "9" },
     },
   },
   {
     comment: {
-      time: 1675759508790,
+      time: 1675759498800,
       user: { username: "Sans" },
-      message: { text: "BBBBBBB" },
+      message: { text: "10" },
     },
   },
   {
     comment: {
-      time: 1675759499006,
+      time: 1675759498820,
       user: { username: "Sans" },
-      message: { text: "d" },
+      message: { text: "11" },
     },
   },
   {
     comment: {
-      time: 1675759499106,
+      time: 1675759498900,
       user: { username: "Sans" },
-      message: { text: "a" },
+      message: { text: "12" },
     },
   },
   {
     comment: {
-      time: 1675759499211,
+      time: 1675759499000,
       user: { username: "Sans" },
-      message: { text: "d" },
+      message: { text: "13" },
     },
   },
   {
     comment: {
-      time: 1675759501410,
+      time: 1675759499200,
       user: { username: "Sans" },
-      message: { text: "csfsdf" },
+      message: { text: "14" },
     },
   },
   {
     comment: {
-      time: 1675759501574,
+      time: 1675759500200,
       user: { username: "Sans" },
-      message: { text: "s" },
+      message: { text: "15" },
     },
   },
   {
     comment: {
-      time: 1675759501999,
+      time: 1675759500900,
       user: { username: "Sans" },
-      message: { text: "sdf" },
+      message: { text: "16" },
     },
   },
   {
     comment: {
-      time: 1675759502141,
+      time: 1675759501000,
       user: { username: "Sans" },
-      message: { text: "sd" },
+      message: { text: "17" },
     },
   },
   {
     comment: {
-      time: 1675759502269,
+      time: 1675759501200,
       user: { username: "Sans" },
-      message: { text: "fs" },
+      message: { text: "18" },
     },
   },
   {
     comment: {
-      time: 1675759502416,
+      time: 1675759502200,
       user: { username: "Sans" },
-      message: { text: "f" },
+      message: { text: "19" },
     },
   },
   {
     comment: {
-      time: 1675759502557,
+      time: 1675759503200,
       user: { username: "Sans" },
-      message: { text: "sf" },
+      message: { text: "20" },
     },
   },
   {
     comment: {
-      time: 1675759502708,
+      time: 1675759503210,
       user: { username: "Sans" },
-      message: { text: "s" },
+      message: { text: "21" },
     },
   },
   {
     comment: {
-      time: 1675759502866,
+      time: 1675759504200,
       user: { username: "Sans" },
-      message: { text: "fs" },
+      message: { text: "22" },
     },
   },
   {
     comment: {
-      time: 1675759503008,
+      time: 1675759505200,
       user: { username: "Sans" },
-      message: { text: "df" },
+      message: { text: "23" },
     },
   },
   {
     comment: {
-      time: 1675759503191,
+      time: 1675759506200,
       user: { username: "Sans" },
-      message: { text: "sf" },
+      message: { text: "24" },
     },
   },
   {
     comment: {
-      time: 1675759503341,
+      time: 1675759507200,
       user: { username: "Sans" },
-      message: { text: "s" },
+      message: { text: "25" },
     },
   },
   {
     comment: {
-      time: 1675759503472,
+      time: 1675759508200,
       user: { username: "Sans" },
-      message: { text: "fs" },
+      message: { text: "26" },
     },
   },
   {
     comment: {
-      time: 1675759503624,
+      time: 1675759509200,
       user: { username: "Sans" },
-      message: { text: "f" },
+      message: { text: "27" },
     },
   },
   {
     comment: {
-      time: 1675759803756,
+      time: 1675759510200,
       user: { username: "Sans" },
-      message: { text: "s" },
+      message: { text: "28" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759511200,
+      user: { username: "Sans" },
+      message: { text: "29" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759512200,
+      user: { username: "Sans" },
+      message: { text: "30" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759513200,
+      user: { username: "Sans" },
+      message: { text: "31" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759514200,
+      user: { username: "Sans" },
+      message: { text: "32" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759515200,
+      user: { username: "Sans" },
+      message: { text: "33" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759516200,
+      user: { username: "Sans" },
+      message: { text: "34" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759517200,
+      user: { username: "Sans" },
+      message: { text: "35" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759518200,
+      user: { username: "Sans" },
+      message: { text: "36" },
     },
   },
 ];
@@ -597,31 +653,11 @@ app.post("/videos/:videoId", (req, res) => {
 
 app.post("/videos/:videoId/comments", (req, res) => {
   const { videoId } = req.params;
-  const { time } = req.body;
+  const { time, mode } = req.body;
 
-  const video = videos.getVideo(videoId);
+  const comments = videos.getVideoComments(videoId, time, mode);
 
-
-  const comments = videos.getSliceComments(videoId, time);
-
-  res.json({ message: "success", comments, video });
-});
-
-app.post("/comments/:videoId", (req, res) => {
-  try {
-    const { videoId } = req.params;
-    const { date } = req.query;
-
-    const sliceComments = videos.getSliceComments(videoId, date);
-
-    res.json({ message: "success", comments: sliceComments });
-  } catch (error) {
-    console.log(error);
-    const { message } = error;
-    res.status(400).json({
-      message,
-    });
-  }
+  res.json({ message: "success", comments });
 });
 
 server.listen(PORT, () => {

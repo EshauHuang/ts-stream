@@ -1,8 +1,12 @@
+import { useRef, useContext } from "react";
+
 import TimelineSlider from "@/components/video-player-items/timeline-slider/timeline-slider.component";
 import LiveBlock from "@/components/video-player-items/live-block/live-block.component";
 import VolumeBlock from "@/components/video-player-items/volume-block/volume-block.component";
 
 import renderTimeString from "@/utils/renderTimeString";
+
+import { CommentsContext } from "@/contexts/commentsContext";
 
 import {
   IVideoControllers,
@@ -116,6 +120,9 @@ const ControlBar = ({
     handleToggleTheaterMode,
     handleToggleFullMode,
   } = videoControllers;
+
+  const { fetchNewCommentsAndAddToDelayComments } = useContext(CommentsContext);
+
   return (
     <ControlBarContainer isScrubbing={isScrubbing}>
       <TimelineSlider
@@ -123,7 +130,10 @@ const ControlBar = ({
         isLive={isLive}
         isScrubbing={isScrubbing}
         handleUpdateVideoTimeByTimeline={handleUpdateVideoTimeByTimeline}
-        handleMouseUp={handleMouseUp}
+        handleMouseUp={() => {
+          fetchNewCommentsAndAddToDelayComments()
+          handleMouseUp()
+        }}
       />
       <ControlBarLeftPart>
         <PlayButton isPlay={isPlay} handleTogglePlay={handleTogglePlay} />

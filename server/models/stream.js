@@ -45,22 +45,25 @@ export class Video {
 
     return {
       ...this[id],
-      comments: comments.sliceComments(startTime),
+      comments: comments.getNextComments(startTime),
     };
   }
 
-  getSliceComments(id, startTime) {
+  getVideoComments(id, startTime, mode) {
     if (!this[id]) return;
 
     const { comments } = this[id];
 
     if (!comments || !startTime) return;
 
-    console.log(startTime);
-
-    console.log(comments.sliceComments(startTime));
-
-    return comments.sliceComments(startTime);
+    switch (mode) {
+      case 1:
+        return comments.getNextComments(startTime);
+      case -1:
+        return comments.getPreviousComments(startTime);
+      default:
+        return [];
+    }
   }
 }
 
@@ -115,11 +118,41 @@ export class Comments {
     return this;
   }
 
+  getPreviousComments(targetTime, limit = 10) {
+    const commentsArray = Object.values(this);
+
+    const index = commentsArray.findIndex(
+      (comment) => comment.time > targetTime
+    );
+    const previousCommentIndex = index - limit;
+    const previousComments = commentsArray.slice(
+      previousCommentIndex > 0 ? previousCommentIndex : 0,
+      index
+    );
+
+    return previousComments;
+  }
+
+  getNextComments(targetTime, limit = 10) {
+    const commentsArray = Object.values(this);
+    const commentsCount = commentsArray.length;
+
+    const index = commentsArray.findIndex(
+      (comment) => comment.time > targetTime
+    );
+
+    const nextCommentIndex = index + limit;
+    const nextComments = commentsArray.slice(
+      index,
+      nextCommentIndex > commentsCount ? commentsCount : nextCommentIndex
+    );
+
+    return nextComments;
+  }
+
   filterCommentsByStartTime(startTime) {
     const comments = Object.values(this).filter((comment) => {
-
-
-      return comment.time >= Number(startTime);
+      return comment.time > Number(startTime);
     });
 
     return comments;

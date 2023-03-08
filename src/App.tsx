@@ -7,6 +7,7 @@ import Live from "@/routes/live/live.component";
 import Video from "@/routes/video/video.component"
 import Setting from "@/routes/setting/setting.component";
 import Navbar from "@/components/navbar/navbar.component";
+import Test from "./components/test";
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
           <Route path="sign-in" element={<SignInForm />} />
           <Route path="live/:username" element={<Live />} />
           <Route path="video/:videoId" element={<Video />} />
+          <Route path="test" element={<Test />} />
         </Route>
       </Routes>
     </>

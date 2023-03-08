@@ -32,12 +32,14 @@ const user = {
 };
 
 interface IChatroomProps {
+  isLive: boolean;
   roomName?: string;
   comments?: IComment[];
   setStream?: React.Dispatch<React.SetStateAction<IStreamMeta>>;
 }
 
 const Chatroom: React.FC<IChatroomProps> = ({
+  isLive,
   roomName,
   setStream,
   comments,
@@ -110,7 +112,7 @@ const Chatroom: React.FC<IChatroomProps> = ({
     <Container>
       <ViewModeBar>Stream Chat</ViewModeBar>
       <ChatMessages/>
-      <SendMessage socket={socket} />
+      {isLive && <SendMessage socket={socket} />}
     </Container>
   );
 };
