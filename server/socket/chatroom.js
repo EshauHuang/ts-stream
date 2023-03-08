@@ -2,9 +2,6 @@ import { rooms } from "../index.js";
 
 export const startIo = (io) => {
   io.on("connection", (socket) => {
-    // 加入假的 user 進 rooms
-    rooms.addRoom("user01");
-    rooms.addRoom("123");
 
     socket.on("user-connect", (user, roomName) => {
       socket.join(roomName);

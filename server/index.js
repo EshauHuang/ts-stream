@@ -358,6 +358,10 @@ comments.map((comment) => {
 export const videos = new Video(siteVideos);
 export const rooms = new Rooms();
 
+// 加入假的 user 進 rooms
+rooms.addRoom("user01");
+rooms.addRoom("123");
+
 const app = express();
 
 app.use(cors());
@@ -430,7 +434,9 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
 
   // 取得此 streamKey 的擁有者
   const user = usersTable.find((user) => user.username === username);
+
   // room 名稱與 username 相同，取得此 room 的 comments
+
   const { comments } = rooms[username];
 
   // console.log({ comments });
@@ -458,7 +464,7 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
 
   rooms.initialRoom(username);
 
-  writeFile("video.json", JSON.stringify(user.videos));
+  // writeFile("video.json", JSON.stringify(user.videos));
   // console.log(user.videos);
 
   res.status(204).end();
