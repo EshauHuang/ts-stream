@@ -1,7 +1,8 @@
-import { createContext, useState, useEffect, useCallback } from "react";
+import { createContext, useState, useEffect, useRef, useContext } from "react";
+import _ from "lodash-es";
 
-import { getMessages } from "@/json/messages";
-import { getUsers } from "@/json/users";
+import { getComments } from "@/api/stream";
+import { VideoOptionsContext } from "@/contexts/videoOptionsContext";
 
 export interface IUser {
   photo?: string;
@@ -10,11 +11,11 @@ export interface IUser {
 }
 
 export interface IMessage {
-  date: string;
   text: string;
 }
 
 export interface IComment {
+  time: number | string;
   user: IUser;
   message: IMessage;
 }
@@ -22,7 +23,11 @@ export interface IComment {
 interface CommentsContextProps {
   currentComments: IComment[] | [];
   setCurrentComments: React.Dispatch<React.SetStateAction<IComment[] | []>>;
-  sendCommentByUser: ({ user, message }: IComment) => void;
+  addNewComment: ({ time, user, message }: IComment) => void;
+  commentsDelay: IComment[] | [];
+  setCommentsDelay: React.Dispatch<React.SetStateAction<IComment[] | []>>;
+  addNewDelayComments: (comments: IComment[]) => void;
+  fetchNewCommentsAndAddToDelayComments: () => void;
 }
 
 interface CommentsProviderProps {
@@ -31,27 +36,134 @@ interface CommentsProviderProps {
 
 export const CommentsContext = createContext({} as CommentsContextProps);
 
-export const CommentsProvider: React.FC<CommentsProviderProps> = ({ children }) => {
+export const CommentsProvider: React.FC<CommentsProviderProps> = ({
+  children,
+}) => {
   const [currentComments, setCurrentComments] = useState<IComment[] | []>([]);
+  const [commentsDelay, setCommentsDelay] = useState<IComment[] | []>([]);
+  const timerRef = useRef<NodeJS.Timer | null>(null);
+  const [isFetchNewComments, setIsFetchNewComments] = useState(false);
+  const [isNextComments, setIsNextComments] = useState(true);
+  const {
+    videoOptions: { currentTime, videoId, isScrubbing },
+  } = useContext(VideoOptionsContext);
 
-  const sendCommentByUser = ({ user, message }: IComment) => {
+  const addNewComment = ({ time, user, message }: IComment) => {
     setCurrentComments((prev) => [
       ...prev,
       {
-        id: prev.length + 1,
+        time,
         user,
         message,
       },
     ]);
   };
 
+  const addNewComments = (comments: IComment[]) => {
+    setCurrentComments((prev) => [...prev, ...comments]);
+  };
+
+  const addNewDelayComments = (comments: IComment[]) => {
+    setCommentsDelay((prev) => [...prev, ...comments]);
+  };
+
+  const fetchNewCommentsAndAddToDelayComments = async () => {
+    const videoRealTime =
+      (currentTime - 1 < 0 ? 0 : currentTime - 1) * 1000 + 1675759497647;
+    const { comments } = await getComments(videoId, videoRealTime, -1);
+
+    const { time: lastCommentTime } = comments[comments.length - 1] || {};
+
+    setCurrentComments(comments);
+
+    if (lastCommentTime) {
+      const { comments: nextComments } = await getComments(
+        videoId,
+        lastCommentTime
+      );
+
+      setCommentsDelay(nextComments);
+      nextComments.length >= 10
+        ? setIsNextComments(true)
+        : setIsNextComments(false);
+    }
+  };
+
   useEffect(() => {
     return () => {
       setCurrentComments([]);
-    }
-  }, [])
+      setCommentsDelay([]);
+      timerRef.current && clearInterval(timerRef.current);
+      timerRef.current = null;
+    };
+  }, []);
 
-  const value = { currentComments, setCurrentComments, sendCommentByUser };
+  useEffect(() => {
+    if (isScrubbing) return;
+
+    if (!commentsDelay.length) return;
+    let copyCommentsDelay = _.cloneDeep(commentsDelay);
+
+    const [comment] = copyCommentsDelay;
+
+    if (comment.time > currentTime * 1000 + 1675759497647) return;
+
+    copyCommentsDelay.shift();
+
+    addNewComment(comment);
+    setCommentsDelay((prev) => {
+      const [_, ...newComments] = prev;
+      return newComments;
+    });
+  }, [commentsDelay, currentTime, currentTime, isScrubbing]);
+
+  useEffect(() => {
+    if (isScrubbing || !isNextComments) return;
+
+    if (
+      commentsDelay.length &&
+      commentsDelay.length <= 2 &&
+      !isFetchNewComments
+    ) {
+      setIsFetchNewComments(true);
+
+      const fetchNewComments = async () => {
+        const { time } = commentsDelay[commentsDelay.length - 1] || {};
+
+        if (time) {
+          const { comments } = (await getComments(videoId, time)) || {};
+
+          if (comments && comments.length >= 10) {
+            addNewDelayComments(comments);
+            setIsFetchNewComments(false);
+          } else if (comments && comments.length < 10) {
+            addNewDelayComments(comments);
+            setIsNextComments(false);
+            setIsFetchNewComments(false);
+          }
+        }
+      };
+
+      fetchNewComments();
+    }
+  }, [
+    videoId,
+    commentsDelay,
+    isFetchNewComments,
+    isScrubbing,
+    isNextComments,
+    isFetchNewComments,
+  ]);
+
+  const value = {
+    currentComments,
+    setCurrentComments,
+    addNewComment,
+    commentsDelay,
+    setCommentsDelay,
+    addNewDelayComments,
+    fetchNewCommentsAndAddToDelayComments,
+  };
 
   return (
     <CommentsContext.Provider value={value}>

@@ -18,8 +18,8 @@ export const AuthorPhoto = styled.div`
 `;
 
 export const Content = styled.div`
-  /* display: flex; */
-  /* align-items: center; */
+  display: flex;
+  align-items: center;
 `;
 
 export const Timestamp = styled.span`

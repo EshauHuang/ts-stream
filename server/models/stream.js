@@ -1,5 +1,5 @@
 import * as _ from "lodash-es";
-import { genStreamKey, checkStreamKey } from "../utils/streamKey.js";
+import { genStreamKey } from "../utils/streamKey.js";
 import { genSalt, hashPassword, checkPassword } from "../utils/password.js";
 
 export class Video {
@@ -45,18 +45,25 @@ export class Video {
 
     return {
       ...this[id],
-      comments: comments.sliceComments(startTime),
+      comments: comments.getNextComments(startTime),
     };
   }
 
-  getSliceComments(id, startTime) {
+  getVideoComments(id, startTime, mode) {
     if (!this[id]) return;
 
     const { comments } = this[id];
 
-    if (!comments) return;
+    if (!comments || !startTime) return;
 
-    return comments.sliceComments(startTime);
+    switch (mode) {
+      case 1:
+        return comments.getNextComments(startTime);
+      case -1:
+        return comments.getPreviousComments(startTime);
+      default:
+        return [];
+    }
   }
 }
 
@@ -81,10 +88,10 @@ export class Comments {
     if (!user || !text) return;
 
     const comment = {
+      time: new Date().getTime(),
       user,
       message: {
         text,
-        date: new Date().getTime(),
       },
     };
     this[this.length + 1] = comment;
@@ -93,10 +100,11 @@ export class Comments {
     return comment;
   }
 
-  addFakeComment(user, message) {
-    if (!user || !message) return;
+  addFakeComment(time, user, message) {
+    if (!time || !user || !message) return;
 
     const comment = {
+      time,
       user,
       message,
     };
@@ -110,16 +118,48 @@ export class Comments {
     return this;
   }
 
-  filterCommentsByStartTime(startTime) {
-    const comments = Object.values(this).filter(
-      (comment) => comment.message && comment.message.date >= Number(startTime)
+  getPreviousComments(targetTime, limit = 10) {
+    const commentsArray = Object.values(this);
+
+    const index = commentsArray.findIndex(
+      (comment) => comment.time > targetTime
     );
+    const previousCommentIndex = index - limit;
+    const previousComments = commentsArray.slice(
+      previousCommentIndex > 0 ? previousCommentIndex : 0,
+      index
+    );
+
+    return previousComments;
+  }
+
+  getNextComments(targetTime, limit = 10) {
+    const commentsArray = Object.values(this);
+    const commentsCount = commentsArray.length;
+
+    const index = commentsArray.findIndex(
+      (comment) => comment.time > targetTime
+    );
+
+    const nextCommentIndex = index + limit;
+    const nextComments = commentsArray.slice(
+      index,
+      nextCommentIndex > commentsCount ? commentsCount : nextCommentIndex
+    );
+
+    return nextComments;
+  }
+
+  filterCommentsByStartTime(startTime) {
+    const comments = Object.values(this).filter((comment) => {
+      return comment.time > Number(startTime);
+    });
 
     return comments;
   }
 
   sliceComments(startTime, limit = 10) {
-    return this.filterCommentsByStartTime(startTime).slice(0, (limit = 10));
+    return this.filterCommentsByStartTime(startTime).slice(0, limit);
   }
 }
 
@@ -131,7 +171,7 @@ export class Users {
 
   addUser(socketId, user) {
     if (!socketId || !user) return;
-    this[socketId] = { user };
+    this[socketId] = user;
     this.length++;
   }
 
@@ -156,6 +196,14 @@ export class Rooms {
     this.length++;
   }
 
+  initialRoom(room) {
+    if (!this[room]) return;
+    this[room] = {
+      users: new Users(),
+      comments: new Comments(),
+    };
+  }
+
   removeRoom(room) {
     if (!this[room]) return;
     delete this[room];
@@ -175,16 +223,25 @@ export class Rooms {
     this[room].users.removeUser(socketId);
   }
 
-  addCommentToRoom(room, message, user) {
-    if (!room || !message || !user) return;
+  addCommentToRoom(room, message, socketId) {
+    if (!room || !message || !socketId) return;
+    const user = this.searchUserFromRoom(room, socketId);
+
     if (!this[room] || !this[room].comments) return;
-    const comment = this[room].comments.addComment(message, user);
+    const comment = this[room].comments.addComment(user, message);
     return comment;
   }
 
   searchRoomComments(room) {
     if (!this[room]) return;
     return this[room].comments.searchComments();
+  }
+
+  searchUserFromRoom(room, socketId) {
+    if (!room || !socketId) return;
+    if (!this[room] || !this[room].users) return;
+
+    return this[room].users[socketId];
   }
 }
 
@@ -337,7 +394,6 @@ usersTable.verifyUser = function (username, password) {
   };
 };
 
-
 usersTable.getMe = function (username) {
   const user = usersTable.find((user) => user.username === username);
   const { password, stream, ...userData } = user;
@@ -347,7 +403,6 @@ usersTable.getMe = function (username) {
     stream,
   };
 };
-
 
 usersTable.getStream = function (username) {
   const user = usersTable.find((user) => user.username === username);
@@ -376,7 +431,7 @@ usersTable.editUserMeta = function (username, options) {
       user[key] = value;
     }
   });
-  
+
   return {
     user: {
       avatar,

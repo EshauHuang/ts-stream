@@ -3,6 +3,9 @@ import { useParams } from "react-router-dom";
 import styled, { css } from "styled-components";
 import _ from "lodash-es";
 
+import { CommentsProvider } from "@/contexts/commentsContext";
+import { VideoOptionsProvider } from "@/contexts/videoOptionsContext";
+
 import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
 import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
@@ -20,6 +23,7 @@ import { getStream } from "@/api/stream";
 import useResizeObserver from "@/hooks/useResizeObserver";
 
 import { Container } from "./live.style";
+import useWindowResize from "@/hooks/useWindowResize";
 
 const IconStyle = css`
   padding: 8px 0;
@@ -57,10 +61,12 @@ const MoreHorizIconButton = styled(MoreHorizIcon)`
   }
 `;
 
-const Body = styled.div`
+const Primary = styled.div`
   flex-grow: 1;
   color: white;
 `;
+
+const Secondary = styled.div``;
 
 const Title = styled.h1`
   font-size: 2rem;
@@ -225,16 +231,15 @@ const initialStreamData = {
   },
 };
 
+
 const Live = () => {
   const { username } = useParams() as { username: string };
   const [streamMeta, setStreamMeta] = useState<IStreamMeta>(initialStreamData);
-  const [message, setMessage] = useState("");
-
   const {
     stream: { isStreamOn, title, content, author, videoId },
     user: { avatar, subscribes },
   } = streamMeta;
-  // const { ref: containerRef, dimensions } = useResizeObserver();
+  const { dimensions } = useWindowResize();
 
   useEffect(() => {
     const fetchStreamData = async () => {
@@ -252,65 +257,62 @@ const Live = () => {
     fetchStreamData();
   }, [username]);
 
-  const handlePaste: React.ClipboardEventHandler<HTMLDivElement> = (e) => {
-    e.preventDefault();
-    const clipboardData = e.clipboardData;
-    const text = clipboardData.getData("text/plain");
-    const selection = window.getSelection();
-    if (!selection) return;
-
-    const range = selection.getRangeAt(0);
-
-    // Insert the modified text into the contenteditable div
-    range.deleteContents();
-    range.insertNode(document.createTextNode(text));
-    range.collapse(false);
-    selection.removeAllRanges();
-    selection.addRange(range);
-  };
-
   return (
-    <Container>
-      <Body>
-        <VideoPlayer videoId={videoId} />
-        {/* {dimensions && dimensions.width < 1000 && ( */}
-          <Chatroom setStream={setStreamMeta} roomName={username} />
-        {/* )} */}
-        <Meta>
-          <Title>{title}</Title>
-          <ActionRow>
-            <ChannelMeta>
-              <UserLink>
-                <Avatar>
-                  <img src={avatar} />
-                </Avatar>
-              </UserLink>
-              <UserMeta>
-                <Author>{author}</Author>
-                <Subscribe>{subscribes} 訂閱者</Subscribe>
-              </UserMeta>
-              <SubscribeButton>訂閱</SubscribeButton>
-            </ChannelMeta>
-            <FeedbackMeta>
-              <EvaluationBlock>
-                <Like>
-                  <ThumbUpAltIconButton />
-                  <LikeCounts>3333</LikeCounts>
-                </Like>
-                <Dislike>
-                  <StyledThumbDownOffAltIcon />
-                </Dislike>
-              </EvaluationBlock>
-              <MoreHorizIconButton />
-            </FeedbackMeta>
-          </ActionRow>
-          <ChannelInfo content={content} />
-        </Meta>
-      </Body>
-      {/* {dimensions && dimensions.width >= 1000 && (
-        <Chatroom setStream={setStreamMeta} roomName={username} />
-      )} */}
-    </Container>
+    <VideoOptionsProvider>
+      <CommentsProvider>
+        <Container>
+          <Primary>
+            <VideoPlayer videoId={videoId} />
+            {dimensions && dimensions.width < 1030 && (
+              <Chatroom
+                setStream={setStreamMeta}
+                roomName={username}
+                isLive={true}
+              />
+            )}
+            <Meta>
+              <Title>{title}</Title>
+              <ActionRow>
+                <ChannelMeta>
+                  <UserLink>
+                    <Avatar>
+                      <img src={avatar} />
+                    </Avatar>
+                  </UserLink>
+                  <UserMeta>
+                    <Author>{author}</Author>
+                    <Subscribe>{subscribes} 訂閱者</Subscribe>
+                  </UserMeta>
+                  <SubscribeButton>訂閱</SubscribeButton>
+                </ChannelMeta>
+                <FeedbackMeta>
+                  <EvaluationBlock>
+                    <Like>
+                      <ThumbUpAltIconButton />
+                      <LikeCounts>3333</LikeCounts>
+                    </Like>
+                    <Dislike>
+                      <StyledThumbDownOffAltIcon />
+                    </Dislike>
+                  </EvaluationBlock>
+                  <MoreHorizIconButton />
+                </FeedbackMeta>
+              </ActionRow>
+              <ChannelInfo content={content} />
+            </Meta>
+          </Primary>
+          <Secondary>
+            {dimensions && dimensions.width >= 1030 && (
+              <Chatroom
+                setStream={setStreamMeta}
+                roomName={username}
+                isLive={true}
+              />
+            )}
+          </Secondary>
+        </Container>
+      </CommentsProvider>
+    </VideoOptionsProvider>
   );
 };
 

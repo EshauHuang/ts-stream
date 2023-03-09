@@ -1,5 +1,7 @@
-import { useState, useEffect, useRef, useContext, useMemo } from "react";
+import { useState, useEffect, useContext, forwardRef } from "react";
 import { io, Socket } from "socket.io-client";
+
+import { UserContext } from "@/contexts/userContext";
 
 import { CommentsContext, IComment } from "@/contexts/commentsContext";
 import { CommentsProvider } from "@/contexts/commentsContext";
@@ -22,7 +24,7 @@ interface ServerToClientEvents {
 }
 
 interface ClientToServerEvents {
-  "new-user": (user: User, roomName: string) => void;
+  "user-connect": (user: User | null, roomName: string) => void;
 }
 
 const user = {
@@ -30,22 +32,24 @@ const user = {
 };
 
 interface IChatroomProps {
+  isLive: boolean;
   roomName?: string;
   comments?: IComment[];
   setStream?: React.Dispatch<React.SetStateAction<IStreamMeta>>;
 }
 
 const Chatroom: React.FC<IChatroomProps> = ({
+  isLive,
   roomName,
   setStream,
   comments,
 }) => {
-  const { sendCommentByUser, setCurrentComments } = useContext(CommentsContext);
+  const { addNewComment, addNewDelayComments } = useContext(CommentsContext);
+  const { currentUser } = useContext(UserContext);
 
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [currentUser, setCurrentUser] = useState(() => user);
-
+  const { username } = currentUser || {};
   useEffect(() => {
     if (!roomName) return;
 
@@ -57,14 +61,18 @@ const Chatroom: React.FC<IChatroomProps> = ({
       setIsConnected(true);
     });
 
-    socket.emit("new-user", currentUser, roomName);
+    if (username) {
+      socket.emit("user-connect", { username }, roomName);
+    } else {
+      socket.emit("user-connect", null, roomName);
+    }
 
     socket.on("disconnect", () => {
       setIsConnected(false);
     });
 
     socket.on("chat-message", (comment) => {
-      sendCommentByUser(comment);
+      addNewComment(comment);
     });
 
     socket.on("stream-connected", ({ videoId }) => {
@@ -84,22 +92,21 @@ const Chatroom: React.FC<IChatroomProps> = ({
     setSocket(socket);
 
     return () => {
-      socket.off("connect");
-      socket.off("chat-message");
-      socket.off("disconnect");
+      socket.off();
+      socket.disconnect();
     };
-  }, [roomName]);
+  }, [roomName, username]);
 
   useEffect(() => {
     if (!comments || !comments.length) return;
-    setCurrentComments(comments);
+    addNewDelayComments(comments);
   }, [comments]);
 
   return (
     <Container>
       <ViewModeBar>Stream Chat</ViewModeBar>
       <ChatMessages />
-      <SendMessage socket={socket} />
+      {isLive && <SendMessage socket={socket} />}
     </Container>
   );
 };
@@ -110,4 +117,4 @@ const ChatRoomProvider = (props: IChatroomProps) => (
   </CommentsProvider>
 );
 
-export default ChatRoomProvider;
+export default Chatroom;

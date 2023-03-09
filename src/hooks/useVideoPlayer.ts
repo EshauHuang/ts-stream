@@ -1,6 +1,9 @@
 import Hls from "hls.js";
 import _ from "lodash-es";
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect, useCallback, useContext } from "react"
+
+
+import { VideoOptionsContext } from "@/contexts/videoOptionsContext";
 
 export interface IVideoOptions {
   isLive: boolean;
@@ -42,21 +45,22 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   const timelineRef = useRef<HTMLDivElement>(null);
   const tmpTimeRef = useRef<number>(0);
   const [hls, setHls] = useState<Hls | null>(null);
+  const { videoOptions, setVideoOptions } = useContext(VideoOptionsContext)
 
-  const [videoOptions, setVideoOptions] = useState<IVideoOptions>({
-    isLive: isLive ? true : false,
-    volume: 0.5,
-    isScrubbing: false,
-    isTheater: false,
-    isMuted: true,
-    isPlay: false,
-    isPlaying: false,
-    isMini: false,
-    isFull: false,
-    setTime: undefined,
-    currentTime: 0,
-    duration: 0,
-  });
+  // const [videoOptions, setVideoOptions] = useState<IVideoOptions>({
+  //   isLive: isLive ? true : false,
+  //   volume: 0.5,
+  //   isScrubbing: false,
+  //   isTheater: false,
+  //   isMuted: true,
+  //   isPlay: false,
+  //   isPlaying: false,
+  //   isMini: false,
+  //   isFull: false,
+  //   setTime: undefined,
+  //   currentTime: 0,
+  //   duration: 0,
+  // });
 
   const {
     isScrubbing,
@@ -138,7 +142,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
 
     if (!timeline || isScrubbing || !isPlay) return;
 
-    const { currentTime, duration } = e.target as HTMLVideoElement;
+    const { currentTime } = e.target as HTMLVideoElement;
     const percent = currentTime / duration;
     timeline.style.setProperty("--progress-position", `${percent}`);
 
@@ -345,6 +349,24 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
       setHls(null);
     };
   }, [videoId, hls]);
+
+  useEffect(() => {
+    if (videoId) {
+      setVideoOptions(prev => ({
+        ...prev,
+        videoId
+      }))
+    }
+  }, [videoId])
+
+  useEffect(() => {
+    if (src) {
+      setVideoOptions(prev => ({
+        ...prev,
+        src
+      }))
+    }
+  }, [src])
 
   return {
     isSourceLoaded,

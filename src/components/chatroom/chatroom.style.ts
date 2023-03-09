@@ -10,7 +10,7 @@ export const Container = styled.div`
   background-color: rgba(255,255,255,.05);
   border-radius: 1.2rem;
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1030px) {
     width: 100%;
   }
 `;

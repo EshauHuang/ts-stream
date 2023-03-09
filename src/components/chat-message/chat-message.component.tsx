@@ -18,9 +18,9 @@ const ChatMessage: React.FC<IComment> = ({ user, message }) => {
       <AuthorPhoto />
       <Content>
         <AuthorChip>
-          <Timestamp>{message.date}</Timestamp>
+          {/* <Timestamp>{message.date}</Timestamp> */}
           <AuthorName>{user.username}</AuthorName>
-          <MemberIcon />
+          {/* <MemberIcon /> */}
         </AuthorChip>
         <Message>{message.text}</Message>
       </Content>

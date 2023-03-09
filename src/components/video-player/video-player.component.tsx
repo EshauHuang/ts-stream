@@ -1,4 +1,7 @@
+import { getComments } from "@/api/stream";
 import ControlBar from "@/components/video-player-items/control-bar/control-bar.component";
+import { useRef, useContext } from "react";
+import { CommentsContext } from "@/contexts/commentsContext";
 
 import useVideoPlayer from "@/hooks/useVideoPlayer";
 
@@ -60,7 +63,6 @@ const VideoPlayer: React.FC<IVideoPlayer> = ({
   const { handleTogglePlay, handleVideoTime, handleVideoLoaded } =
     videoControllers;
 
-  // console.log({ currentTime, isPlay, isPlaying });
 
   return (
     <>
