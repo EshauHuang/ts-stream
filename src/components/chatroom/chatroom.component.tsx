@@ -67,8 +67,6 @@ const Chatroom: React.FC<IChatroomProps> = ({
       socket.emit("user-connect", null, roomName);
     }
 
-    // socket.emit("new-user", currentUser, roomName);
-
     socket.on("disconnect", () => {
       setIsConnected(false);
     });

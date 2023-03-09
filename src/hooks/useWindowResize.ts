@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import _ from "lodash-es"
 
 interface IDimensions {
@@ -13,15 +13,15 @@ const useWindowResize = () => {
   });
 
   useEffect(() => {
-    window.addEventListener("resize", () => {
+    const getDimensions = _.throttle(() => {
       const width = window.innerWidth
       const height = window.innerHeight
       setDimensions({ width, height })
     })
+    window.addEventListener("resize", getDimensions)
 
     return () => {
-      window.removeEventListener("resize", () => {
-      });
+      window.removeEventListener("resize", getDimensions);
     }
 
   }, []);

@@ -171,7 +171,7 @@ export class Users {
 
   addUser(socketId, user) {
     if (!socketId || !user) return;
-    this[socketId] = { user };
+    this[socketId] = user;
     this.length++;
   }
 
