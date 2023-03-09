@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 
+import { IComment } from "@/contexts/commentsContext";
+
 import {
   StyledVideoCard,
   Thumbnail,
@@ -13,11 +15,34 @@ import {
 } from "./video-card.style";
 import img5 from "/images/5.jpg";
 
+export interface IVideo {
+  id: string;
+  type: string;
+  title: string;
+  author: string;
+  content: string;
+  thumbnail: string;
+  startTime: number;
+  comments: IComment[];
+}
 
-const VideoCard = ({ video }) => {
+const VideoCard = ({ video }: { video: IVideo }) => {
+  const getLinkUrl = (video: IVideo) => {
+    const { type, id, author } = video;
+    switch (type) {
+      case "video":
+        return `/video/${id}`;
+      case "stream":
+        return `/live/${author}`;
+      default:
+        return "";
+    }
+  };
+  const linkUrl = getLinkUrl(video);
+
   return (
     <StyledVideoCard key={`${video.id}`}>
-      <Link to={`/video/${video.id}`}>
+      <Link to={linkUrl}>
         <Thumbnail>
           <img src={video.thumbnail} />
         </Thumbnail>
@@ -27,7 +52,7 @@ const VideoCard = ({ video }) => {
           <AvatarImage src={img5} />
         </Avatar>
         <Meta>
-          <Link to={`/video/${video.id}`}>
+          <Link to={linkUrl}>
             <VideoTitle>{video.title}</VideoTitle>
           </Link>
           <VideoAuthor>{video.author}</VideoAuthor>

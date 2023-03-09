@@ -7,19 +7,18 @@ import { CommentsProvider } from "@/contexts/commentsContext";
 import { VideoOptionsProvider } from "@/contexts/videoOptionsContext";
 import { getVideo, getComments } from "@/api/stream";
 
-import { IComment } from "@/contexts/commentsContext";
+import { IVideo } from "@/components/video-card/video-card.component";
 
 import { Container } from "./video.style";
 
-interface IVideo {
-  title: string;
-  content: string;
-  comments: IComment[];
-}
-
 const initialVideo = {
+  id: "",
+  type: "",
   title: "",
+  author: "",
   content: "",
+  thumbnail: "",
+  startTime: 0,
   comments: [],
 };
 
@@ -30,9 +29,6 @@ const Video = () => {
   useEffect(() => {
     const fetchVideoData = async () => {
       const { video } = await getVideo(videoId);
-      // const { comments } = await getComments(videoId);
-
-      console.log(video);
 
       if (video) {
         setVideo(video);

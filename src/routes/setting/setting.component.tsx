@@ -133,8 +133,6 @@ const Setting = () => {
         title,
         content,
       });
-
-      console.log({ data });
     }
   };
 

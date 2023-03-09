@@ -448,6 +448,7 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
     content,
     startTime,
     comments,
+    type: "video"
   });
 
   // 將影片加至 user 的 videos 內
@@ -457,6 +458,7 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
     content,
     startTime,
     comments,
+    type: "video",
   });
 
   user.stream.isStreamOn = false;

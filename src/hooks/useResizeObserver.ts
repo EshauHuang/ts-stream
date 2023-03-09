@@ -14,8 +14,6 @@ const useResizeObserver = (el: HTMLElement) => {
 
     const observeTarget = observerRef.current
 
-    console.log({ observeTarget })
-
     if (!observeTarget) return
 
     const resizeObserver = new ResizeObserver(_.throttle(entries => {

@@ -94,8 +94,6 @@ export const editUserMeta = async (username: string, stream: IStream) => {
     body: JSON.stringify(stream)
   })
 
-  console.log({ response })
-
   return await response.json()
 }
 
