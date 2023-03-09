@@ -1,4 +1,3 @@
-import styled from "styled-components";
 import { useState } from "react";
 
 import { Label, LabelWrap } from "../ui/ui.style";

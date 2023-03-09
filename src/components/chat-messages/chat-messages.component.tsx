@@ -3,6 +3,7 @@ import { useContext, useEffect, useRef } from "react";
 import { CommentsContext } from "@/contexts/commentsContext";
 
 import ChatMessage from "@/components/chat-message/chat-message.component";
+
 import { Container } from "./chat-messages.style";
 
 const ChatMessages = () => {

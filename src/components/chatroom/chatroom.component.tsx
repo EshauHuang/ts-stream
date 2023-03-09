@@ -1,14 +1,12 @@
-import { useState, useEffect, useContext, forwardRef } from "react";
+import { useState, useEffect, useContext } from "react";
 import { io, Socket } from "socket.io-client";
 
 import { UserContext } from "@/contexts/userContext";
-
 import { CommentsContext, IComment } from "@/contexts/commentsContext";
 import { CommentsProvider } from "@/contexts/commentsContext";
 
 import ChatMessages from "@/components/chat-messages/chat-messages.component";
 import SendMessage from "@/components/send-message/send-message.component";
-
 import { IStreamMeta } from "@/routes/live/live.component";
 
 import { Container, ViewModeBar } from "./chatroom.style";
@@ -26,10 +24,6 @@ interface ServerToClientEvents {
 interface ClientToServerEvents {
   "user-connect": (user: User | null, roomName: string) => void;
 }
-
-const user = {
-  username: "Sans",
-};
 
 interface IChatroomProps {
   isLive: boolean;

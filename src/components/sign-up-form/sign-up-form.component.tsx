@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 
-import Input from "@/components/input/input.component";
-import { LayoutBottom } from "@/components/ui/ui.style";
-import { Form, Title, Content, Footer, Button } from "./sign-up-form.style";
-
-import { UserContext } from "@/contexts/userContext";
 import {
   inputValidate,
   formatInputAndValidateOptions,
 } from "@/utils/inputValidate";
+
+import { UserContext } from "@/contexts/userContext";
+
+import Input from "@/components/input/input.component";
+
+import { LayoutBottom } from "@/components/ui/ui.style";
+import { Form, Title, Content, Footer, Button } from "./sign-up-form.style";
+
 
 interface SignUpUser {
   username: string;

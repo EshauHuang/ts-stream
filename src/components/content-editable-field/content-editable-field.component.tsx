@@ -2,7 +2,6 @@ import { useRef } from "react";
 import { ContentEditableEvent } from "react-contenteditable";
 
 import { Label, LabelWrap } from "@/components/ui/ui.style";
-
 import {
   StyledContentEditableField,
   ContentEditableWrap,

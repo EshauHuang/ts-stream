@@ -1,7 +1,4 @@
-import { getComments } from "@/api/stream";
 import ControlBar from "@/components/video-player-items/control-bar/control-bar.component";
-import { useRef, useContext } from "react";
-import { CommentsContext } from "@/contexts/commentsContext";
 
 import useVideoPlayer from "@/hooks/useVideoPlayer";
 

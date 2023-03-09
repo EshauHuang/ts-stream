@@ -3,11 +3,11 @@ import styled from "styled-components";
 import { Socket } from "socket.io-client";
 import { ContentEditableEvent } from "react-contenteditable";
 
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import { UserContext } from "@/contexts/userContext";
 
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { Button, ButtonField } from "@/components/ui/button.style";
 
-import { UserContext } from "@/contexts/userContext";
 
 import {
   Form,

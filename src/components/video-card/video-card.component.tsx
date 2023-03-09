@@ -13,6 +13,7 @@ import {
   MetaBottomLine,
   Meta,
 } from "./video-card.style";
+
 import img5 from "/images/5.jpg";
 
 export interface IVideo {
