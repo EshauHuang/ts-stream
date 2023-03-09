@@ -6,15 +6,15 @@ interface IDimensions {
   height: number;
 }
 
-const useResizeObserver = () => {
-
+const useResizeObserver = (el: HTMLElement) => {
   const [dimensions, setDimensions] = useState<IDimensions | null>(null);
-  const observerRef = useRef(null)
-
+  const observerRef = useRef(el ? el : null)
 
   useEffect(() => {
 
     const observeTarget = observerRef.current
+
+    console.log({ observeTarget })
 
     if (!observeTarget) return
 
@@ -28,7 +28,7 @@ const useResizeObserver = () => {
     return () => {
       resizeObserver.unobserve(observeTarget);
     };
-  }, []);
+  }, [el]);
 
   return { dimensions, ref: observerRef };
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, forwardRef } from "react";
 import { io, Socket } from "socket.io-client";
 
 import { UserContext } from "@/contexts/userContext";
@@ -44,10 +44,7 @@ const Chatroom: React.FC<IChatroomProps> = ({
   setStream,
   comments,
 }) => {
-  const {
-    addNewComment,
-    addNewDelayComments,
-  } = useContext(CommentsContext);
+  const { addNewComment, addNewDelayComments } = useContext(CommentsContext);
   const { currentUser } = useContext(UserContext);
 
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -107,11 +104,10 @@ const Chatroom: React.FC<IChatroomProps> = ({
     addNewDelayComments(comments);
   }, [comments]);
 
-
   return (
     <Container>
       <ViewModeBar>Stream Chat</ViewModeBar>
-      <ChatMessages/>
+      <ChatMessages />
       {isLive && <SendMessage socket={socket} />}
     </Container>
   );
