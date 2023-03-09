@@ -47,21 +47,6 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   const [hls, setHls] = useState<Hls | null>(null);
   const { videoOptions, setVideoOptions } = useContext(VideoOptionsContext)
 
-  // const [videoOptions, setVideoOptions] = useState<IVideoOptions>({
-  //   isLive: isLive ? true : false,
-  //   volume: 0.5,
-  //   isScrubbing: false,
-  //   isTheater: false,
-  //   isMuted: true,
-  //   isPlay: false,
-  //   isPlaying: false,
-  //   isMini: false,
-  //   isFull: false,
-  //   setTime: undefined,
-  //   currentTime: 0,
-  //   duration: 0,
-  // });
-
   const {
     isScrubbing,
     volume,
