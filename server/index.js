@@ -7,7 +7,6 @@ dotenv.config();
 import { Video, Rooms, Comments, usersTable } from "./models/stream.js";
 import { startIo } from "./socket/chatroom.js";
 import { checkStreamKey } from "./utils/streamKey.js";
-import { writeFile } from "node:fs/promises";
 
 const PORT = 3535;
 
@@ -364,7 +363,13 @@ rooms.addRoom("123");
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type"],
+    preflightContinue: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
