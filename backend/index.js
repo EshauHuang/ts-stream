@@ -409,6 +409,7 @@ app.post("/auth/on_publish", (req, res) => {
   const videoId = videos.newVideoId();
 
   // 利用新的 streamKey(videoId) 推到 nginx，同時需要推送 username，nginx 會自動將 params(username) 當成 post data 傳至 on_publish 及 on_publish_done
+
   res
     .status(301)
     .redirect(

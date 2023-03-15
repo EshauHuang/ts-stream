@@ -10,4 +10,6 @@ RUN yarn install
 
 COPY . .
 
+EXPOSE 3535
+
 CMD yarn start
