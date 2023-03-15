@@ -7,7 +7,6 @@ dotenv.config();
 import { Video, Rooms, Comments, usersTable } from "./models/stream.js";
 import { startIo } from "./socket/chatroom.js";
 import { checkStreamKey } from "./utils/streamKey.js";
-import { writeFile } from "node:fs/promises";
 
 const PORT = 3535;
 
@@ -364,7 +363,13 @@ rooms.addRoom("123");
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type"],
+    preflightContinue: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -404,6 +409,7 @@ app.post("/auth/on_publish", (req, res) => {
   const videoId = videos.newVideoId();
 
   // 利用新的 streamKey(videoId) 推到 nginx，同時需要推送 username，nginx 會自動將 params(username) 當成 post data 傳至 on_publish 及 on_publish_done
+
   res
     .status(301)
     .redirect(
