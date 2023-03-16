@@ -8,7 +8,7 @@
 ## 使用技術
 - 使用 Socket.IO 建立直播間聊天室
 - 使用 Docker 進行部屬
-- 使用 Hls.js 觀看直播及影片
+- 使用 Hls.js 播放直播及影片
 - 使用 alfg/nginx-rtmp 建立 rtmp server
 - 基本技術: React, TypeScript, Styled-Component, Express
 
@@ -35,4 +35,5 @@ STREAM_SERVER_URL=rtmp://172.17.0.1:1935
 
 ### `docker compose up -d`
 
-### 至 `http://localhost:3000`，需等待一下才會開啟
+### 至 `http://localhost:3000`
+需等待一下才會開啟
