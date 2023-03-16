@@ -1,4 +1,4 @@
-const SERVER_URL = import.meta.env.VITE_SERVER_URL
+const SERVER_URL = import.meta.env.VITE_API_SERVER_URL
 
 export const getMe = async (username: string) => {
   const response = await fetch(`${SERVER_URL}/users/${username}`, {
