@@ -82,7 +82,7 @@ const SignUp = () => {
     }
 
     // 註冊
-    const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/sign-up`, {
+    const res = await fetch(`${import.meta.env.VITE_API_SERVER_URL}/sign-up`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json; charset=utf-8",

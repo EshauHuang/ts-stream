@@ -413,7 +413,7 @@ app.post("/auth/on_publish", (req, res) => {
   res
     .status(301)
     .redirect(
-      `${process.env.VITE_STREAM_SERVER_URL}/hls_live/${videoId}?username=${username}`
+      `${process.env.STREAM_SERVER_URL}/hls_live/${videoId}?username=${username}`
     );
 });
 
