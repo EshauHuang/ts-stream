@@ -3,9 +3,6 @@ import { useParams } from "react-router-dom";
 import styled, { css } from "styled-components";
 import _ from "lodash-es";
 
-import { CommentsProvider } from "@/contexts/commentsContext";
-import { VideoOptionsProvider } from "@/contexts/videoOptionsContext";
-
 import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
 import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
@@ -220,17 +217,16 @@ export interface IStreamMeta {
 const initialStreamData = {
   stream: {
     isStreamOn: false,
-    title: "string",
-    content: "string",
-    author: "string",
-    videoId: "string",
+    title: "",
+    content: "",
+    author: "",
+    videoId: "",
   },
   user: {
-    avatar: "string",
-    subscribes: "string",
+    avatar: "",
+    subscribes: "",
   },
 };
-
 
 const Live = () => {
   const { username } = useParams() as { username: string };
@@ -258,61 +254,57 @@ const Live = () => {
   }, [username]);
 
   return (
-    <VideoOptionsProvider>
-      <CommentsProvider>
-        <Container>
-          <Primary>
-            <VideoPlayer videoId={videoId} />
-            {dimensions && dimensions.width < 1030 && (
-              <Chatroom
-                setStream={setStreamMeta}
-                roomName={username}
-                isLive={true}
-              />
-            )}
-            <Meta>
-              <Title>{title}</Title>
-              <ActionRow>
-                <ChannelMeta>
-                  <UserLink>
-                    <Avatar>
-                      <img src={avatar} />
-                    </Avatar>
-                  </UserLink>
-                  <UserMeta>
-                    <Author>{author}</Author>
-                    <Subscribe>{subscribes} 訂閱者</Subscribe>
-                  </UserMeta>
-                  <SubscribeButton>訂閱</SubscribeButton>
-                </ChannelMeta>
-                <FeedbackMeta>
-                  <EvaluationBlock>
-                    <Like>
-                      <ThumbUpAltIconButton />
-                      <LikeCounts>3333</LikeCounts>
-                    </Like>
-                    <Dislike>
-                      <StyledThumbDownOffAltIcon />
-                    </Dislike>
-                  </EvaluationBlock>
-                  <MoreHorizIconButton />
-                </FeedbackMeta>
-              </ActionRow>
-              <ChannelInfo content={content} />
-            </Meta>
-          </Primary>
-          <Secondary>
-            {dimensions && dimensions.width >= 1030 && (
-              <Chatroom
-                setStream={setStreamMeta}
-                roomName={username}
-                isLive={true}
-              />
-            )}
-          </Secondary>
-        </Container>
-      </CommentsProvider>
-    </VideoOptionsProvider>
+    <Container>
+      <Primary>
+        <VideoPlayer videoId={videoId} />
+        {dimensions && dimensions.width < 1030 && (
+          <Chatroom
+            setStream={setStreamMeta}
+            roomName={username}
+            isLive={true}
+          />
+        )}
+        <Meta>
+          <Title>{title}</Title>
+          <ActionRow>
+            <ChannelMeta>
+              <UserLink>
+                <Avatar>
+                  <img src={avatar} />
+                </Avatar>
+              </UserLink>
+              <UserMeta>
+                <Author>{author}</Author>
+                <Subscribe>{subscribes} 訂閱者</Subscribe>
+              </UserMeta>
+              <SubscribeButton>訂閱</SubscribeButton>
+            </ChannelMeta>
+            <FeedbackMeta>
+              <EvaluationBlock>
+                <Like>
+                  <ThumbUpAltIconButton />
+                  <LikeCounts>3333</LikeCounts>
+                </Like>
+                <Dislike>
+                  <StyledThumbDownOffAltIcon />
+                </Dislike>
+              </EvaluationBlock>
+              <MoreHorizIconButton />
+            </FeedbackMeta>
+          </ActionRow>
+          <ChannelInfo content={content} />
+        </Meta>
+      </Primary>
+      <Secondary>
+        {dimensions && dimensions.width >= 1030 && (
+          <Chatroom
+            setStream={setStreamMeta}
+            roomName={username}
+            isLive={true}
+          />
+        )}
+      </Secondary>
+    </Container>
   );
 };
 

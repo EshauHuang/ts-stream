@@ -60,29 +60,26 @@ const VideoPlayer: React.FC<IVideoPlayer> = ({
   const { handleTogglePlay, handleVideoTime, handleVideoLoaded } =
     videoControllers;
 
-
   return (
-    <>
-      <PlayerContainer isFull={isFull} isTheater={isTheater}>
-        {isSourceLoaded ? (
-          <>
-            <Video
-              ref={videoRef}
-              onClick={() => handleTogglePlay()}
-              onTimeUpdate={(e) => handleVideoTime(e)}
-              onLoadedMetadata={(e) => handleVideoLoaded(e)}
-            ></Video>
-            <ControlBar
-              timelineRef={timelineRef}
-              videoOptions={videoOptions}
-              videoControllers={videoControllers}
-            />
-          </>
-        ) : (
-          <Thumbnail src={img5} />
-        )}
-      </PlayerContainer>
-    </>
+    <PlayerContainer isFull={isFull} isTheater={isTheater}>
+      {isSourceLoaded ? (
+        <>
+          <Video
+            ref={videoRef}
+            onClick={() => handleTogglePlay()}
+            onTimeUpdate={(e) => handleVideoTime(e)}
+            onLoadedMetadata={(e) => handleVideoLoaded(e)}
+          ></Video>
+          <ControlBar
+            timelineRef={timelineRef}
+            videoOptions={videoOptions}
+            videoControllers={videoControllers}
+          />
+        </>
+      ) : (
+        <Thumbnail src={img5} />
+      )}
+    </PlayerContainer>
   );
 };
 

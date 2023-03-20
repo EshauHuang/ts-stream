@@ -23,7 +23,7 @@ export interface IVideo {
   author: string;
   content: string;
   thumbnail: string;
-  startTime: number;
+  startTime?: number;
   comments: IComment[];
 }
 

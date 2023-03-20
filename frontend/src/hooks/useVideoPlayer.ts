@@ -5,21 +5,6 @@ import { useState, useRef, useEffect, useCallback, useContext } from "react"
 
 import { VideoOptionsContext } from "@/contexts/videoOptionsContext";
 
-export interface IVideoOptions {
-  isLive: boolean;
-  volume: number;
-  isScrubbing: boolean;
-  isTheater: boolean;
-  isMuted: boolean;
-  isPlay: boolean;
-  isPlaying: boolean;
-  isMini: boolean;
-  isFull: boolean;
-  setTime: undefined | number;
-  currentTime: number;
-  duration: number;
-}
-
 export interface IVideoControllers {
   handleTogglePlay: () => void;
   handleChangeVolume: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -47,7 +32,10 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   const [hls, setHls] = useState<Hls | null>(null);
   const { videoOptions, setVideoOptions } = useContext(VideoOptionsContext)
 
+  console.log({ videoOptions });
+
   const {
+    // isSourceLoaded,
     isScrubbing,
     volume,
     isMuted,

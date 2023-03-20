@@ -3,8 +3,6 @@ import { useParams } from "react-router-dom";
 
 import Chatroom from "@/components/chatroom/chatroom.component";
 import VideoPlayer from "@/components/video-player/video-player.component";
-import { CommentsProvider } from "@/contexts/commentsContext";
-import { VideoOptionsProvider } from "@/contexts/videoOptionsContext";
 import { getVideo, getComments } from "@/api/stream";
 
 import { IVideo } from "@/components/video-card/video-card.component";
@@ -18,7 +16,7 @@ const initialVideo = {
   author: "",
   content: "",
   thumbnail: "",
-  startTime: 0,
+  startTime: undefined,
   comments: [],
 };
 
@@ -39,14 +37,10 @@ const Video = () => {
   }, []);
 
   return (
-    <VideoOptionsProvider>
-      <CommentsProvider>
-        <Container>
-          <VideoPlayer isLive={false} videoId={videoId} />
-          <Chatroom comments={video.comments} isLive={false} />
-        </Container>
-      </CommentsProvider>
-    </VideoOptionsProvider>
+    <Container>
+      <VideoPlayer isLive={false} videoId={videoId} />
+      <Chatroom comments={video.comments} isLive={false} />
+    </Container>
   );
 };
 
