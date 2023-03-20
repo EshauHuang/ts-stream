@@ -45,24 +45,21 @@ const VideoPlayer: React.FC<IVideoPlayer> = ({
   videoId,
   isLive = true,
 }) => {
-  const {
-    isSourceLoaded,
-    videoRef,
-    timelineRef,
-    videoOptions,
-    videoControllers,
-  } = useVideoPlayer({
-    src,
-    videoId,
-    isLive,
-  });
-  const { isFull, isTheater, currentTime, isPlay, isPlaying } = videoOptions;
+  const { videoRef, timelineRef, videoOptions, videoControllers } =
+    useVideoPlayer({
+      src,
+      videoId,
+      isLive,
+    });
+  const { isFull, isTheater, isLoaded } = videoOptions;
   const { handleTogglePlay, handleVideoTime, handleVideoLoaded } =
     videoControllers;
 
+  const shouldRenderVideo = src || videoId;
+
   return (
     <PlayerContainer isFull={isFull} isTheater={isTheater}>
-      {isSourceLoaded ? (
+      {shouldRenderVideo ? (
         <>
           <Video
             ref={videoRef}
@@ -70,11 +67,13 @@ const VideoPlayer: React.FC<IVideoPlayer> = ({
             onTimeUpdate={(e) => handleVideoTime(e)}
             onLoadedMetadata={(e) => handleVideoLoaded(e)}
           ></Video>
-          <ControlBar
-            timelineRef={timelineRef}
-            videoOptions={videoOptions}
-            videoControllers={videoControllers}
-          />
+          {isLoaded && (
+            <ControlBar
+              timelineRef={timelineRef}
+              videoOptions={videoOptions}
+              videoControllers={videoControllers}
+            />
+          )}
         </>
       ) : (
         <Thumbnail src={img5} />

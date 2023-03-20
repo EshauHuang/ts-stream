@@ -231,6 +231,7 @@ const initialStreamData = {
 const Live = () => {
   const { username } = useParams() as { username: string };
   const [streamMeta, setStreamMeta] = useState<IStreamMeta>(initialStreamData);
+
   const {
     stream: { isStreamOn, title, content, author, videoId },
     user: { avatar, subscribes },

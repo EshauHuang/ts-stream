@@ -18,7 +18,7 @@ const siteVideos = {
     author: "Joma Tech",
     content: "asdsadsa",
     thumbnail: "images/2.jpg",
-    startTime: 167575949764,
+    startTime: 1675759497647,
     comments: new Comments(),
   },
   2: {
@@ -423,10 +423,14 @@ app.post("/rtmp/on_publish", (req, res) => {
 
   const user = usersTable.find((user) => user.username === username);
 
+  console.log({ user });
+
   // 直播狀態改為 on，用於使用者進入直播間時可自動去抓取直播資源，videoId 用來取得影片位置
   user.stream.startTime = Date.now();
   user.stream.isStreamOn = true;
   user.stream.videoId = videoId;
+
+  console.log({ username });
 
   // 傳送直播開始訊息，用於刷新影片
   io.to(username).emit("stream-connected", { videoId });

@@ -29,6 +29,7 @@ interface CommentsContextProps {
   setCommentsDelay: React.Dispatch<React.SetStateAction<IComment[] | []>>;
   addNewDelayComments: (comments: IComment[]) => void;
   fetchNewCommentsAndAddToDelayComments: () => void;
+  setVideoStartTime: (startTime: number) => void;
 }
 
 interface CommentsProviderProps {
@@ -45,6 +46,8 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
   const timerRef = useRef<NodeJS.Timer | null>(null);
   const [isFetchNewComments, setIsFetchNewComments] = useState(false);
   const [isNextComments, setIsNextComments] = useState(true);
+  const [videoStartTime, setVideoStartTime] = useState<number>();
+
   const {
     videoOptions: { currentTime, videoId, isScrubbing },
   } = useContext(VideoOptionsContext);
@@ -69,8 +72,10 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
   };
 
   const fetchNewCommentsAndAddToDelayComments = async () => {
+    if (!videoStartTime) return;
+
     const videoRealTime =
-      (currentTime - 1 < 0 ? 0 : currentTime - 1) * 1000 + 1675759497647;
+      (currentTime - 1 < 0 ? 0 : currentTime - 1) * 1000 + videoStartTime;
     const { comments } = await getComments(videoId, videoRealTime, -1);
 
     const { time: lastCommentTime } = comments[comments.length - 1] || {};
@@ -100,14 +105,14 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
   }, []);
 
   useEffect(() => {
-    if (isScrubbing) return;
+    if (isScrubbing || !videoStartTime) return;
 
     if (!commentsDelay.length) return;
     let copyCommentsDelay = _.cloneDeep(commentsDelay);
 
     const [comment] = copyCommentsDelay;
 
-    if (comment.time > currentTime * 1000 + 1675759497647) return;
+    if (comment.time > currentTime * 1000 + videoStartTime) return;
 
     copyCommentsDelay.shift();
 
@@ -116,7 +121,7 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
       const [_, ...newComments] = prev;
       return newComments;
     });
-  }, [commentsDelay, currentTime, currentTime, isScrubbing]);
+  }, [commentsDelay, currentTime, currentTime, isScrubbing, videoStartTime]);
 
   useEffect(() => {
     if (isScrubbing || !isNextComments) return;
@@ -164,6 +169,7 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
     setCommentsDelay,
     addNewDelayComments,
     fetchNewCommentsAndAddToDelayComments,
+    setVideoStartTime,
   };
 
   return (

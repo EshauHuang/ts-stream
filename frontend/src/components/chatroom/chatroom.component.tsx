@@ -44,6 +44,7 @@ const Chatroom: React.FC<IChatroomProps> = ({
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const { username } = currentUser || {};
+  
   useEffect(() => {
     if (!roomName) return;
 
@@ -70,9 +71,9 @@ const Chatroom: React.FC<IChatroomProps> = ({
     });
 
     socket.on("stream-connected", ({ videoId }) => {
+      console.log("stream connected");
       if (!setStream) return;
 
-      console.log("stream connected");
       setStream((prev) => ({
         ...prev,
         stream: {
@@ -104,11 +105,5 @@ const Chatroom: React.FC<IChatroomProps> = ({
     </Container>
   );
 };
-
-const ChatRoomProvider = (props: IChatroomProps) => (
-  <CommentsProvider>
-    <Chatroom {...props} />
-  </CommentsProvider>
-);
 
 export default Chatroom;

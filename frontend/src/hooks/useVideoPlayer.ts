@@ -2,7 +2,6 @@ import Hls from "hls.js";
 import _ from "lodash-es";
 import { useState, useRef, useEffect, useCallback, useContext } from "react"
 
-
 import { VideoOptionsContext } from "@/contexts/videoOptionsContext";
 
 export interface IVideoControllers {
@@ -32,23 +31,16 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   const [hls, setHls] = useState<Hls | null>(null);
   const { videoOptions, setVideoOptions } = useContext(VideoOptionsContext)
 
-  console.log({ videoOptions });
-
   const {
-    // isSourceLoaded,
     isScrubbing,
     volume,
     isMuted,
     isPlay,
     isPlaying,
-    isTheater,
-    isFull,
     currentTime,
     duration,
     setTime,
   } = videoOptions;
-
-  const isSourceLoaded = src || videoId;
 
   const handleTogglePlay = () => {
     let videoTime: number | undefined;
@@ -212,7 +204,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   useEffect(() => {
     const video = videoRef.current;
 
-    if (!video || !isSourceLoaded) return;
+    if (!video) return;
 
     video.volume = volume;
     video.muted = isMuted;
@@ -239,7 +231,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
     if (setTime !== undefined) {
       throttledSetTime(setTime);
     }
-  }, [videoOptions, isSourceLoaded]);
+  }, [videoOptions]);
 
   useEffect(() => {
     document.addEventListener("mousemove", throttledHandleMouseMove);
@@ -285,6 +277,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
         setVideoOptions((prev) => ({
           ...prev,
           isPlay: true,
+          isLoaded: true,
         }));
       });
 
@@ -330,6 +323,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
         videoId
       }))
     }
+
   }, [videoId])
 
   useEffect(() => {
@@ -342,7 +336,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   }, [src])
 
   return {
-    isSourceLoaded,
+
     videoRef,
     timelineRef,
     videoOptions,

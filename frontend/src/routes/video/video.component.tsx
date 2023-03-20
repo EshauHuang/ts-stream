@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
+
+import { getVideo } from "@/api/stream";
+import { CommentsContext } from "@/contexts/commentsContext";
 
 import Chatroom from "@/components/chatroom/chatroom.component";
 import VideoPlayer from "@/components/video-player/video-player.component";
-import { getVideo, getComments } from "@/api/stream";
-
 import { IVideo } from "@/components/video-card/video-card.component";
 
 import { Container } from "./video.style";
@@ -23,6 +24,7 @@ const initialVideo = {
 const Video = () => {
   const { videoId } = useParams() as { videoId: string };
   const [video, setVideo] = useState<IVideo>(initialVideo);
+  const { setVideoStartTime } = useContext(CommentsContext);
 
   useEffect(() => {
     const fetchVideoData = async () => {
@@ -30,6 +32,7 @@ const Video = () => {
 
       if (video) {
         setVideo(video);
+        setVideoStartTime(video.startTime);
       }
     };
 
