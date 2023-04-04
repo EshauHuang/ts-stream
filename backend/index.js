@@ -423,14 +423,10 @@ app.post("/rtmp/on_publish", (req, res) => {
 
   const user = usersTable.find((user) => user.username === username);
 
-  console.log({ user });
-
   // 直播狀態改為 on，用於使用者進入直播間時可自動去抓取直播資源，videoId 用來取得影片位置
   user.stream.startTime = Date.now();
   user.stream.isStreamOn = true;
   user.stream.videoId = videoId;
-
-  console.log({ username });
 
   // 傳送直播開始訊息，用於刷新影片
   io.to(username).emit("stream-connected", { videoId });
@@ -458,7 +454,7 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
     content,
     startTime,
     comments,
-    type: "video"
+    type: "video",
   });
 
   // 將影片加至 user 的 videos 內
@@ -471,8 +467,10 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
     type: "video",
   });
 
-  user.stream.isStreamOn = false;
+  // user.stream.isStreamOn = false;
   user.stream.videoId = "";
+
+  usersTable.initialRoom(username);
 
   rooms.initialRoom(username);
 
@@ -607,6 +605,98 @@ app.post("/streams/:username/streamKey", (req, res) => {
   }
 });
 
+app.put("/streams/:username/like/add", (req, res) => {
+  try {
+    const { username } = req.params;
+    const { user } = req.body;
+
+    // 找直播中的 videoId
+    const { stream } = usersTable.getStream(username);
+    const { videoId } = stream;
+
+    // 如還未將影片加至 user 喜愛影片內則加入，有加入則刪除
+    const likeVideoList = usersTable.addLikeVideoToList(user, videoId);
+
+    if (!likeVideoList) throw new Error("Video can't add to like list.");
+    const like = usersTable.addLike(username);
+
+    res.json({ message: "success", like, likeVideoList });
+  } catch (error) {
+    const { message } = error;
+    res.json({ message });
+  }
+});
+
+app.put("/streams/:username/like/reduce", (req, res) => {
+  try {
+    const { username } = req.params;
+    const { user } = req.body;
+
+    // 找直播中的 videoId
+    const { stream } = usersTable.getStream(username);
+    const { videoId } = stream;
+
+    // 如還未將影片加至 user 喜愛影片內則加入，有加入則刪除
+    const likeVideoList = usersTable.removeLikeVideoFromList(user, videoId);
+
+    if (!likeVideoList) throw new Error("Video can't remove from like list.");
+    const like = usersTable.reduceLike(username);
+
+    res.json({ message: "success", like, likeVideoList });
+  } catch (error) {
+    const { message } = error;
+    res.json({ message });
+  }
+});
+
+app.put("/streams/:username/dislike/add", (req, res) => {
+  try {
+    const { username } = req.params;
+    const { user } = req.body;
+
+    // 找直播中的 videoId
+    const { stream } = usersTable.getStream(username);
+    const { videoId } = stream;
+
+    // 如還未將影片加至 user 喜愛影片內則加入，有加入則刪除
+    const dislikeVideoList = usersTable.addDislikeVideoToList(user, videoId);
+
+    if (!dislikeVideoList) throw new Error("Video can't add to dislike list.");
+    const dislike = usersTable.addDislike(username);
+
+    res.json({ message: "success", dislike, dislikeVideoList });
+  } catch (error) {
+    const { message } = error;
+    res.json({ message });
+  }
+});
+
+app.put("/streams/:username/dislike/reduce", (req, res) => {
+  try {
+    const { username } = req.params;
+    const { user } = req.body;
+
+    // 找直播中的 videoId
+    const { stream } = usersTable.getStream(username);
+    const { videoId } = stream;
+
+    // 如還未將影片加至 user 喜愛影片內則加入，有加入則刪除
+    const dislikeVideoList = usersTable.removeDislikeVideoFromList(
+      user,
+      videoId
+    );
+
+    if (!dislikeVideoList)
+      throw new Error("Video can't remove from dislike list.");
+    const dislike = usersTable.reduceDislike(username);
+
+    res.json({ message: "success", dislike, dislikeVideoList });
+  } catch (error) {
+    const { message } = error;
+    res.json({ message });
+  }
+});
+
 app.put("/users/:username", (req, res) => {
   try {
     const { username } = req.params;
@@ -676,6 +766,24 @@ app.post("/videos/:videoId/comments", (req, res) => {
   const comments = videos.getVideoComments(videoId, time, mode);
 
   res.json({ message: "success", comments });
+});
+
+app.put("/videos/:videoId/like", (req, res) => {
+  try {
+    res.json({ message: "success" });
+  } catch (error) {
+    const { message } = error;
+    res.json({ message });
+  }
+});
+
+app.put("/videos/:videoId/dislike", (req, res) => {
+  try {
+    res.json({ message: "success" });
+  } catch (error) {
+    const { message } = error;
+    res.json({ message });
+  }
 });
 
 server.listen(PORT, () => {

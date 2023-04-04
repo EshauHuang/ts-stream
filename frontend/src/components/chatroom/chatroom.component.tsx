@@ -7,7 +7,7 @@ import { CommentsProvider } from "@/contexts/commentsContext";
 
 import ChatMessages from "@/components/chat-messages/chat-messages.component";
 import SendMessage from "@/components/send-message/send-message.component";
-import { IStreamMeta } from "@/routes/live/live.component";
+import { IStreamData } from "@/routes/live/live.component";
 
 import { Container, ViewModeBar } from "./chatroom.style";
 
@@ -29,7 +29,7 @@ interface IChatroomProps {
   isLive: boolean;
   roomName?: string;
   comments?: IComment[];
-  setStream?: React.Dispatch<React.SetStateAction<IStreamMeta>>;
+  setStream?: React.Dispatch<React.SetStateAction<IStreamData>>;
 }
 
 const Chatroom: React.FC<IChatroomProps> = ({

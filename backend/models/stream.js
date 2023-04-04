@@ -254,6 +254,8 @@ export const usersTable = [
     avatar: "/images/avatar/user01.jpg",
     email: "123@gmail.com",
     subscribes: 200,
+    likeVideoList: [],
+    dislikeVideoList: [],
     videos: {
       1: {
         // 關聯到 siteVideosID
@@ -303,6 +305,8 @@ https://www.hololive.tv/request-to-mi...
 `,
       videoId: "",
       startTime: "",
+      like: 4155,
+      dislike: 0,
     },
   },
   {
@@ -313,6 +317,8 @@ https://www.hololive.tv/request-to-mi...
     avatar: "/images/avatar/123.jpg",
     email: "123@gmail.com",
     subscribes: 500,
+    likeVideoList: [],
+    dislikeVideoList: [],
     videos: {
       1: {
         // 關聯到 siteVideosID
@@ -362,11 +368,25 @@ https://www.hololive.tv/request-to-mi...
 `,
       videoId: "",
       startTime: "",
-      like: "",
-      dislike: "",
+      like: 415,
+      dislike: 0,
     },
   },
 ];
+
+usersTable.initialRoom = function (username) {
+  const user = this.findUser(username);
+
+  if (user) {
+    user.stream = {
+      ...user.stream,
+      isStreamOn: false,
+      startTime: "",
+      like: 0,
+      dislike: 0,
+    };
+  }
+};
 
 usersTable.generateNewUser = async function (username, password, email) {
   const streamKey = genStreamKey(username);
@@ -377,6 +397,7 @@ usersTable.generateNewUser = async function (username, password, email) {
     username,
     password: passwordHash,
     streamKey: streamKey,
+    subscribes: 0,
     email,
     videos: {
       length: 0,
@@ -388,6 +409,7 @@ usersTable.generateNewUser = async function (username, password, email) {
         return { [index]: this[index] };
       },
     },
+    likeVideoList: [],
     stream: {
       isStreamOn: false,
       type: "stream",
@@ -395,6 +417,8 @@ usersTable.generateNewUser = async function (username, password, email) {
       title: `${username} 的直播間`,
       content: "",
       startTime: "",
+      like: 0,
+      dislike: 0,
     },
   };
 
@@ -404,6 +428,119 @@ usersTable.generateNewUser = async function (username, password, email) {
     username,
     email,
   };
+};
+
+usersTable.checkLikeVideoExist = function (username, videoId) {
+  const user = this.findUser(username);
+
+  if (!user) return false;
+
+  return user.likeVideoList.find((id) => id === videoId);
+};
+
+usersTable.checkDislikeVideoExist = function (username, videoId) {
+  const user = this.findUser(username);
+
+  if (!user) return false;
+
+  return user.dislikeVideoList.find((id) => id === videoId);
+};
+
+usersTable.findUser = function (username) {
+  return this.find((user) => user.username === username);
+};
+
+usersTable.addLikeVideoToList = function (username, videoId) {
+  if (!username || !videoId) return;
+  const user = this.findUser(username);
+
+  const isLikeVideoExist = usersTable.checkLikeVideoExist(username, videoId);
+  if (!isLikeVideoExist) {
+    user.likeVideoList.push(videoId);
+  }
+  return user.likeVideoList;
+};
+
+usersTable.removeLikeVideoFromList = function (username, videoId) {
+  if (!username || !videoId) return;
+  const user = this.findUser(username);
+
+  const isLikeVideoExist = usersTable.checkLikeVideoExist(username, videoId);
+  if (isLikeVideoExist) {
+    user.likeVideoList = user.likeVideoList.filter((id) => id !== videoId);
+  }
+  return user.likeVideoList;
+};
+
+usersTable.addLike = function (username) {
+  const user = this.find((user) => user.username === username);
+
+  if (!user) return -1;
+
+  user.stream.like++;
+
+  return user.stream.like;
+};
+
+usersTable.reduceLike = function (username) {
+  const user = this.find((user) => user.username === username);
+
+  if (!user) return -1;
+
+  user.stream.like--;
+
+  return user.stream.like;
+};
+
+usersTable.addDislikeVideoToList = function (username, videoId) {
+  if (!username || !videoId) return;
+  const user = this.findUser(username);
+
+  const isDislikeVideoExist = usersTable.checkDislikeVideoExist(
+    username,
+    videoId
+  );
+  if (!isDislikeVideoExist) {
+    user.dislikeVideoList.push(videoId);
+  }
+  return user.dislikeVideoList;
+};
+
+usersTable.removeDislikeVideoFromList = function (username, videoId) {
+  if (!username || !videoId) return;
+  const user = this.findUser(username);
+
+  const isDislikeVideoExist = usersTable.checkDislikeVideoExist(
+    username,
+    videoId
+  );
+  if (isDislikeVideoExist) {
+    user.dislikeVideoList = user.dislikeVideoList.filter(
+      (id) => id !== videoId
+    );
+  }
+
+  return user.dislikeVideoList;
+};
+
+usersTable.addDislike = function (username) {
+  const user = this.find((user) => user.username === username);
+
+  if (!user) return -1;
+
+  user.stream.dislike++;
+
+  return user.stream.dislike;
+};
+
+usersTable.reduceDislike = function (username) {
+  const user = this.find((user) => user.username === username);
+
+  if (!user) return -1;
+
+  user.stream.dislike--;
+
+  return user.stream.dislike;
 };
 
 usersTable.verifyUser = function (username, password) {

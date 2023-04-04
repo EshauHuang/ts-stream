@@ -8,6 +8,7 @@ export const Timeline = styled.div`
   transform: scaleY(0.6);
   background-color: rgba(255, 255, 255, 0.5);
   transition: transform 0.2s ease-in-out;
+  overflow: hidden;
 
   &:after {
     content: "";
@@ -21,7 +22,6 @@ export const Timeline = styled.div`
     background-color: red;
   }
 `;
-
 
 
 export const TimelineCursor = styled.div`

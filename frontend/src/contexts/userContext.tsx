@@ -1,13 +1,13 @@
 import { createContext, useState } from "react";
 
-interface UserProps {
-  name: string;
+export interface IUser {
+  email: string;
   username: string;
 }
 
 interface UserContextProps {
-  currentUser: UserProps | null;
-  setCurrentUser: React.Dispatch<React.SetStateAction<UserProps | null>>;
+  currentUser: IUser | null;
+  setCurrentUser: React.Dispatch<React.SetStateAction<IUser | null>>;
 }
 
 interface UserProviderProps {
@@ -17,7 +17,7 @@ interface UserProviderProps {
 export const UserContext = createContext({} as UserContextProps);
 
 export const UsersProvider: React.FC<UserProviderProps> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<UserProps | null>(null);
+  const [currentUser, setCurrentUser] = useState<IUser | null>(null);
 
   const value = { currentUser, setCurrentUser };
 

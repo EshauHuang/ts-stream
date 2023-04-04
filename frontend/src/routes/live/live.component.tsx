@@ -1,48 +1,37 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import styled, { css } from "styled-components";
 import _ from "lodash-es";
 
-import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
-import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
-import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
-import ThumbDownOffAltIcon from "@mui/icons-material/ThumbDownOffAlt";
+import { UserContext } from "@/contexts/userContext";
+
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 
 import Chatroom from "@/components/chatroom/chatroom.component";
 import VideoPlayer from "@/components/video-player/video-player.component";
 import ChannelInfo from "@/components/channel-detail/channel-detail.component";
+import VideoEvaluation from "@/components/video-evaluation/video-evaluation.component";
 
 import { StyledContentEditable } from "@/components/send-message/send-message.style";
 
-import { getStream } from "@/api/stream";
-
-import useResizeObserver from "@/hooks/useResizeObserver";
+import {
+  getStream,
+  addLike,
+  getMe,
+  reduceLike,
+  addDislike,
+  reduceDislike,
+} from "@/api/stream";
 
 import { Container } from "./live.style";
 import useWindowResize from "@/hooks/useWindowResize";
+import { CatchingPokemon } from "@mui/icons-material";
 
 const IconStyle = css`
   padding: 8px 0;
   width: 40px;
   height: 40px;
   color: #fff;
-`;
-
-const ThumbUpAltIconButton = styled(ThumbUpAltIcon)`
-  ${IconStyle}
-`;
-
-const ThumbUpOffAltIconButton = styled(ThumbUpOffAltIcon)`
-  ${IconStyle}
-`;
-
-const StyledThumbDownAltIcon = styled(ThumbDownAltIcon)`
-  ${IconStyle}
-`;
-
-const StyledThumbDownOffAltIcon = styled(ThumbDownOffAltIcon)`
-  ${IconStyle}
 `;
 
 const MoreHorizIconButton = styled(MoreHorizIcon)`
@@ -141,78 +130,57 @@ const FeedbackMeta = styled.div`
   align-items: center;
 `;
 
-const EvaluationBlock = styled.div`
-  display: flex;
-  border-radius: 1.8rem;
-  margin-right: 1rem;
-`;
-
-const LikeCounts = styled.p`
-  line-height: 40px;
-  color: #fff;
-  font-size: 1.4rem;
-`;
-
-const Like = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  padding-right: 1.5rem;
-  padding-left: 0.5rem;
-  border-top-left-radius: 1.8rem;
-  border-bottom-left-radius: 1.8rem;
-  background-color: rgba(255, 255, 255, 0.1);
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-  }
-
-  &::after {
-    content: "";
-    position: absolute;
-    width: 1px;
-    height: 70%;
-    background-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-50%);
-    border: 0;
-    right: 0;
-    top: 50%;
-  }
-`;
-
-const Dislike = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-  border-top-right-radius: 1.8rem;
-  border-bottom-right-radius: 1.8rem;
-  background-color: rgba(255, 255, 255, 0.1);
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-  }
-`;
-
-export interface IStreamMeta {
+export interface IUserData {
   stream: {
     isStreamOn: boolean;
     title: string;
     content: string;
     author: string;
     videoId: string;
+    like: number;
+    dislike: number;
   };
   user: {
     avatar: string;
-    subscribes: string;
+    likeVideoList: string[];
+    dislikeVideoList: string[];
+    subscribes: number;
   };
 }
+
+export interface IStreamData {
+  stream: {
+    isStreamOn: boolean;
+    title: string;
+    content: string;
+    author: string;
+    videoId: string;
+    like: number;
+    dislike: number;
+  };
+  user: {
+    avatar: string;
+    subscribes: number;
+  };
+}
+
+const initialUserData = {
+  stream: {
+    isStreamOn: false,
+    title: "",
+    content: "",
+    author: "",
+    videoId: "",
+    like: 0,
+    dislike: 0,
+  },
+  user: {
+    likeVideoList: [],
+    dislikeVideoList: [],
+    avatar: "",
+    subscribes: 0,
+  },
+};
 
 const initialStreamData = {
   stream: {
@@ -221,38 +189,225 @@ const initialStreamData = {
     content: "",
     author: "",
     videoId: "",
+    like: 0,
+    dislike: 0,
   },
   user: {
     avatar: "",
-    subscribes: "",
+    subscribes: 0,
   },
 };
 
 const Live = () => {
   const { username } = useParams() as { username: string };
-  const [streamMeta, setStreamMeta] = useState<IStreamMeta>(initialStreamData);
+  const [streamData, setStreamData] = useState<IStreamData>(initialStreamData);
+  const [currentUserData, setCurrentUserData] =
+    useState<IUserData>(initialUserData);
+  const { currentUser } = useContext(UserContext);
 
   const {
-    stream: { isStreamOn, title, content, author, videoId },
+    stream: { isStreamOn, title, content, author, videoId, like, dislike },
     user: { avatar, subscribes },
-  } = streamMeta;
+  } = streamData;
+
+  const {
+    user: { likeVideoList, dislikeVideoList },
+  } = currentUserData;
+
+
+  const isDislikeVideo =
+    !!dislikeVideoList.length &&
+    !!dislikeVideoList.find((id) => id === videoId);
+
+  const isLikeVideo =
+    !!likeVideoList.length && !!likeVideoList.find((id) => id === videoId);
+
   const { dimensions } = useWindowResize();
 
   useEffect(() => {
-    const fetchStreamData = async () => {
-      try {
+    try {
+      const fetchStreamData = async () => {
         const { data } = await getStream(username);
 
         if (!data) return;
 
-        setStreamMeta(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
+        setStreamData(data);
+      };
 
-    fetchStreamData();
+      const fetchMyData = async () => {
+        if (!currentUser) return;
+        const { data } = await getMe(currentUser.username);
+
+        if (!data) return;
+        setCurrentUserData(data);
+      };
+
+      fetchStreamData();
+      fetchMyData();
+    } catch (error) {
+      console.log(error);
+    }
   }, [username]);
+
+  const handleClickDislike = async () => {
+    if (!currentUser) return;
+
+    if (isDislikeVideo) {
+      const { dislike, dislikeVideoList } = await reduceDislike(
+        username,
+        currentUser,
+        "stream"
+      );
+
+      setCurrentUserData((prev) => ({
+        ...prev,
+        user: {
+          ...prev.user,
+          dislikeVideoList,
+        },
+      }));
+
+      setStreamData((prev) => ({
+        ...prev,
+        stream: {
+          ...prev.stream,
+          dislike,
+        },
+      }));
+    } else if (isLikeVideo) {
+      const { dislike, dislikeVideoList } = await addDislike(
+        username,
+        currentUser,
+        "stream"
+      );
+
+      const { like, likeVideoList } = await reduceLike(
+        username,
+        currentUser,
+        "stream"
+      );
+
+      setCurrentUserData((prev) => ({
+        ...prev,
+        user: {
+          ...prev.user,
+          likeVideoList,
+          dislikeVideoList,
+        },
+      }));
+
+      setStreamData((prev) => ({
+        ...prev,
+        stream: {
+          ...prev.stream,
+          like,
+          dislike,
+        },
+      }));
+    } else {
+      const { dislike, dislikeVideoList } = await addDislike(
+        username,
+        currentUser,
+        "stream"
+      );
+
+      setCurrentUserData((prev) => ({
+        ...prev,
+        user: {
+          ...prev.user,
+          dislikeVideoList,
+        },
+      }));
+
+      setStreamData((prev) => ({
+        ...prev,
+        stream: {
+          ...prev.stream,
+          dislike,
+        },
+      }));
+    }
+  };
+
+  const handleClickLike = async () => {
+    if (!currentUser) return;
+
+    if (isLikeVideo) {
+      const { like, likeVideoList } = await reduceLike(
+        username,
+        currentUser,
+        "stream"
+      );
+
+      setCurrentUserData((prev) => ({
+        ...prev,
+        user: {
+          ...prev.user,
+          likeVideoList,
+        },
+      }));
+
+      setStreamData((prev) => ({
+        ...prev,
+        stream: {
+          ...prev.stream,
+          like,
+        },
+      }));
+    } else if (isDislikeVideo) {
+      const { like, likeVideoList } = await addLike(
+        username,
+        currentUser,
+        "stream"
+      );
+
+      const { dislike, dislikeVideoList } = await reduceDislike(
+        username,
+        currentUser,
+        "stream"
+      );
+
+      setCurrentUserData((prev) => ({
+        ...prev,
+        user: {
+          ...prev.user,
+          likeVideoList,
+          dislikeVideoList,
+        },
+      }));
+
+      setStreamData((prev) => ({
+        ...prev,
+        stream: {
+          ...prev.stream,
+          like,
+          dislike,
+        },
+      }));
+    } else {
+      const { like, likeVideoList } = await addLike(
+        username,
+        currentUser,
+        "stream"
+      );
+
+      setCurrentUserData((prev) => ({
+        ...prev,
+        user: {
+          ...prev.user,
+          likeVideoList,
+        },
+      }));
+
+      setStreamData((prev) => ({
+        ...prev,
+        stream: {
+          ...prev.stream,
+          like,
+        },
+      }));
+    }
+  };
 
   return (
     <Container>
@@ -260,7 +415,7 @@ const Live = () => {
         <VideoPlayer videoId={videoId} />
         {dimensions && dimensions.width < 1030 && (
           <Chatroom
-            setStream={setStreamMeta}
+            setStream={setStreamData}
             roomName={username}
             isLive={true}
           />
@@ -281,15 +436,16 @@ const Live = () => {
               <SubscribeButton>訂閱</SubscribeButton>
             </ChannelMeta>
             <FeedbackMeta>
-              <EvaluationBlock>
-                <Like>
-                  <ThumbUpAltIconButton />
-                  <LikeCounts>3333</LikeCounts>
-                </Like>
-                <Dislike>
-                  <StyledThumbDownOffAltIcon />
-                </Dislike>
-              </EvaluationBlock>
+              {isStreamOn && (
+                <VideoEvaluation
+                  like={like}
+                  isLikeVideo={isLikeVideo}
+                  isDislikeVideo={isDislikeVideo}
+                  dislike={dislike}
+                  handleClickLike={handleClickLike}
+                  handleClickDislike={handleClickDislike}
+                />
+              )}
               <MoreHorizIconButton />
             </FeedbackMeta>
           </ActionRow>
@@ -299,7 +455,7 @@ const Live = () => {
       <Secondary>
         {dimensions && dimensions.width >= 1030 && (
           <Chatroom
-            setStream={setStreamMeta}
+            setStream={setStreamData}
             roomName={username}
             isLive={true}
           />

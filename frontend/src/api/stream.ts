@@ -1,3 +1,5 @@
+import { IUser } from "@/contexts/userContext"
+
 const SERVER_URL = import.meta.env.VITE_API_SERVER_URL
 
 export const getMe = async (username: string) => {
@@ -103,6 +105,82 @@ export const refreshStreamKey = async (username: string) => {
     headers: {
       "Content-Type": "application/json; charset=utf-8",
     },
+  })
+
+  return await response.json()
+}
+
+export const addLike = async (username: string, currentUser: IUser, mode: string) => {
+
+  const url = mode === "stream" ? `${SERVER_URL}/streams/${username}/like/add` : mode === "video" ? `${SERVER_URL}/videos/${username}/like/add` : null
+
+  if (!url) throw new Error("Lack of mode!")
+
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: JSON.stringify({
+      user: currentUser.username
+    })
+  })
+
+  return await response.json()
+}
+
+export const reduceLike = async (username: string, currentUser: IUser, mode: string) => {
+
+  const url = mode === "stream" ? `${SERVER_URL}/streams/${username}/like/reduce` : mode === "video" ? `${SERVER_URL}/videos/${username}/like/reduce` : null
+
+  if (!url) throw new Error("Lack of mode!")
+
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: JSON.stringify({
+      user: currentUser.username
+    })
+  })
+
+  return await response.json()
+}
+
+export const addDislike = async (username: string, currentUser: IUser, mode: string) => {
+
+  const url = mode === "stream" ? `${SERVER_URL}/streams/${username}/dislike/add` : mode === "video" ? `${SERVER_URL}/videos/${username}/dislike/add` : null
+
+  if (!url) throw new Error("Lack of mode!")
+
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: JSON.stringify({
+      user: currentUser.username
+    })
+  })
+
+  return await response.json()
+}
+
+export const reduceDislike = async (username: string, currentUser: IUser, mode: string) => {
+
+  const url = mode === "stream" ? `${SERVER_URL}/streams/${username}/dislike/reduce` : mode === "video" ? `${SERVER_URL}/videos/${username}/dislike/reduce` : null
+
+  if (!url) throw new Error("Lack of mode!")
+
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: JSON.stringify({
+      user: currentUser.username
+    })
   })
 
   return await response.json()

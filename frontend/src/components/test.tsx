@@ -247,8 +247,6 @@ const Test = () => {
     index - 5 > 0 ? index - 5 : 0,
     index
   );
-  console.log(comments[index]);
-  console.log({ previous5Comments });
   // useEffect(() => {
   //   if (toggleTimer) {
   //     timerRef.current = setInterval(() => {
