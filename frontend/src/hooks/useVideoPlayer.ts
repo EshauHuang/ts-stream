@@ -32,6 +32,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   const { videoOptions, setVideoOptions } = useContext(VideoOptionsContext)
 
   const {
+    isLoaded,
     isScrubbing,
     volume,
     isMuted,
@@ -43,6 +44,8 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   } = videoOptions;
 
   const handleTogglePlay = () => {
+    if (!isLoaded) return
+
     let videoTime: number | undefined;
 
     // When the video was stopped by user, save the current time.
@@ -65,6 +68,8 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   };
 
   const handleChangeVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isLoaded) return
+
     const { value } = e.target;
 
     setVideoOptions((prev) => ({
@@ -75,6 +80,8 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   };
 
   const handleToggleMute = () => {
+    if (!isLoaded) return
+
     setVideoOptions((prev) => ({
       ...prev,
       isMuted: !prev.isMuted,
@@ -82,6 +89,8 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   };
 
   const handleToggleTheaterMode = () => {
+    if (!isLoaded) return
+
     setVideoOptions((prev) => ({
       ...prev,
       isTheater: !prev.isTheater,
@@ -89,6 +98,8 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   };
 
   const handleToggleMiniMode = () => {
+    if (!isLoaded) return
+
     const video = videoRef.current;
 
     if (!video) return;
@@ -96,6 +107,8 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   };
 
   const handleToggleFullMode = () => {
+    if (!isLoaded) return
+
     setVideoOptions((prev) => ({
       ...prev,
       isFull: !prev.isFull,
@@ -103,6 +116,8 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   };
 
   const handleVideoTime = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    if (!isLoaded) return
+
     const timeline = timelineRef.current;
 
     if (!timeline || isScrubbing || !isPlay) return;
@@ -118,6 +133,8 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   };
 
   const handleVideoLoaded = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    if (!isLoaded) return
+
     const { duration } = e.target as HTMLVideoElement;
 
     setVideoOptions((prev) => ({
@@ -130,6 +147,8 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   const handleUpdateVideoTimeByTimeline = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
+    if (!isLoaded) return
+
     const timeline = timelineRef.current;
 
     if (!timeline || isLive) return;
@@ -154,6 +173,8 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   };
 
   const handleMouseUp = () => {
+    if (!isLoaded) return
+
     if (isLive) return;
 
     setVideoOptions((prev) => ({
@@ -164,6 +185,8 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   };
 
   const handleMouseMove = (e: MouseEvent) => {
+    if (!isLoaded) return
+
     const timeline = timelineRef.current;
 
     if (!timeline || !isScrubbing || isLive) return;
@@ -187,6 +210,8 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
 
   const throttledSetTime = useCallback(
     _.throttle((setTime) => {
+      if (!isLoaded) return
+
       const video = videoRef.current;
 
       if (!video || setTime === undefined) return;
@@ -198,7 +223,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
         setTime: undefined,
       }));
     }, 300),
-    []
+    [isLoaded]
   );
 
   useEffect(() => {
@@ -247,15 +272,15 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
     const video = videoRef.current;
 
     if (!video || (!videoId && !src)) return;
-
     const config = isLive
       ? {
-        // initialLiveManifestSize: 3,
-        backBufferLength: 60,
+        initialLiveManifestSize: 3,
       }
       : {
         startPosition: 0,
       };
+
+      console.log("config", config);
 
     if (!hls) {
       setHls(new Hls(config));
