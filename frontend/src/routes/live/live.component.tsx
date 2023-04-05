@@ -215,11 +215,14 @@ const Live = () => {
   } = currentUserData;
 
   const isDislikeVideo =
+    !!dislikeVideoList &&
     !!dislikeVideoList.length &&
     !!dislikeVideoList.find((id) => id === videoId);
 
   const isLikeVideo =
-    !!likeVideoList.length && !!likeVideoList.find((id) => id === videoId);
+    !!likeVideoList &&
+    !!likeVideoList.length &&
+    !!likeVideoList.find((id) => id === videoId);
 
   const { dimensions } = useWindowResize();
 

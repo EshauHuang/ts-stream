@@ -460,6 +460,7 @@ usersTable.generateNewUser = async function (username, password, email) {
         return { [index]: this[index] };
       },
     },
+    dislikeVideoList: [],
     likeVideoList: [],
     stream: {
       isStreamOn: false,
