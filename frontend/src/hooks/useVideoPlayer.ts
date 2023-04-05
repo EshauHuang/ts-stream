@@ -21,6 +21,7 @@ export interface IVideoPlayer {
   src?: string;
   isLive?: boolean;
   videoId?: string | number;
+  // shouldVideoPlay: boolean;
 }
 
 const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
@@ -279,8 +280,6 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
       : {
         startPosition: 0,
       };
-
-      console.log("config", config);
 
     if (!hls) {
       setHls(new Hls(config));

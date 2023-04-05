@@ -16,11 +16,11 @@ import { StyledContentEditable } from "@/components/send-message/send-message.st
 
 import {
   getStream,
-  addLike,
+  addToLikeStream,
   getMe,
-  reduceLike,
-  addDislike,
-  reduceDislike,
+  removeFromLikeStream,
+  addToDislikeStream,
+  removeFromDislikeStream,
 } from "@/api/stream";
 
 import { Container } from "./live.style";
@@ -214,7 +214,6 @@ const Live = () => {
     user: { likeVideoList, dislikeVideoList },
   } = currentUserData;
 
-
   const isDislikeVideo =
     !!dislikeVideoList.length &&
     !!dislikeVideoList.find((id) => id === videoId);
@@ -253,10 +252,9 @@ const Live = () => {
     if (!currentUser) return;
 
     if (isDislikeVideo) {
-      const { dislike, dislikeVideoList } = await reduceDislike(
+      const { dislike, dislikeVideoList } = await removeFromDislikeStream(
         username,
-        currentUser,
-        "stream"
+        currentUser
       );
 
       setCurrentUserData((prev) => ({
@@ -275,16 +273,14 @@ const Live = () => {
         },
       }));
     } else if (isLikeVideo) {
-      const { dislike, dislikeVideoList } = await addDislike(
+      const { dislike, dislikeVideoList } = await addToDislikeStream(
         username,
-        currentUser,
-        "stream"
+        currentUser
       );
 
-      const { like, likeVideoList } = await reduceLike(
+      const { like, likeVideoList } = await removeFromLikeStream(
         username,
-        currentUser,
-        "stream"
+        currentUser
       );
 
       setCurrentUserData((prev) => ({
@@ -305,10 +301,9 @@ const Live = () => {
         },
       }));
     } else {
-      const { dislike, dislikeVideoList } = await addDislike(
+      const { dislike, dislikeVideoList } = await addToDislikeStream(
         username,
-        currentUser,
-        "stream"
+        currentUser
       );
 
       setCurrentUserData((prev) => ({
@@ -333,10 +328,9 @@ const Live = () => {
     if (!currentUser) return;
 
     if (isLikeVideo) {
-      const { like, likeVideoList } = await reduceLike(
+      const { like, likeVideoList } = await removeFromLikeStream(
         username,
-        currentUser,
-        "stream"
+        currentUser
       );
 
       setCurrentUserData((prev) => ({
@@ -355,16 +349,14 @@ const Live = () => {
         },
       }));
     } else if (isDislikeVideo) {
-      const { like, likeVideoList } = await addLike(
+      const { like, likeVideoList } = await addToLikeStream(
         username,
-        currentUser,
-        "stream"
+        currentUser
       );
 
-      const { dislike, dislikeVideoList } = await reduceDislike(
+      const { dislike, dislikeVideoList } = await removeFromDislikeStream(
         username,
-        currentUser,
-        "stream"
+        currentUser
       );
 
       setCurrentUserData((prev) => ({
@@ -385,10 +377,9 @@ const Live = () => {
         },
       }));
     } else {
-      const { like, likeVideoList } = await addLike(
+      const { like, likeVideoList } = await addToLikeStream(
         username,
-        currentUser,
-        "stream"
+        currentUser
       );
 
       setCurrentUserData((prev) => ({
@@ -412,7 +403,7 @@ const Live = () => {
   return (
     <Container>
       <Primary>
-        <VideoPlayer videoId={videoId} />
+        <VideoPlayer videoId={videoId} isLive={true} />
         {dimensions && dimensions.width < 1030 && (
           <Chatroom
             setStream={setStreamData}

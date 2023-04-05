@@ -16,7 +16,7 @@ import {
 
 import img5 from "/images/5.jpg";
 
-export interface IVideo {
+export interface IVideoCard {
   id: string;
   type: string;
   title: string;
@@ -24,11 +24,10 @@ export interface IVideo {
   content: string;
   thumbnail: string;
   startTime?: number;
-  comments: IComment[];
 }
 
-const VideoCard = ({ video }: { video: IVideo }) => {
-  const getLinkUrl = (video: IVideo) => {
+const VideoCard = ({ video }: { video: IVideoCard }) => {
+  const getLinkUrl = (video: IVideoCard) => {
     const { type, id, author } = video;
     switch (type) {
       case "video":

@@ -41,10 +41,20 @@ export class Video {
   }
 
   getVideo(id) {
-    const { comments, startTime } = this[id];
+    const { comments, startTime, author } = this[id];
+
+    const user = usersTable.findUser(author);
+
+    const { username, avatar, email, subscribes } = user;
 
     return {
       ...this[id],
+      user: {
+        username,
+        avatar,
+        email,
+        subscribes,
+      },
       comments: comments.getNextComments(startTime),
     };
   }
@@ -64,6 +74,46 @@ export class Video {
       default:
         return [];
     }
+  }
+
+  addLike(videoId) {
+    const video = this[videoId];
+
+    if (!video) return -1;
+
+    video.like++;
+
+    return video.like;
+  }
+
+  reduceLike(videoId) {
+    const video = this[videoId];
+
+    if (!video) return -1;
+
+    video.like--;
+
+    return video.like;
+  }
+
+  addDislike(videoId) {
+    const video = this[videoId];
+
+    if (!video) return -1;
+
+    video.dislike++;
+
+    return video.dislike;
+  }
+
+  reduceDislike(videoId) {
+    const video = this[videoId];
+
+    if (!video) return -1;
+
+    video.dislike--;
+
+    return video.dislike;
   }
 }
 
@@ -384,6 +434,7 @@ usersTable.initialRoom = function (username) {
       startTime: "",
       like: 0,
       dislike: 0,
+      videoId: "",
     };
   }
 };

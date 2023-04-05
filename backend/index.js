@@ -446,29 +446,21 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
   const { comments } = rooms[username];
 
   // console.log({ comments });
-  const { title, content, startTime } = user.stream;
+  const { isStreamOn, ...streamData } = user.stream;
 
   // 將此直播紀錄(影片、聊天室)儲存在 siteVideos 內
   videos.createVideo(videoId, {
-    title,
-    content,
-    startTime,
+    ...streamData,
     comments,
     type: "video",
   });
 
   // 將影片加至 user 的 videos 內
   user.videos.addVideo({
-    videoId,
-    title,
-    content,
-    startTime,
+    ...streamData,
     comments,
     type: "video",
   });
-
-  // user.stream.isStreamOn = false;
-  user.stream.videoId = "";
 
   usersTable.initialRoom(username);
 
@@ -768,23 +760,82 @@ app.post("/videos/:videoId/comments", (req, res) => {
   res.json({ message: "success", comments });
 });
 
-app.put("/videos/:videoId/like", (req, res) => {
+app.put("/videos/:videoId/like/add", (req, res) => {
   try {
-    res.json({ message: "success" });
+    const { videoId } = req.params;
+    const { user } = req.body;
+
+    // 如還未將影片加至 user 喜愛影片內則加入，有加入則刪除
+    const likeVideoList = usersTable.addLikeVideoToList(user, videoId);
+
+    if (!likeVideoList) throw new Error("Video can't add to like list.");
+    const like = videos.addLike(videoId);
+
+    res.json({ message: "success", like, likeVideoList });
   } catch (error) {
     const { message } = error;
     res.json({ message });
   }
 });
 
-app.put("/videos/:videoId/dislike", (req, res) => {
+app.put("/videos/:videoId/like/reduce", (req, res) => {
   try {
-    res.json({ message: "success" });
+    const { videoId } = req.params;
+    const { user } = req.body;
+
+    // 如還未將影片加至 user 喜愛影片內則加入，有加入則刪除
+    const likeVideoList = usersTable.removeLikeVideoFromList(user, videoId);
+
+    if (!likeVideoList) throw new Error("Video can't remove from like list.");
+    const like = videos.reduceLike(videoId);
+
+    res.json({ message: "success", like, likeVideoList });
   } catch (error) {
     const { message } = error;
     res.json({ message });
   }
 });
+
+app.put("/videos/:videoId/dislike/add", (req, res) => {
+  try {
+    const { videoId } = req.params;
+    const { user } = req.body;
+
+    // 如還未將影片加至 user 喜愛影片內則加入，有加入則刪除
+    const dislikeVideoList = usersTable.addDislikeVideoToList(user, videoId);
+
+    if (!dislikeVideoList) throw new Error("Video can't add to dislike list.");
+    const dislike = videos.addDislike(videoId);
+
+    res.json({ message: "success", dislike, dislikeVideoList });
+  } catch (error) {
+    const { message } = error;
+    res.json({ message });
+  }
+});
+
+app.put("/videos/:videoId/dislike/reduce", (req, res) => {
+  try {
+    const { videoId } = req.params;
+    const { user } = req.body;
+
+    // 如還未將影片加至 user 喜愛影片內則加入，有加入則刪除
+    const dislikeVideoList = usersTable.removeDislikeVideoFromList(
+      user,
+      videoId
+    );
+
+    if (!dislikeVideoList)
+      throw new Error("Video can't remove from dislike list.");
+    const dislike = videos.reduceDislike(videoId);
+
+    res.json({ message: "success", dislike, dislikeVideoList });
+  } catch (error) {
+    const { message } = error;
+    res.json({ message });
+  }
+});
+
 
 server.listen(PORT, () => {
   console.log(`Server is running on ${PORT} port`);

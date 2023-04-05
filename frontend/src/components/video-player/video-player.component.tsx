@@ -36,14 +36,14 @@ export interface IVideoControllers {
 
 export interface IVideoPlayer {
   src?: string;
-  isLive?: boolean;
+  isLive: boolean;
   videoId?: string | number;
 }
 
 const VideoPlayer: React.FC<IVideoPlayer> = ({
   src,
   videoId,
-  isLive = true,
+  isLive,
 }) => {
   const { videoRef, timelineRef, videoOptions, videoControllers } =
     useVideoPlayer({

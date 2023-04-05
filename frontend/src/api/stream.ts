@@ -110,13 +110,9 @@ export const refreshStreamKey = async (username: string) => {
   return await response.json()
 }
 
-export const addLike = async (username: string, currentUser: IUser, mode: string) => {
-
-  const url = mode === "stream" ? `${SERVER_URL}/streams/${username}/like/add` : mode === "video" ? `${SERVER_URL}/videos/${username}/like/add` : null
-
-  if (!url) throw new Error("Lack of mode!")
-
-  const response = await fetch(url, {
+// Stream
+export const addToLikeStream = async (username: string, currentUser: IUser) => {
+  const response = await fetch(`${SERVER_URL}/streams/${username}/like/add`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json; charset=utf-8",
@@ -129,13 +125,8 @@ export const addLike = async (username: string, currentUser: IUser, mode: string
   return await response.json()
 }
 
-export const reduceLike = async (username: string, currentUser: IUser, mode: string) => {
-
-  const url = mode === "stream" ? `${SERVER_URL}/streams/${username}/like/reduce` : mode === "video" ? `${SERVER_URL}/videos/${username}/like/reduce` : null
-
-  if (!url) throw new Error("Lack of mode!")
-
-  const response = await fetch(url, {
+export const removeFromLikeStream = async (username: string, currentUser: IUser) => {
+  const response = await fetch(`${SERVER_URL}/streams/${username}/like/reduce`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json; charset=utf-8",
@@ -148,13 +139,8 @@ export const reduceLike = async (username: string, currentUser: IUser, mode: str
   return await response.json()
 }
 
-export const addDislike = async (username: string, currentUser: IUser, mode: string) => {
-
-  const url = mode === "stream" ? `${SERVER_URL}/streams/${username}/dislike/add` : mode === "video" ? `${SERVER_URL}/videos/${username}/dislike/add` : null
-
-  if (!url) throw new Error("Lack of mode!")
-
-  const response = await fetch(url, {
+export const addToDislikeStream = async (username: string, currentUser: IUser) => {
+  const response = await fetch(`${SERVER_URL}/streams/${username}/dislike/add`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json; charset=utf-8",
@@ -167,13 +153,66 @@ export const addDislike = async (username: string, currentUser: IUser, mode: str
   return await response.json()
 }
 
-export const reduceDislike = async (username: string, currentUser: IUser, mode: string) => {
+export const removeFromDislikeStream = async (username: string, currentUser: IUser) => {
+  const response = await fetch(`${SERVER_URL}/streams/${username}/dislike/reduce`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: JSON.stringify({
+      user: currentUser.username
+    })
+  })
 
-  const url = mode === "stream" ? `${SERVER_URL}/streams/${username}/dislike/reduce` : mode === "video" ? `${SERVER_URL}/videos/${username}/dislike/reduce` : null
+  return await response.json()
+}
 
-  if (!url) throw new Error("Lack of mode!")
 
-  const response = await fetch(url, {
+// Video
+export const addToLikeVideos = async (videoId: string, currentUser: IUser) => {
+  const response = await fetch(`${SERVER_URL}/videos/${videoId}/like/add`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: JSON.stringify({
+      user: currentUser.username
+    })
+  })
+
+  return await response.json()
+}
+
+export const removeFromLikeVideos = async (username: string, currentUser: IUser) => {
+  const response = await fetch(`${SERVER_URL}/videos/${username}/like/reduce`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: JSON.stringify({
+      user: currentUser.username
+    })
+  })
+
+  return await response.json()
+}
+
+export const addToDislikeVideo = async (username: string, currentUser: IUser) => {
+  const response = await fetch(`${SERVER_URL}/videos/${username}/dislike/add`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: JSON.stringify({
+      user: currentUser.username
+    })
+  })
+
+  return await response.json()
+}
+
+export const removeFromDislikeVideo = async (username: string, currentUser: IUser) => {
+  const response = await fetch(`${SERVER_URL}/videos/${username}/dislike/reduce`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json; charset=utf-8",
