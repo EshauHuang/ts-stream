@@ -21,6 +21,8 @@ import {
   removeFromLikeStream,
   addToDislikeStream,
   removeFromDislikeStream,
+  addSubscribeToList,
+  removeSubscribeFromList,
 } from "@/api/stream";
 
 import { Container } from "./live.style";
@@ -110,7 +112,7 @@ const Subscribe = styled.div`
   font-size: 1.2rem;
 `;
 
-const SubscribeButton = styled.button`
+const SubscribeOnButton = styled.button`
   background-color: rgba(255, 255, 255, 1);
   color: black;
   padding: 0 1.6rem;
@@ -122,6 +124,21 @@ const SubscribeButton = styled.button`
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.8);
+  }
+`;
+
+const SubscribeOffButton = styled.button`
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 0 1.6rem;
+  height: 3.6rem;
+  line-height: 3.6rem;
+  border-radius: 1.8rem;
+  font-weight: bold;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.2);
   }
 `;
 
@@ -144,6 +161,7 @@ export interface IUserData {
     avatar: string;
     likeVideoList: string[];
     dislikeVideoList: string[];
+    subscribeList: string[];
     subscribes: number;
   };
 }
@@ -161,6 +179,7 @@ export interface IStreamData {
   user: {
     avatar: string;
     subscribes: number;
+    username: string;
   };
 }
 
@@ -177,6 +196,7 @@ const initialUserData = {
   user: {
     likeVideoList: [],
     dislikeVideoList: [],
+    subscribeList: [],
     avatar: "",
     subscribes: 0,
   },
@@ -195,6 +215,7 @@ const initialStreamData = {
   user: {
     avatar: "",
     subscribes: 0,
+    username: "",
   },
 };
 
@@ -207,11 +228,11 @@ const Live = () => {
 
   const {
     stream: { isStreamOn, title, content, author, videoId, like, dislike },
-    user: { avatar, subscribes },
+    user: { avatar, subscribes, username: authorUsername },
   } = streamData;
 
   const {
-    user: { likeVideoList, dislikeVideoList },
+    user: { likeVideoList, dislikeVideoList, subscribeList },
   } = currentUserData;
 
   const isDislikeVideo =
@@ -223,6 +244,11 @@ const Live = () => {
     !!likeVideoList &&
     !!likeVideoList.length &&
     !!likeVideoList.find((id) => id === videoId);
+
+  const isSubscribe =
+    !!subscribeList &&
+    !!subscribeList.length &&
+    !!subscribeList.find((username) => username === authorUsername);
 
   const { dimensions } = useWindowResize();
 
@@ -427,7 +453,47 @@ const Live = () => {
                 <Author>{author}</Author>
                 <Subscribe>{subscribes} 訂閱者</Subscribe>
               </UserMeta>
-              <SubscribeButton>訂閱</SubscribeButton>
+              {isSubscribe ? (
+                <SubscribeOffButton
+                  onClick={async () => {
+                    if (!currentUser) return;
+                    const { subscribeList } = await removeSubscribeFromList(
+                      authorUsername,
+                      currentUser
+                    );
+
+                    setCurrentUserData((prev) => ({
+                      ...prev,
+                      user: {
+                        ...prev.user,
+                        subscribeList,
+                      },
+                    }));
+                  }}
+                >
+                  已訂閱
+                </SubscribeOffButton>
+              ) : (
+                <SubscribeOnButton
+                  onClick={async () => {
+                    if (!currentUser) return;
+                    const { subscribeList } = await addSubscribeToList(
+                      authorUsername,
+                      currentUser
+                    );
+
+                    setCurrentUserData((prev) => ({
+                      ...prev,
+                      user: {
+                        ...prev.user,
+                        subscribeList,
+                      },
+                    }));
+                  }}
+                >
+                  訂閱
+                </SubscribeOnButton>
+              )}
             </ChannelMeta>
             <FeedbackMeta>
               {isStreamOn && (

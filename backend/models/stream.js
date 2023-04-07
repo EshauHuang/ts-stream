@@ -306,6 +306,7 @@ export const usersTable = [
     subscribes: 200,
     likeVideoList: [],
     dislikeVideoList: [],
+    subscribeList: [],
     videos: {
       1: {
         // 關聯到 siteVideosID
@@ -369,6 +370,7 @@ https://www.hololive.tv/request-to-mi...
     subscribes: 500,
     likeVideoList: [],
     dislikeVideoList: [],
+    subscribeList: [],
     videos: {
       1: {
         // 關聯到 siteVideosID
@@ -462,6 +464,7 @@ usersTable.generateNewUser = async function (username, password, email) {
     },
     dislikeVideoList: [],
     likeVideoList: [],
+    subscribeList: [],
     stream: {
       isStreamOn: false,
       type: "stream",
@@ -629,6 +632,7 @@ usersTable.getStream = function (username) {
     user: {
       avatar,
       subscribes,
+      username,
     },
     stream,
   };
@@ -668,4 +672,41 @@ usersTable.refreshStreamKey = function (username) {
   user.streamKey = streamKey;
 
   return streamKey;
+};
+
+usersTable.addSubscribeToList = function (currentUsername, subscribeUsername) {
+  const currentUser = this.findUser(currentUsername);
+
+  if (!currentUser) return [];
+
+  const isSubscribe = !!currentUser.subscribeList.find(
+    (username) => username === subscribeUsername
+  );
+
+  if (!isSubscribe) {
+    currentUser.subscribeList.push(subscribeUsername);
+  }
+
+  return currentUser.subscribeList;
+};
+
+usersTable.removeSubscribeFromList = function (
+  currentUsername,
+  subscribeUsername
+) {
+  const currentUser = this.findUser(currentUsername);
+
+  if (!currentUser) return [];
+
+  const isSubscribe = !!currentUser.subscribeList.find(
+    (username) => username === subscribeUsername
+  );
+
+  if (isSubscribe) {
+    currentUser.subscribeList = currentUser.subscribeList.filter(
+      (username) => username !== subscribeUsername
+    );
+  }
+
+  return currentUser.subscribeList;
 };

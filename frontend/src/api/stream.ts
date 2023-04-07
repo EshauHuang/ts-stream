@@ -224,3 +224,32 @@ export const removeFromDislikeVideo = async (username: string, currentUser: IUse
 
   return await response.json()
 }
+
+export const addSubscribeToList = async (username: string, currentUser: IUser) => {
+
+  const response = await fetch(`${SERVER_URL}/subscribe/${username}/add`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: JSON.stringify({
+      user: currentUser.username
+    })
+  })
+
+  return await response.json()
+}
+
+export const removeSubscribeFromList = async (username: string, currentUser: IUser) => {
+  const response = await fetch(`${SERVER_URL}/subscribe/${username}/remove`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: JSON.stringify({
+      user: currentUser.username
+    })
+  })
+
+  return await response.json()
+}

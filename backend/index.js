@@ -565,7 +565,7 @@ app.post("/streams/:username", (req, res) => {
     const { username } = req.params;
     if (!username) return;
 
-    const streamMeta = usersTable.getMe(username);
+    const streamMeta = usersTable.getStream(username);
 
     res.json({
       message: "success",
@@ -836,6 +836,36 @@ app.put("/videos/:videoId/dislike/reduce", (req, res) => {
   }
 });
 
+app.put("/subscribe/:username/add", (req, res) => {
+  try {
+    const { username } = req.params;
+    const { user } = req.body;
+    
+    const subscribeList = usersTable.addSubscribeToList(
+      user,
+      username
+    );
+
+    res.json({ message: "success", subscribeList });
+  } catch (error) {
+    const { message } = error;
+    res.json({ message });
+  }
+});
+
+app.put("/subscribe/:username/remove", (req, res) => {
+  try {
+    const { username } = req.params;
+    const { user } = req.body;
+
+    const subscribeList = usersTable.removeSubscribeFromList(user, username);
+
+    res.json({ message: "success", subscribeList });
+  } catch (error) {
+    const { message } = error;
+    res.json({ message });
+  }
+});
 
 server.listen(PORT, () => {
   console.log(`Server is running on ${PORT} port`);
