@@ -20,7 +20,7 @@ const Navbar = () => {
           <>
             <StyledLink to={`${username}/setting`}>Setting</StyledLink>
             <StyledLink
-              to="/"
+              as="div"
               onClick={async () => {
                 await signOut();
 

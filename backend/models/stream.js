@@ -505,6 +505,21 @@ usersTable.findUser = function (username) {
   return this.find((user) => user.username === username);
 };
 
+usersTable.getUser = function (username) {
+  const user = this.findUser(username);
+
+  if (user) {
+    const { streamKey, password, stream, ...userData } = user;
+
+    return {
+      user: userData,
+      stream,
+    };
+  }
+
+  return {};
+};
+
 usersTable.addLikeVideoToList = function (username, videoId) {
   if (!username || !videoId) return;
   const user = this.findUser(username);

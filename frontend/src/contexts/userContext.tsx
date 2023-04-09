@@ -25,10 +25,12 @@ export const UsersProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const fetchMyData = async () => {
-      const { user } = await getMe();
+      const { data } = await getMe();
+
+      const { user } = data || {};
 
       if (user) {
-        setCurrentUser(user)
+        setCurrentUser(user);
       }
     };
 

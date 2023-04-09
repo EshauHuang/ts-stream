@@ -275,7 +275,7 @@ const Live = () => {
     } catch (error) {
       console.log(error);
     }
-  }, [username]);
+  }, [currentUser]);
 
   const handleClickDislike = async () => {
     if (!currentUser) return;

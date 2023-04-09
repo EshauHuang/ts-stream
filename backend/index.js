@@ -364,18 +364,6 @@ import session from "express-session";
 
 const app = express();
 
-const auth = (req, res, next) => {
-  console.log(`Session Checker: ${req.session.id}`);
-  console.log(req.session);
-  if (req.session.user) {
-    console.log(`Found User Session`);
-    next();
-  } else {
-    console.log(`No User Session Found`);
-    res.redirect("/sign-in");
-  }
-};
-
 app.use(
   cors({
     methods: ["GET", "POST", "PUT", "DELETE"],
@@ -406,6 +394,14 @@ export const io = new Server(server, {
 });
 
 startIo(io);
+
+const sessionAuth = (req, res, next) => {
+  if (req.session.user) {
+    next();
+  } else {
+    res.status(400).json({ message: "No User Session Found" });
+  }
+};
 
 app.post("/auth/on_publish", (req, res) => {
   console.log("驗證 stream key '/auth/on_publish");
@@ -501,31 +497,26 @@ app.post("/u/:username/stream-room", (req, res) => {
   res.send("success");
 });
 
-app.get("/me", (req, res) => {
+app.get("/me", sessionAuth, (req, res) => {
   const { user } = req.session;
 
   if (!user) {
     return res.status(200).json({ message: "Not sign in" });
   }
 
-  const { user: userData } = usersTable.getMe(user);
+  const data = usersTable.getMe(user);
 
   res.status(200).json({
     message: "success",
-    user: {
-      username: userData.username,
-      email: userData.email,
-    },
+    data,
   });
 });
 
-app.post("/sign-out", (req, res) => {
+app.get("/sign-out", (req, res) => {
   req.session.destroy(function (err) {
     console.log("Destroyed session");
     console.log(err);
   });
-
-  console.log("sign-out");
 
   res.status(200).json({ message: "sign out" });
 });
@@ -548,6 +539,8 @@ app.post("/sign-up", async (req, res) => {
 
     const user = await usersTable.generateNewUser(username, password, email);
     rooms.addRoom(username);
+
+    req.session.user = username;
 
     res.status(200).json({
       message: "Register success",
@@ -592,7 +585,7 @@ app.post("/users/:username", (req, res) => {
   try {
     const { username } = req.params;
     if (!username) return;
-    const data = usersTable.getMe(username);
+    const data = usersTable.getUser(username);
 
     res.json({ message: "success", data });
   } catch (error) {
@@ -634,7 +627,7 @@ app.post("/streams/:username", (req, res) => {
   }
 });
 
-app.post("/streams/:username/streamKey", (req, res) => {
+app.post("/streams/:username/streamKey", sessionAuth, (req, res) => {
   try {
     const { username } = req.params;
 
@@ -652,7 +645,7 @@ app.post("/streams/:username/streamKey", (req, res) => {
   }
 });
 
-app.put("/streams/:username/like/add", (req, res) => {
+app.put("/streams/:username/like/add", sessionAuth, (req, res) => {
   try {
     const { username } = req.params;
     const { user } = req.body;
@@ -674,7 +667,7 @@ app.put("/streams/:username/like/add", (req, res) => {
   }
 });
 
-app.put("/streams/:username/like/reduce", (req, res) => {
+app.put("/streams/:username/like/reduce", sessionAuth, (req, res) => {
   try {
     const { username } = req.params;
     const { user } = req.body;
@@ -696,7 +689,7 @@ app.put("/streams/:username/like/reduce", (req, res) => {
   }
 });
 
-app.put("/streams/:username/dislike/add", (req, res) => {
+app.put("/streams/:username/dislike/add", sessionAuth, (req, res) => {
   try {
     const { username } = req.params;
     const { user } = req.body;
@@ -718,7 +711,7 @@ app.put("/streams/:username/dislike/add", (req, res) => {
   }
 });
 
-app.put("/streams/:username/dislike/reduce", (req, res) => {
+app.put("/streams/:username/dislike/reduce", sessionAuth, (req, res) => {
   try {
     const { username } = req.params;
     const { user } = req.body;
@@ -744,7 +737,7 @@ app.put("/streams/:username/dislike/reduce", (req, res) => {
   }
 });
 
-app.put("/users/:username", (req, res) => {
+app.put("/users/:username", sessionAuth, (req, res) => {
   try {
     const { username } = req.params;
     const { title, content } = req.body;
@@ -815,7 +808,7 @@ app.post("/videos/:videoId/comments", (req, res) => {
   res.json({ message: "success", comments });
 });
 
-app.put("/videos/:videoId/like/add", auth, (req, res) => {
+app.put("/videos/:videoId/like/add", sessionAuth, (req, res) => {
   try {
     const { videoId } = req.params;
     const { user } = req.body;
@@ -833,7 +826,7 @@ app.put("/videos/:videoId/like/add", auth, (req, res) => {
   }
 });
 
-app.put("/videos/:videoId/like/reduce", (req, res) => {
+app.put("/videos/:videoId/like/reduce", sessionAuth, (req, res) => {
   try {
     const { videoId } = req.params;
     const { user } = req.body;
@@ -851,7 +844,7 @@ app.put("/videos/:videoId/like/reduce", (req, res) => {
   }
 });
 
-app.put("/videos/:videoId/dislike/add", (req, res) => {
+app.put("/videos/:videoId/dislike/add", sessionAuth, (req, res) => {
   try {
     const { videoId } = req.params;
     const { user } = req.body;
@@ -869,7 +862,7 @@ app.put("/videos/:videoId/dislike/add", (req, res) => {
   }
 });
 
-app.put("/videos/:videoId/dislike/reduce", (req, res) => {
+app.put("/videos/:videoId/dislike/reduce", sessionAuth, (req, res) => {
   try {
     const { videoId } = req.params;
     const { user } = req.body;
@@ -891,7 +884,7 @@ app.put("/videos/:videoId/dislike/reduce", (req, res) => {
   }
 });
 
-app.put("/subscribe/:username/add", (req, res) => {
+app.put("/subscribe/:username/add", sessionAuth, (req, res) => {
   try {
     const { username } = req.params;
     const { user } = req.body;
@@ -905,7 +898,7 @@ app.put("/subscribe/:username/add", (req, res) => {
   }
 });
 
-app.put("/subscribe/:username/remove", (req, res) => {
+app.put("/subscribe/:username/remove", sessionAuth, (req, res) => {
   try {
     const { username } = req.params;
     const { user } = req.body;

@@ -12,7 +12,7 @@ import { Container, Form, Title } from "./setting.style";
 
 import { UserContext } from "@/contexts/userContext";
 
-import { getUser, editUserMeta, refreshStreamKey } from "@/api/stream";
+import { getMe, editUserMeta, refreshStreamKey } from "@/api/stream";
 
 import {
   inputValidate,
@@ -163,13 +163,13 @@ const Setting = () => {
 
     const { username } = currentUser;
 
-    const fetchStream = async () => {
-      const { data } = await getUser(username);
+    const fetchMe = async () => {
+      const { data } = await getMe();
 
       setSettingData(data);
     };
 
-    fetchStream();
+    fetchMe();
   }, [currentUser]);
 
   return (
