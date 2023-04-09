@@ -17,7 +17,7 @@ import { StyledContentEditable } from "@/components/send-message/send-message.st
 import {
   getStream,
   addToLikeStream,
-  getMe,
+  getUser,
   removeFromLikeStream,
   addToDislikeStream,
   removeFromDislikeStream,
@@ -264,7 +264,7 @@ const Live = () => {
 
       const fetchMyData = async () => {
         if (!currentUser) return;
-        const { data } = await getMe(currentUser.username);
+        const { data } = await getUser(currentUser.username);
 
         if (!data) return;
         setCurrentUserData(data);

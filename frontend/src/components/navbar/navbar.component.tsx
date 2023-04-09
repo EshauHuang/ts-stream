@@ -4,6 +4,8 @@ import { UserContext } from "@/contexts/userContext";
 
 import { Container, LinkList, StyledLink } from "./navbar.style";
 
+import { signOut } from "@/api/stream";
+
 const Navbar = () => {
   const { currentUser, setCurrentUser } = useContext(UserContext);
 
@@ -18,8 +20,10 @@ const Navbar = () => {
           <>
             <StyledLink to={`${username}/setting`}>Setting</StyledLink>
             <StyledLink
-              to="/sign-out"
-              onClick={() => {
+              to="/"
+              onClick={async () => {
+                await signOut();
+
                 setCurrentUser(null);
               }}
             >

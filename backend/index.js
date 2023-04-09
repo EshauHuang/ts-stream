@@ -360,14 +360,38 @@ export const rooms = new Rooms();
 // 加入假的 user 進 rooms
 rooms.addRoom("user01");
 rooms.addRoom("123");
+import session from "express-session";
 
 const app = express();
+
+const auth = (req, res, next) => {
+  console.log(`Session Checker: ${req.session.id}`);
+  console.log(req.session);
+  if (req.session.user) {
+    console.log(`Found User Session`);
+    next();
+  } else {
+    console.log(`No User Session Found`);
+    res.redirect("/sign-in");
+  }
+};
 
 app.use(
   cors({
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type"],
+    credentials: true,
     preflightContinue: true,
+    origin: "http://localhost:3000",
+    cookie: { maxAge: 600 * 1000 }, //10分鐘到期
+  })
+);
+app.use(
+  session({
+    secret: "mySecret",
+    name: "user", // optional
+    saveUninitialized: false,
+    resave: true,
   })
 );
 app.use(express.json());
@@ -477,6 +501,35 @@ app.post("/u/:username/stream-room", (req, res) => {
   res.send("success");
 });
 
+app.get("/me", (req, res) => {
+  const { user } = req.session;
+
+  if (!user) {
+    return res.status(200).json({ message: "Not sign in" });
+  }
+
+  const { user: userData } = usersTable.getMe(user);
+
+  res.status(200).json({
+    message: "success",
+    user: {
+      username: userData.username,
+      email: userData.email,
+    },
+  });
+});
+
+app.post("/sign-out", (req, res) => {
+  req.session.destroy(function (err) {
+    console.log("Destroyed session");
+    console.log(err);
+  });
+
+  console.log("sign-out");
+
+  res.status(200).json({ message: "sign out" });
+});
+
 app.post("/sign-up", async (req, res) => {
   try {
     const { username, password, email } = req.body;
@@ -520,6 +573,8 @@ app.post("/sign-in", async (req, res) => {
     if (!user) {
       throw new Error("Verify wrong");
     }
+
+    req.session.user = username;
 
     res.status(200).json({
       message: "Login success",
@@ -760,7 +815,7 @@ app.post("/videos/:videoId/comments", (req, res) => {
   res.json({ message: "success", comments });
 });
 
-app.put("/videos/:videoId/like/add", (req, res) => {
+app.put("/videos/:videoId/like/add", auth, (req, res) => {
   try {
     const { videoId } = req.params;
     const { user } = req.body;
@@ -840,11 +895,8 @@ app.put("/subscribe/:username/add", (req, res) => {
   try {
     const { username } = req.params;
     const { user } = req.body;
-    
-    const subscribeList = usersTable.addSubscribeToList(
-      user,
-      username
-    );
+
+    const subscribeList = usersTable.addSubscribeToList(user, username);
 
     res.json({ message: "success", subscribeList });
   } catch (error) {

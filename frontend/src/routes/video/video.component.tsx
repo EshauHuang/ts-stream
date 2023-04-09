@@ -16,7 +16,7 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import {
   getStream,
   addToLikeVideos,
-  getMe,
+  getUser,
   removeFromLikeVideos,
   addToDislikeVideo,
   removeFromDislikeVideo,
@@ -248,7 +248,7 @@ const Video = () => {
 
     const fetchMyData = async () => {
       if (!currentUser) return;
-      const { data } = await getMe(currentUser.username);
+      const { data } = await getUser(currentUser.username);
 
       if (!data) return;
       setCurrentUserData(data);
