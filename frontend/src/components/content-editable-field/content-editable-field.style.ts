@@ -22,6 +22,7 @@ export const StyledContentEditable = styled(ContentEditable) <{ padding?: string
   max-height: 30px;
   overflow-y: auto;
   padding: ${({ padding }) => padding ? `${padding}px` : "0px"};
+  display: inline-block;
 
   &:hover {
     border-color: rgba(255, 255, 255, 0.65);

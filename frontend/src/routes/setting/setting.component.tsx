@@ -1,10 +1,10 @@
 import { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
-import _ from "lodash-es"
+import _ from "lodash-es";
 
 import Input from "@/components/input/input.component";
 import TextareaField from "@/components/textarea-field/textarea-field.component";
-import ContentEditableField from "@/components/content-editable-field/content-editable-field.component"
+import ContentEditableField from "@/components/content-editable-field/content-editable-field.component";
 import StreamKeyField from "@/components/stream-key/stream-key.component";
 import { Layout, LayoutContainer } from "@/components/ui/ui.style";
 import { Button, ButtonField } from "@/components/ui/button.style";
@@ -76,7 +76,8 @@ const validateRulesOptions = {
 
 const Setting = () => {
   const { currentUser } = useContext(UserContext);
-  const [settingData, setSettingData] = useState<ISettingData>(initialSettingData);
+  const [settingData, setSettingData] =
+    useState<ISettingData>(initialSettingData);
   const [error, setError] = useState(initialError);
   const { username } = useParams();
   const { stream, user } = settingData;
@@ -87,8 +88,7 @@ const Setting = () => {
     const { value, name } = e.target;
 
     setSettingData((prev) => {
-
-      const tmpData = _.cloneDeep(prev)
+      const tmpData = _.cloneDeep(prev);
 
       const newSettingData = Object.entries(prev).reduce(
         (obj, [dataKey, dataValue]) => {
@@ -100,7 +100,7 @@ const Setting = () => {
                 [name]: value,
               },
             };
-          return obj
+          return obj;
         },
         tmpData
       );
@@ -140,9 +140,13 @@ const Setting = () => {
     if (!username) return;
 
     const { streamKey } = await refreshStreamKey(username);
+
     setSettingData((prev) => ({
       ...prev,
-      streamKey,
+      user: {
+        ...prev.user,
+        streamKey,
+      },
     }));
     alert("更新成功");
   };
@@ -159,13 +163,13 @@ const Setting = () => {
 
     const { username } = currentUser;
 
-    const fetchStream = async () => {
-      const {data} = await getMe(username);
+    const fetchMe = async () => {
+      const { data } = await getMe();
 
       setSettingData(data);
     };
 
-    fetchStream();
+    fetchMe();
   }, [currentUser]);
 
   return (
@@ -193,15 +197,15 @@ const Setting = () => {
           </Layout>
           <Layout>
             <ContentEditableField
-            setValue={(content: string) => {
-              setSettingData((prev) => ({
-                ...prev,
-                stream: {
-                  ...prev.stream,
-                  content,
-                },
-              }));
-            }}
+              setValue={(content: string) => {
+                setSettingData((prev) => ({
+                  ...prev,
+                  stream: {
+                    ...prev.stream,
+                    content,
+                  },
+                }));
+              }}
               label="Stream Information"
               name="content"
               placeholder="About your stream..."

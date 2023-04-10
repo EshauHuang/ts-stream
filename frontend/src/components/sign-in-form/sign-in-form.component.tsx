@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 
 import Input from "@/components/input/input.component";
 
+import { signIn } from "@/api/stream";
+
 import { LayoutBottom } from "@/components/ui/ui.style";
 
 import {
@@ -72,20 +74,27 @@ const SignInForm = () => {
     }
 
     // 註冊
-    const res = await fetch(`${import.meta.env.VITE_API_SERVER_URL}/sign-in`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-      },
-      body: JSON.stringify(inputUser),
-    });
+    // const res = await fetch(`${import.meta.env.VITE_API_SERVER_URL}/sign-in`, {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json; charset=utf-8",
+    //   },
+    //   credentials: 'include',
+    //   body: JSON.stringify(inputUser),
+    // });
 
-    if (res.ok) {
-      const { message, user } = await res.json();
-      setCurrentUser(user);
-    } else {
-      const { message } = await res.json();
+    const { user: currentUser } = await signIn(inputUser);
+
+    if (user) {
+      setCurrentUser(currentUser);
     }
+
+    // if (res.ok) {
+    //   const { message, user } = await res.json();
+    //   setCurrentUser(user);
+    // } else {
+    //   const { message } = await res.json();
+    // }
   };
 
   const handleChangeValue: React.ChangeEventHandler<HTMLInputElement> = (e) => {

@@ -1,4 +1,6 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
+
+import { getMe } from "@/api/stream";
 
 export interface IUser {
   email: string;
@@ -20,6 +22,20 @@ export const UsersProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<IUser | null>(null);
 
   const value = { currentUser, setCurrentUser };
+
+  useEffect(() => {
+    const fetchMyData = async () => {
+      const { data } = await getMe();
+
+      const { user } = data || {};
+
+      if (user) {
+        setCurrentUser(user);
+      }
+    };
+
+    fetchMyData();
+  }, []);
 
   return <UserContext.Provider value={value}>{children} </UserContext.Provider>;
 };

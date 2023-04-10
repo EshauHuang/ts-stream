@@ -19,6 +19,7 @@ export const StyledLink = styled(Link)`
   color: #2b333fbf;
   font-weight: bold;
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  cursor: pointer;
 
   &:hover {
     background-color: #2b333fbf;

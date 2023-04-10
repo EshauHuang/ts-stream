@@ -360,6 +360,7 @@ export const rooms = new Rooms();
 // 加入假的 user 進 rooms
 rooms.addRoom("user01");
 rooms.addRoom("123");
+import session from "express-session";
 
 const app = express();
 
@@ -367,7 +368,18 @@ app.use(
   cors({
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type"],
+    credentials: true,
     preflightContinue: true,
+    origin: "http://localhost:3000",
+    cookie: { maxAge: 600 * 1000 }, //10分鐘到期
+  })
+);
+app.use(
+  session({
+    secret: "mySecret",
+    name: "user", // optional
+    saveUninitialized: false,
+    resave: true,
   })
 );
 app.use(express.json());
@@ -382,6 +394,14 @@ export const io = new Server(server, {
 });
 
 startIo(io);
+
+const sessionAuth = (req, res, next) => {
+  if (req.session.user) {
+    next();
+  } else {
+    res.status(400).json({ message: "No User Session Found" });
+  }
+};
 
 app.post("/auth/on_publish", (req, res) => {
   console.log("驗證 stream key '/auth/on_publish");
@@ -477,6 +497,30 @@ app.post("/u/:username/stream-room", (req, res) => {
   res.send("success");
 });
 
+app.get("/me", sessionAuth, (req, res) => {
+  const { user } = req.session;
+
+  if (!user) {
+    return res.status(200).json({ message: "Not sign in" });
+  }
+
+  const data = usersTable.getMe(user);
+
+  res.status(200).json({
+    message: "success",
+    data,
+  });
+});
+
+app.get("/sign-out", (req, res) => {
+  req.session.destroy(function (err) {
+    console.log("Destroyed session");
+    console.log(err);
+  });
+
+  res.status(200).json({ message: "sign out" });
+});
+
 app.post("/sign-up", async (req, res) => {
   try {
     const { username, password, email } = req.body;
@@ -495,6 +539,8 @@ app.post("/sign-up", async (req, res) => {
 
     const user = await usersTable.generateNewUser(username, password, email);
     rooms.addRoom(username);
+
+    req.session.user = username;
 
     res.status(200).json({
       message: "Register success",
@@ -521,6 +567,8 @@ app.post("/sign-in", async (req, res) => {
       throw new Error("Verify wrong");
     }
 
+    req.session.user = username;
+
     res.status(200).json({
       message: "Login success",
       user,
@@ -537,7 +585,7 @@ app.post("/users/:username", (req, res) => {
   try {
     const { username } = req.params;
     if (!username) return;
-    const data = usersTable.getMe(username);
+    const data = usersTable.getUser(username);
 
     res.json({ message: "success", data });
   } catch (error) {
@@ -565,7 +613,7 @@ app.post("/streams/:username", (req, res) => {
     const { username } = req.params;
     if (!username) return;
 
-    const streamMeta = usersTable.getMe(username);
+    const streamMeta = usersTable.getStream(username);
 
     res.json({
       message: "success",
@@ -579,7 +627,7 @@ app.post("/streams/:username", (req, res) => {
   }
 });
 
-app.post("/streams/:username/streamKey", (req, res) => {
+app.post("/streams/:username/streamKey", sessionAuth, (req, res) => {
   try {
     const { username } = req.params;
 
@@ -597,7 +645,7 @@ app.post("/streams/:username/streamKey", (req, res) => {
   }
 });
 
-app.put("/streams/:username/like/add", (req, res) => {
+app.put("/streams/:username/like/add", sessionAuth, (req, res) => {
   try {
     const { username } = req.params;
     const { user } = req.body;
@@ -619,7 +667,7 @@ app.put("/streams/:username/like/add", (req, res) => {
   }
 });
 
-app.put("/streams/:username/like/reduce", (req, res) => {
+app.put("/streams/:username/like/reduce", sessionAuth, (req, res) => {
   try {
     const { username } = req.params;
     const { user } = req.body;
@@ -641,7 +689,7 @@ app.put("/streams/:username/like/reduce", (req, res) => {
   }
 });
 
-app.put("/streams/:username/dislike/add", (req, res) => {
+app.put("/streams/:username/dislike/add", sessionAuth, (req, res) => {
   try {
     const { username } = req.params;
     const { user } = req.body;
@@ -663,7 +711,7 @@ app.put("/streams/:username/dislike/add", (req, res) => {
   }
 });
 
-app.put("/streams/:username/dislike/reduce", (req, res) => {
+app.put("/streams/:username/dislike/reduce", sessionAuth, (req, res) => {
   try {
     const { username } = req.params;
     const { user } = req.body;
@@ -689,7 +737,7 @@ app.put("/streams/:username/dislike/reduce", (req, res) => {
   }
 });
 
-app.put("/users/:username", (req, res) => {
+app.put("/users/:username", sessionAuth, (req, res) => {
   try {
     const { username } = req.params;
     const { title, content } = req.body;
@@ -760,7 +808,7 @@ app.post("/videos/:videoId/comments", (req, res) => {
   res.json({ message: "success", comments });
 });
 
-app.put("/videos/:videoId/like/add", (req, res) => {
+app.put("/videos/:videoId/like/add", sessionAuth, (req, res) => {
   try {
     const { videoId } = req.params;
     const { user } = req.body;
@@ -778,7 +826,7 @@ app.put("/videos/:videoId/like/add", (req, res) => {
   }
 });
 
-app.put("/videos/:videoId/like/reduce", (req, res) => {
+app.put("/videos/:videoId/like/reduce", sessionAuth, (req, res) => {
   try {
     const { videoId } = req.params;
     const { user } = req.body;
@@ -796,7 +844,7 @@ app.put("/videos/:videoId/like/reduce", (req, res) => {
   }
 });
 
-app.put("/videos/:videoId/dislike/add", (req, res) => {
+app.put("/videos/:videoId/dislike/add", sessionAuth, (req, res) => {
   try {
     const { videoId } = req.params;
     const { user } = req.body;
@@ -814,7 +862,7 @@ app.put("/videos/:videoId/dislike/add", (req, res) => {
   }
 });
 
-app.put("/videos/:videoId/dislike/reduce", (req, res) => {
+app.put("/videos/:videoId/dislike/reduce", sessionAuth, (req, res) => {
   try {
     const { videoId } = req.params;
     const { user } = req.body;
@@ -836,6 +884,33 @@ app.put("/videos/:videoId/dislike/reduce", (req, res) => {
   }
 });
 
+app.put("/subscribe/:username/add", sessionAuth, (req, res) => {
+  try {
+    const { username } = req.params;
+    const { user } = req.body;
+
+    const subscribeList = usersTable.addSubscribeToList(user, username);
+
+    res.json({ message: "success", subscribeList });
+  } catch (error) {
+    const { message } = error;
+    res.json({ message });
+  }
+});
+
+app.put("/subscribe/:username/remove", sessionAuth, (req, res) => {
+  try {
+    const { username } = req.params;
+    const { user } = req.body;
+
+    const subscribeList = usersTable.removeSubscribeFromList(user, username);
+
+    res.json({ message: "success", subscribeList });
+  } catch (error) {
+    const { message } = error;
+    res.json({ message });
+  }
+});
 
 server.listen(PORT, () => {
   console.log(`Server is running on ${PORT} port`);
