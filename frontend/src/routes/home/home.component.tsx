@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { getStreams, getVideos } from "@/api/stream";
 import VideoCard from "@/components/video-card/video-card.component";
 
-import { IVideo } from "@/components/video-card/video-card.component";
+import { IVideoCard } from "@/components/video-card/video-card.component";
 
 const Container = styled.div`
   background-color: #0f0f0f;
@@ -96,8 +96,8 @@ const Home = () => {
         </CategoryItem>
       </CategoriesList>
       <VideoList>
-        {videos.map((video: IVideo, index:number) => (
-          <VideoCard video={video} key={`${index}`}/>
+        {videos.map((video: IVideoCard, index: number) => (
+          <VideoCard video={video} key={`${index}`} />
         ))}
       </VideoList>
     </Container>
