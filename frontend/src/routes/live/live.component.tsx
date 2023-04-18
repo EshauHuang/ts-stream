@@ -267,17 +267,18 @@ const Live = () => {
       const fetchStreamData = async () => {
         const { data } = await getStream(username);
 
-        if (!data) return;
-
-        setStreamData(data);
+        if (data) {
+          setStreamData(data);
+        }
       };
 
       const fetchMyData = async () => {
         if (!currentUser) return;
         const { data } = await getUser(currentUser.username);
 
-        if (!data) return;
-        setCurrentUserData(data);
+        if (data) {
+          setCurrentUserData(data);
+        }
       };
 
       fetchStreamData();

@@ -3,7 +3,6 @@ import { io, Socket } from "socket.io-client";
 
 import { UserContext } from "@/contexts/userContext";
 import { CommentsContext, IComment } from "@/contexts/commentsContext";
-import { CommentsProvider } from "@/contexts/commentsContext";
 
 import ChatMessages from "@/components/chat-messages/chat-messages.component";
 import SendMessage from "@/components/send-message/send-message.component";

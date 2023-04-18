@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { useState } from "react";
 
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 

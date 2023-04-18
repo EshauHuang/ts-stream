@@ -112,7 +112,7 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
 
     const [comment] = copyCommentsDelay;
 
-    if (comment.time > currentTime * 1000 + videoStartTime) return;
+    if (Number(comment.time) > currentTime * 1000 + videoStartTime) return;
 
     copyCommentsDelay.shift();
 

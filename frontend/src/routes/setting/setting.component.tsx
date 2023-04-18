@@ -1,9 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import _ from "lodash-es";
-
-import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 
 import PreviewImage from "@/components/preview-image/preview-image.component";
 import Input from "@/components/input/input.component";
@@ -145,17 +143,16 @@ const validateRulesOptions = {
 };
 
 const Setting = () => {
-  const navigate = useNavigate();
   const { username } = useParams();
   const { currentUser } = useContext(UserContext);
   const [settingData, setSettingData] =
     useState<ISettingData>(initialSettingData);
-  const [tmpSettingData, setTmpSettingData] = useState(settingData);
+  const [tmpSettingData, setTmpSettingData] = useState(initialSettingData);
   const [error, setError] = useState(initialError);
-  const { stream, user } = settingData;
+  const { stream, user } = settingData || {};
   const [imageBlob, setImageBlob] = useState<Blob | null>(null);
   const [imageUrl, setImageUrl] = useState<string>();
-  const { thumbnail } = stream;
+  const { thumbnail } = stream || {};
 
   const isDataChanged = !_.isEqual(settingData, tmpSettingData) || !!imageUrl;
 
@@ -238,8 +235,6 @@ const Setting = () => {
         );
       }
 
-      console.log("streamDataEditedSuccess 1:", streamDataEditedSuccess);
-
       if (imageBlob) {
         try {
           const formData = new FormData();
@@ -264,7 +259,6 @@ const Setting = () => {
           console.log(error);
         }
       }
-      console.log("streamDataEditedSuccess 2:", streamDataEditedSuccess);
 
       setSettingData((prev) => ({
         ...prev,
@@ -315,8 +309,10 @@ const Setting = () => {
     const fetchMe = async () => {
       const { data } = await getMe();
 
-      setSettingData(data);
-      setTmpSettingData(data);
+      if (data) {
+        setSettingData(data);
+        setTmpSettingData(data);
+      }
     };
 
     fetchMe();
@@ -340,8 +336,6 @@ const Setting = () => {
     }
   };
 
-  console.log({ settingData });
-  console.log({ tmpSettingData });
   return (
     <Container>
       <Title>Setting</Title>
@@ -422,7 +416,7 @@ const Setting = () => {
                 bgColor="transparent"
                 onClick={() => {
                   if (isDataChanged) {
-                    setSettingData(tmpSettingData)
+                    setSettingData(tmpSettingData);
                     setImageUrl("");
                     setImageBlob(null);
                   }

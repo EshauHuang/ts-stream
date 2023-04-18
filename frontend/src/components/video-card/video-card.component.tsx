@@ -1,7 +1,5 @@
 import { Link } from "react-router-dom";
 
-import { IComment } from "@/contexts/commentsContext";
-
 import {
   StyledVideoCard,
   Thumbnail,

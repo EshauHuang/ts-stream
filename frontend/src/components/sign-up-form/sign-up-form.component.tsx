@@ -8,11 +8,12 @@ import {
 
 import { UserContext } from "@/contexts/userContext";
 
+import { signUp } from "@/api/stream";
+
 import Input from "@/components/input/input.component";
 
 import { LayoutBottom } from "@/components/ui/ui.style";
 import { Form, Title, Content, Footer, Button } from "./sign-up-form.style";
-
 
 interface SignUpUser {
   username: string;
@@ -82,19 +83,10 @@ const SignUp = () => {
     }
 
     // 註冊
-    const res = await fetch(`${import.meta.env.VITE_API_SERVER_URL}/sign-up`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-      },
-      body: JSON.stringify(inputUser),
-    });
+    const { user: userData } = await signUp(inputUser);
 
-    if (res.ok) {
-      const { message, user } = await res.json();
-      setCurrentUser(user);
-    } else {
-      const { message } = await res.json();
+    if (userData) {
+      setCurrentUser(userData);
     }
   };
 

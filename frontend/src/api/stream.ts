@@ -29,6 +29,19 @@ export const signIn = async (user: { username: string, password: string }) => {
   return await response.json();
 }
 
+export const signUp = async (user: { username: string, password: string, email: string }) => {
+  const response = await fetch(`${SERVER_URL}/sign-up`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    credentials: 'include',
+    body: JSON.stringify(user),
+  });
+
+  return await response.json();
+}
+
 export const getMe = async () => {
   const response = await fetch(`${SERVER_URL}/me`, {
     method: "GET",

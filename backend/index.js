@@ -432,91 +432,115 @@ const sessionAuth = (req, res, next) => {
 };
 
 app.post("/auth/on_publish", (req, res) => {
-  console.log("驗證 stream key '/auth/on_publish");
-  const { name: streamKey } = req.body;
+  try {
+    console.log("驗證 stream key '/auth/on_publish");
+    const { name: streamKey } = req.body;
 
-  // 判斷 streamKey 是否為此網站產生的
-  // 收到的 stream key 為 16 進位字串，需要解碼後再解析
-  const username = checkStreamKey(streamKey);
+    // 判斷 streamKey 是否為此網站產生的
+    // 收到的 stream key 為 16 進位字串，需要解碼後再解析
+    const username = checkStreamKey(streamKey);
 
-  // 非網站產生 stream key(secret key 不同)
-  if (!username) {
-    return res.status(500).send("stream key was wrong");
+    // 非網站產生 stream key(secret key 不同)
+    if (!username) {
+      return res.status(500).send("stream key was wrong");
+    }
+    // 確認是否有該 user
+    const user = usersTable.find((user) => user.username === username);
+
+    if (!user) {
+      console.log("無此 user");
+      return res.status(500).send("stream key was wrong");
+    }
+
+    console.log("驗證成功！");
+
+    // 取得新的 videoId
+    const videoId = videos.newVideoId();
+
+    // 利用新的 streamKey(videoId) 推到 nginx，同時需要推送 username，nginx 會自動將 params(username) 當成 post data 傳至 on_publish 及 on_publish_done
+
+    res
+      .status(301)
+      .redirect(
+        `${process.env.STREAM_SERVER_URL}/hls_live/${videoId}?username=${username}`
+      );
+  } catch (error) {
+    const { message } = error;
+
+    res.status(400).json({
+      message,
+    });
   }
-  // 確認是否有該 user
-  const user = usersTable.find((user) => user.username === username);
-
-  if (!user) {
-    console.log("無此 user");
-    return res.status(500).send("stream key was wrong");
-  }
-
-  console.log("驗證成功！");
-
-  // 取得新的 videoId
-  const videoId = videos.newVideoId();
-
-  // 利用新的 streamKey(videoId) 推到 nginx，同時需要推送 username，nginx 會自動將 params(username) 當成 post data 傳至 on_publish 及 on_publish_done
-
-  res
-    .status(301)
-    .redirect(
-      `${process.env.STREAM_SERVER_URL}/hls_live/${videoId}?username=${username}`
-    );
 });
 
 app.post("/rtmp/on_publish", (req, res) => {
-  console.log("直播開始 'on_publish");
-  const { username, name: videoId } = req.body;
+  try {
+    console.log("直播開始 'on_publish");
+    const { username, name: videoId } = req.body;
 
-  const user = usersTable.find((user) => user.username === username);
+    const user = usersTable.find((user) => user.username === username);
 
-  // 直播狀態改為 on，用於使用者進入直播間時可自動去抓取直播資源，videoId 用來取得影片位置
-  user.stream.startTime = Date.now();
-  user.stream.isStreamOn = true;
-  user.stream.videoId = videoId;
+    // 直播狀態改為 on，用於使用者進入直播間時可自動去抓取直播資源，videoId 用來取得影片位置
+    user.stream.startTime = Date.now();
+    user.stream.isStreamOn = true;
+    user.stream.videoId = videoId;
 
-  // 傳送直播開始訊息，用於刷新影片
-  io.to(username).emit("stream-connected", { videoId });
+    // 傳送直播開始訊息，用於刷新影片
+    io.to(username).emit("stream-connected", { videoId });
 
-  res.status(204).end();
+    res.status(204).end();
+  } catch (error) {
+    const { message } = error;
+
+    res.status(400).json({
+      message,
+    });
+  }
 });
 
 app.post("/rtmp/on_publish_done", async (req, res) => {
-  console.log("直播結束 'on_publish_done'");
-  const { name: videoId, username } = req.body;
+  try {
+    console.log("直播結束 'on_publish_done'");
+    const { name: videoId, username } = req.body;
 
-  // 取得此 streamKey 的擁有者
-  const user = usersTable.find((user) => user.username === username);
+    // 取得此 streamKey 的擁有者
+    const user = usersTable.find((user) => user.username === username);
 
-  // room 名稱與 username 相同，取得此 room 的 comments
-  const { comments } = rooms[username];
+    // room 名稱與 username 相同，取得此 room 的 comments
+    const { comments } = rooms[username];
 
-  // console.log({ comments });
-  const { isStreamOn, ...streamData } = user.stream;
+    // console.log({ comments });
+    const { isStreamOn, ...streamData } = user.stream;
 
-  // 將此直播紀錄(影片、聊天室)儲存在 siteVideos 內
-  videos.createVideo(videoId, {
-    ...streamData,
-    comments,
-    type: "video",
-  });
+    // 將此直播紀錄(影片、聊天室)儲存在 siteVideos 內
+    videos.createVideo(videoId, {
+      ...streamData,
+      comments,
+      type: "video",
+    });
 
-  // 將影片加至 user 的 videos 內
-  user.videos.addVideo({
-    ...streamData,
-    comments,
-    type: "video",
-  });
+    // 將影片加至 user 的 videos 內
+    user.videos.addVideo({
+      ...streamData,
+      comments,
+      type: "video",
+    });
 
-  usersTable.initialRoom(username);
+    usersTable.initialRoom(username);
 
-  rooms.initialRoom(username);
+    rooms.initialRoom(username);
 
-  // writeFile("video.json", JSON.stringify(user.videos));
-  // console.log(user.videos);
+    // writeFile("video.json", JSON.stringify(user.videos));
+    // console.log(user.videos);
 
-  res.status(204).end();
+    res.status(204).end();
+  } catch (error) {
+    const { message } = error;
+
+    res.status(400).json({
+      message,
+    });
+  }
 });
 
 // 初次建立直播間，未建立直播間則無法開實況
@@ -525,27 +549,43 @@ app.post("/u/:username/stream-room", (req, res) => {
 });
 
 app.get("/me", sessionAuth, (req, res) => {
-  const { user } = req.session;
+  try {
+    const { user } = req.session;
 
-  if (!user) {
-    return res.status(200).json({ message: "Not sign in" });
+    if (!user) {
+      return res.status(200).json({ message: "Not sign in" });
+    }
+
+    const data = usersTable.getMe(user);
+
+    res.status(200).json({
+      message: "success",
+      data,
+    });
+  } catch (error) {
+    const { message } = error;
+
+    res.status(400).json({
+      message,
+    });
   }
-
-  const data = usersTable.getMe(user);
-
-  res.status(200).json({
-    message: "success",
-    data,
-  });
 });
 
 app.get("/sign-out", (req, res) => {
-  req.session.destroy(function (err) {
-    console.log("Destroyed session");
-    console.log(err);
-  });
+  try {
+    req.session.destroy(function (err) {
+      console.log("Destroyed session");
+      console.log(err);
+    });
 
-  res.status(200).json({ message: "sign out" });
+    res.status(200).json({ message: "sign out" });
+  } catch (error) {
+    const { message } = error;
+
+    res.status(400).json({
+      message,
+    });
+  }
 });
 
 app.post("/sign-up", async (req, res) => {
@@ -575,6 +615,7 @@ app.post("/sign-up", async (req, res) => {
     });
   } catch (error) {
     const { message } = error;
+
     res.status(400).json({
       message,
     });
@@ -602,6 +643,7 @@ app.post("/sign-in", async (req, res) => {
     });
   } catch (error) {
     const { message } = error;
+
     res.status(400).json({
       message,
     });
@@ -617,22 +659,29 @@ app.post("/users/:username", (req, res) => {
     res.json({ message: "success", data });
   } catch (error) {
     const { message } = error;
-    res.json({ message });
+
+    res.status(400).json({ message });
   }
 });
 
 app.post("/streams", (req, res) => {
-  const { page, limit } = req.body;
+  try {
+    const { page, limit } = req.body;
 
-  const start = (page - 1) * limit;
-  const end = page * limit;
+    const start = (page - 1) * limit;
+    const end = page * limit;
 
-  const streams = usersTable
-    .filter((user) => user.stream.isStreamOn)
-    .slice(start, end)
-    .map((user) => user.stream);
+    const streams = usersTable
+      .filter((user) => user.stream.isStreamOn)
+      .slice(start, end)
+      .map((user) => user.stream);
 
-  res.json({ message: "success", streams });
+    res.json({ message: "success", streams });
+  } catch (error) {
+    const { message } = error;
+
+    res.status(400).json({ message });
+  }
 });
 
 app.post("/streams/:username", (req, res) => {
@@ -650,7 +699,8 @@ app.post("/streams/:username", (req, res) => {
     });
   } catch (error) {
     const { message } = error;
-    res.json({ message });
+
+    res.status(400).json({ message });
   }
 });
 
@@ -666,7 +716,8 @@ app.get("/streams/:username/thumbnail", async (req, res) => {
     res.sendFile(directory);
   } catch (error) {
     const { message } = error;
-    res.json({ message: "no such file or directory" });
+
+    res.status(400).json({ message: "no such file or directory" });
   }
 });
 
@@ -688,7 +739,8 @@ app.post(
       });
     } catch (error) {
       const { message } = error;
-      res.json({ message });
+
+      res.status(400).json({ message });
     }
   }
 );
@@ -729,7 +781,8 @@ app.put("/streams/:username/like/add", sessionAuth, (req, res) => {
     res.json({ message: "success", like, likeVideoList });
   } catch (error) {
     const { message } = error;
-    res.json({ message });
+
+    res.status(400).json({ message });
   }
 });
 
@@ -751,7 +804,8 @@ app.put("/streams/:username/like/reduce", sessionAuth, (req, res) => {
     res.json({ message: "success", like, likeVideoList });
   } catch (error) {
     const { message } = error;
-    res.json({ message });
+
+    res.status(400).json({ message });
   }
 });
 
@@ -773,7 +827,8 @@ app.put("/streams/:username/dislike/add", sessionAuth, (req, res) => {
     res.json({ message: "success", dislike, dislikeVideoList });
   } catch (error) {
     const { message } = error;
-    res.json({ message });
+
+    res.status(400).json({ message });
   }
 });
 
@@ -799,7 +854,8 @@ app.put("/streams/:username/dislike/reduce", sessionAuth, (req, res) => {
     res.json({ message: "success", dislike, dislikeVideoList });
   } catch (error) {
     const { message } = error;
-    res.json({ message });
+
+    res.status(400).json({ message });
   }
 });
 
@@ -826,27 +882,33 @@ app.put("/users/:username", sessionAuth, (req, res) => {
   } catch (error) {
     const { message } = error;
 
-    res.json({ message });
+    res.status(400).json({ message });
   }
 });
 
 app.post("/videos", (req, res) => {
-  const { page, limit } = req.body;
+  try {
+    const { page, limit } = req.body;
 
-  const start = (page - 1) * limit;
-  const end = page * limit;
+    const start = (page - 1) * limit;
+    const end = page * limit;
 
-  const sliceVideos = Object.entries(videos)
-    .slice(start, end)
-    .map((entry) => ({
-      id: entry[0],
-      ...entry[1],
-    }));
+    const sliceVideos = Object.entries(videos)
+      .slice(start, end)
+      .map((entry) => ({
+        id: entry[0],
+        ...entry[1],
+      }));
 
-  res.json({
-    message: "success",
-    videos: sliceVideos,
-  });
+    res.json({
+      message: "success",
+      videos: sliceVideos,
+    });
+  } catch (error) {
+    const { message } = error;
+
+    res.status(400).json({ message });
+  }
 });
 
 app.post("/videos/:videoId", (req, res) => {
@@ -857,6 +919,7 @@ app.post("/videos/:videoId", (req, res) => {
     res.json({ message: "success", video });
   } catch (error) {
     const { message } = error;
+    
     res.status(400).json({
       message,
     });
@@ -886,7 +949,8 @@ app.put("/videos/:videoId/like/add", sessionAuth, (req, res) => {
     res.json({ message: "success", like, likeVideoList });
   } catch (error) {
     const { message } = error;
-    res.json({ message });
+    
+    res.status(400).json({ message });
   }
 });
 
@@ -904,7 +968,8 @@ app.put("/videos/:videoId/like/reduce", sessionAuth, (req, res) => {
     res.json({ message: "success", like, likeVideoList });
   } catch (error) {
     const { message } = error;
-    res.json({ message });
+    
+    res.status(400).json({ message });
   }
 });
 
@@ -922,7 +987,8 @@ app.put("/videos/:videoId/dislike/add", sessionAuth, (req, res) => {
     res.json({ message: "success", dislike, dislikeVideoList });
   } catch (error) {
     const { message } = error;
-    res.json({ message });
+
+    res.status(400).json({ message });
   }
 });
 
@@ -944,7 +1010,8 @@ app.put("/videos/:videoId/dislike/reduce", sessionAuth, (req, res) => {
     res.json({ message: "success", dislike, dislikeVideoList });
   } catch (error) {
     const { message } = error;
-    res.json({ message });
+
+    res.status(400).json({ message });
   }
 });
 
@@ -958,7 +1025,8 @@ app.put("/subscribe/:username/add", sessionAuth, (req, res) => {
     res.json({ message: "success", subscribeList });
   } catch (error) {
     const { message } = error;
-    res.json({ message });
+
+    res.status(400).json({ message });
   }
 });
 
