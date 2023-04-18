@@ -737,3 +737,357 @@ usersTable.removeSubscribeFromList = function (
 
   return currentUser.subscribeList;
 };
+
+// 網站總共有多少部影片
+const siteVideos = {
+  1: {
+    type: "video",
+    title: "how programmers overprepare for job interviews",
+    author: "Joma Tech",
+    content: "asdsadsa",
+    thumbnail: "images/2.jpg",
+    startTime: 1675759497647,
+    comments: new Comments(),
+  },
+  2: {
+    type: "video",
+    title: "年薪300萬工程師辭職重考醫學系 醫: 腦袋壞掉",
+    author: "蒼藍鴿的醫學天地",
+    content: "asdsadsa",
+    thumbnail: "images/2.jpg",
+  },
+  3: {
+    type: "video",
+    title:
+      "【中文配音心得26-鬼滅之刃遊廓篇(下)】台灣聲優竭盡全力的嘶吼，童磨的聲線帥到出水！",
+    author: "台灣聲優研究所",
+    content: "asdsadsa",
+    thumbnail: "images/2.jpg",
+  },
+  4: {
+    type: "video",
+    title:
+      "Git for Professionals Tutorial - Tools & Concepts for Mastering Version Control with Git",
+    author: "freeCodeCamp.org",
+    content: "asdsadsa",
+    thumbnail: "images/2.jpg",
+  },
+  5: {
+    type: "video",
+    title: "是什麼讓事情變得「卡夫卡式」？　諾亞.泰夫林",
+    author: "TED-Ed",
+    content: "asdsadsa",
+    thumbnail: "images/1.jpg",
+  },
+  6: {
+    type: "video",
+    title: "【アニメ】あっははインドネシア〜！",
+    author: "hololive ホロライブ - VTuber Group",
+    content: "asdsadsa",
+    thumbnail: "images/3.jpg",
+  },
+  7: {
+    type: "video",
+    title: "星街すいせい - みちづれ / THE FIRST TAKE",
+    author: "THE FIRST TAKE",
+    content: "asdsadsa",
+    thumbnail: "images/3.jpg",
+  },
+  8: {
+    type: "video",
+    title: "CCC",
+    author: "AAA",
+    content: "asdsadsa",
+    thumbnail: "images/3.jpg",
+  },
+  9: {
+    type: "video",
+    title: "DDDD",
+    author: "AAA",
+    content: "asdsadsa",
+    thumbnail: "images/3.jpg",
+  },
+  10: {
+    type: "video",
+    title: "adasdas",
+    author: "AAA",
+    content: "asdsadsa",
+    thumbnail: "images/1.jpg",
+  },
+  11: {
+    type: "video",
+    title: "adasdas",
+    author: "AAA",
+    content: "asdsadsa",
+    thumbnail: "images/1.jpg",
+  },
+};
+
+// 假資料
+const video = siteVideos[1];
+const comments = [
+  {
+    comment: {
+      time: 1675759497647,
+      user: { username: "Sans" },
+      message: { text: "1" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759497786,
+      user: { username: "Sans" },
+      message: { text: "2" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759498151,
+      user: { username: "Sans" },
+      message: { text: "3" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759498217,
+      user: { username: "Sans" },
+      message: { text: "4" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759498330,
+      user: { username: "Sans" },
+      message: { text: "5" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759498456,
+      user: { username: "Sans" },
+      message: { text: "6" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759498557,
+      user: { username: "Sans" },
+      message: { text: "7" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759498662,
+      user: { username: "Sans" },
+      message: { text: "8" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759498790,
+      user: { username: "Sans" },
+      message: { text: "9" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759498800,
+      user: { username: "Sans" },
+      message: { text: "10" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759498820,
+      user: { username: "Sans" },
+      message: { text: "11" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759498900,
+      user: { username: "Sans" },
+      message: { text: "12" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759499000,
+      user: { username: "Sans" },
+      message: { text: "13" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759499200,
+      user: { username: "Sans" },
+      message: { text: "14" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759500200,
+      user: { username: "Sans" },
+      message: { text: "15" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759500900,
+      user: { username: "Sans" },
+      message: { text: "16" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759501000,
+      user: { username: "Sans" },
+      message: { text: "17" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759501200,
+      user: { username: "Sans" },
+      message: { text: "18" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759502200,
+      user: { username: "Sans" },
+      message: { text: "19" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759503200,
+      user: { username: "Sans" },
+      message: { text: "20" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759503210,
+      user: { username: "Sans" },
+      message: { text: "21" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759504200,
+      user: { username: "Sans" },
+      message: { text: "22" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759505200,
+      user: { username: "Sans" },
+      message: { text: "23" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759506200,
+      user: { username: "Sans" },
+      message: { text: "24" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759507200,
+      user: { username: "Sans" },
+      message: { text: "25" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759508200,
+      user: { username: "Sans" },
+      message: { text: "26" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759509200,
+      user: { username: "Sans" },
+      message: { text: "27" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759510200,
+      user: { username: "Sans" },
+      message: { text: "28" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759511200,
+      user: { username: "Sans" },
+      message: { text: "29" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759512200,
+      user: { username: "Sans" },
+      message: { text: "30" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759513200,
+      user: { username: "Sans" },
+      message: { text: "31" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759514200,
+      user: { username: "Sans" },
+      message: { text: "32" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759515200,
+      user: { username: "Sans" },
+      message: { text: "33" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759516200,
+      user: { username: "Sans" },
+      message: { text: "34" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759517200,
+      user: { username: "Sans" },
+      message: { text: "35" },
+    },
+  },
+  {
+    comment: {
+      time: 1675759518200,
+      user: { username: "Sans" },
+      message: { text: "36" },
+    },
+  },
+];
+
+comments.map((comment) => {
+  const c = comment.comment;
+  video.comments.addFakeComment(c.time, c.user, c.message);
+});
+
+export const videos = new Video(siteVideos);
+export const rooms = new Rooms();
+
+// 加入假的 user 進 rooms
+rooms.addRoom("user01");
+rooms.addRoom("123");

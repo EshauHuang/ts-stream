@@ -1,4 +1,4 @@
-import { rooms } from "../index.js";
+import { rooms } from "../models/stream.js";
 
 export const startIo = (io) => {
   io.on("connection", (socket) => {

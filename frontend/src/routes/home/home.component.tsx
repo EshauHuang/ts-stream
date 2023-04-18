@@ -48,8 +48,6 @@ const Home = () => {
       try {
         const { videos } = await getVideos(1, 20);
 
-        console.log({ videos });
-
         setVideo(videos);
       } catch (err) {
         console.log(err);

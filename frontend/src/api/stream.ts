@@ -43,7 +43,7 @@ export const signUp = async (user: { username: string, password: string, email: 
 }
 
 export const getMe = async () => {
-  const response = await fetch(`${SERVER_URL}/me`, {
+  const response = await fetch(`${SERVER_URL}/users/me`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json; charset=utf-8",
@@ -56,7 +56,7 @@ export const getMe = async () => {
 
 export const getUser = async (username: string) => {
   const response = await fetch(`${SERVER_URL}/users/${username}`, {
-    method: "POST",
+    method: "GET",
     headers: {
       "Content-Type": "application/json; charset=utf-8",
     }
@@ -67,7 +67,7 @@ export const getUser = async (username: string) => {
 
 export const getStream = async (username: string) => {
   const response = await fetch(`${SERVER_URL}/streams/${username}`, {
-    method: "POST",
+    method: "GET",
     headers: {
       "Content-Type": "application/json; charset=utf-8",
     }
@@ -289,7 +289,7 @@ export const removeFromDislikeVideo = async (username: string, currentUser: IUse
 
 export const addSubscribeToList = async (username: string, currentUser: IUser) => {
 
-  const response = await fetch(`${SERVER_URL}/subscribe/${username}/add`, {
+  const response = await fetch(`${SERVER_URL}/users/${username}/subscribe/add`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json; charset=utf-8",
@@ -304,7 +304,7 @@ export const addSubscribeToList = async (username: string, currentUser: IUser) =
 }
 
 export const removeSubscribeFromList = async (username: string, currentUser: IUser) => {
-  const response = await fetch(`${SERVER_URL}/subscribe/${username}/remove`, {
+  const response = await fetch(`${SERVER_URL}/users/${username}/subscribe/remove`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json; charset=utf-8",
