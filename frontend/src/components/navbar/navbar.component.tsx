@@ -14,6 +14,7 @@ const Navbar = () => {
   return (
     <Container>
       <LinkList>
+        <StyledLink to="/test">TEST</StyledLink>
         <StyledLink to="/">Home</StyledLink>
         <StyledLink to="/live/user01">Live</StyledLink>
         {currentUser ? (

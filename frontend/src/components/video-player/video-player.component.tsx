@@ -38,12 +38,14 @@ export interface IVideoPlayer {
   src?: string;
   isLive: boolean;
   videoId?: string | number;
+  thumbnail?: string;
 }
 
 const VideoPlayer: React.FC<IVideoPlayer> = ({
   src,
   videoId,
   isLive,
+  thumbnail,
 }) => {
   const { videoRef, timelineRef, videoOptions, videoControllers } =
     useVideoPlayer({
@@ -56,6 +58,8 @@ const VideoPlayer: React.FC<IVideoPlayer> = ({
     videoControllers;
 
   const shouldRenderVideo = src || videoId;
+
+  const showThumbnail = thumbnail ? `${import.meta.env.VITE_API_SERVER_URL}${thumbnail}` : img5
 
   return (
     <PlayerContainer isFull={isFull} isTheater={isTheater}>
@@ -76,7 +80,7 @@ const VideoPlayer: React.FC<IVideoPlayer> = ({
           )}
         </>
       ) : (
-        <Thumbnail src={img5} />
+        <Thumbnail src={showThumbnail} />
       )}
     </PlayerContainer>
   );

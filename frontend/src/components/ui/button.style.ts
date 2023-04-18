@@ -22,7 +22,7 @@ export const Button = styled.button<{
   border: 0;
   border-radius: 0.4rem;
   background-color: white;
-  cursor: pointer;
+  cursor: ${({ disabled }) => disabled ? "auto" : "pointer"};
   background-color: ${({ bgColor }) =>
     bgColor ? bgColor : "rgba(255, 255, 255, 0.2)"};
   color: ${({ fColor }) => (fColor ? fColor : "black")};

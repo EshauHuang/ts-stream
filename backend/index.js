@@ -7,6 +7,30 @@ dotenv.config();
 import { Video, Rooms, Comments, usersTable } from "./models/stream.js";
 import { startIo } from "./socket/chatroom.js";
 import { checkStreamKey } from "./utils/streamKey.js";
+import multer from "multer";
+import generateDirectory from "./utils/generateDirectory.js";
+import path from "node:path";
+import { fileURLToPath } from "url";
+import { access, constants } from "node:fs/promises";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const toAbsolute = (p) => path.resolve(__dirname, p);
+
+const storage = multer.diskStorage({
+  destination: async function (req, file, cb) {
+    const { username } = req.params;
+    const directory = `publish/users/${username}`;
+
+    await generateDirectory(directory);
+
+    cb(null, directory);
+  },
+  filename: function (req, file, cb) {
+    cb(null, "thumbnail.jpg");
+  },
+});
+
+const upload = multer({ storage });
 
 const PORT = 3535;
 
@@ -29,6 +53,7 @@ const siteVideos = {
     thumbnail: "images/2.jpg",
   },
   3: {
+    type: "video",
     title:
       "【中文配音心得26-鬼滅之刃遊廓篇(下)】台灣聲優竭盡全力的嘶吼，童磨的聲線帥到出水！",
     author: "台灣聲優研究所",
@@ -36,6 +61,7 @@ const siteVideos = {
     thumbnail: "images/2.jpg",
   },
   4: {
+    type: "video",
     title:
       "Git for Professionals Tutorial - Tools & Concepts for Mastering Version Control with Git",
     author: "freeCodeCamp.org",
@@ -349,6 +375,7 @@ const comments = [
     },
   },
 ];
+
 comments.map((comment) => {
   const c = comment.comment;
   video.comments.addFakeComment(c.time, c.user, c.message);
@@ -374,6 +401,7 @@ app.use(
     cookie: { maxAge: 600 * 1000 }, //10分鐘到期
   })
 );
+
 app.use(
   session({
     secret: "mySecret",
@@ -382,8 +410,8 @@ app.use(
     resave: true,
   })
 );
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 const server = createServer(app);
 
@@ -462,7 +490,6 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
   const user = usersTable.find((user) => user.username === username);
 
   // room 名稱與 username 相同，取得此 room 的 comments
-
   const { comments } = rooms[username];
 
   // console.log({ comments });
@@ -627,6 +654,45 @@ app.post("/streams/:username", (req, res) => {
   }
 });
 
+app.get("/streams/:username/thumbnail", async (req, res) => {
+  try {
+    const { username } = req.params;
+
+    if (!username) return;
+
+    const directory = toAbsolute(`publish/users/${username}/thumbnail.jpg`);
+    await access(directory, constants.F_OK);
+
+    res.sendFile(directory);
+  } catch (error) {
+    const { message } = error;
+    res.json({ message: "no such file or directory" });
+  }
+});
+
+app.post(
+  "/streams/:username/thumbnail",
+  sessionAuth,
+  upload.single("thumbnail"),
+  async (req, res) => {
+    try {
+      const { username } = req.params;
+      const { file } = req;
+      if (!username || !file) return;
+
+      const thumbnail = usersTable.editStreamThumbnail(username);
+
+      res.json({
+        message: "success",
+        data: { stream: { thumbnail } },
+      });
+    } catch (error) {
+      const { message } = error;
+      res.json({ message });
+    }
+  }
+);
+
 app.post("/streams/:username/streamKey", sessionAuth, (req, res) => {
   try {
     const { username } = req.params;
@@ -746,7 +812,7 @@ app.put("/users/:username", sessionAuth, (req, res) => {
       throw new Error("Empty data!");
     }
 
-    const userMeta = usersTable.editUserMeta(username, {
+    const options = usersTable.editUserMeta(username, {
       stream: {
         title,
         content,
@@ -755,9 +821,7 @@ app.put("/users/:username", sessionAuth, (req, res) => {
 
     res.json({
       message: "success",
-      data: {
-        ...userMeta,
-      },
+      data: options,
     });
   } catch (error) {
     const { message } = error;

@@ -7,7 +7,7 @@ import Live from "@/routes/live/live.component";
 import Video from "@/routes/video/video.component";
 import Setting from "@/routes/setting/setting.component";
 import Navbar from "@/components/navbar/navbar.component";
-import Test from "./components/test";
+import Test from "./components/test/test2";
 import RoomContextLayout from "@/routes/room-context-layout/room-context-layout.component";
 
 const App = () => {

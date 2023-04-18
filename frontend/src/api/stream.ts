@@ -4,7 +4,7 @@ const SERVER_URL = import.meta.env.VITE_API_SERVER_URL
 
 export const signOut = async () => {
 
-  const response = await fetch(`${import.meta.env.VITE_API_SERVER_URL}/sign-out`, {
+  const response = await fetch(`${SERVER_URL}/sign-out`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json; charset=utf-8",
@@ -17,7 +17,7 @@ export const signOut = async () => {
 
 
 export const signIn = async (user: { username: string, password: string }) => {
-  const response = await fetch(`${import.meta.env.VITE_API_SERVER_URL}/sign-in`, {
+  const response = await fetch(`${SERVER_URL}/sign-in`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json; charset=utf-8",
@@ -303,4 +303,17 @@ export const removeSubscribeFromList = async (username: string, currentUser: IUs
   })
 
   return await response.json()
+}
+
+export const createOrEditStreamThumbnail = async (username: string, formData: FormData) => {
+  const response = await fetch(
+    `${SERVER_URL}/streams/${username}/thumbnail`,
+    {
+      method: "POST",
+      credentials: 'include',
+      body: formData,
+    }
+  );
+
+  return response.json();
 }

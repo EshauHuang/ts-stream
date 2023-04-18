@@ -23,7 +23,7 @@ export const LayoutContainer = styled.div`
 
 
 export const Label = styled.label`
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: bold;
 `;
 

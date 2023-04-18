@@ -1,23 +1,86 @@
 import { useState, useEffect, useContext } from "react";
-import { useParams } from "react-router-dom";
+import styled from "styled-components";
+import { useParams, useNavigate } from "react-router-dom";
 import _ from "lodash-es";
 
+import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
+
+import PreviewImage from "@/components/preview-image/preview-image.component";
 import Input from "@/components/input/input.component";
-import TextareaField from "@/components/textarea-field/textarea-field.component";
+import { ErrorMessage } from "@/components/input/input.style";
 import ContentEditableField from "@/components/content-editable-field/content-editable-field.component";
 import StreamKeyField from "@/components/stream-key/stream-key.component";
-import { Layout, LayoutContainer } from "@/components/ui/ui.style";
+import {
+  Layout,
+  LayoutContainer,
+  LabelWrap,
+  Label,
+} from "@/components/ui/ui.style";
 import { Button, ButtonField } from "@/components/ui/button.style";
 import { Container, Form, Title } from "./setting.style";
 
 import { UserContext } from "@/contexts/userContext";
 
-import { getMe, editUserMeta, refreshStreamKey } from "@/api/stream";
+import {
+  getMe,
+  editUserMeta,
+  refreshStreamKey,
+  createOrEditStreamThumbnail,
+} from "@/api/stream";
 
 import {
   inputValidate,
   formatInputAndValidateOptions,
 } from "@/utils/inputValidate";
+
+import convertFileToImageBlob from "@/utils/convertFileToImageBlob";
+
+const InputFileField = styled.div`
+  display: flex;
+  align-items: center;
+  position: relative;
+
+  & > :first-child {
+    width: 15rem;
+    flex-shrink: 0;
+  }
+
+  & > :last-child {
+    img {
+      object-fit: cover;
+      width: 100%;
+    }
+  }
+`;
+
+const AddPhotoWrap = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const AddPhotoButton = styled.label`
+  width: 100%;
+  height: 100%;
+  width: 50%;
+  aspect-ratio: 1280/720;
+  max-width: 200px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: black;
+  }
+`;
+
+const ThumbnailPreview = styled.div`
+  flex-grow: 1;
+`;
+
+const StyledButton = styled(Button)`
+  & + & {
+    margin-left: 1.2rem;
+  }
+`;
 
 interface ISettingData {
   user: {
@@ -32,6 +95,7 @@ interface ISettingData {
     author: string;
     content: string;
     dislike: string;
+    thumbnail: string;
     isStreamOn: boolean;
     like: string;
     startTime: string;
@@ -54,6 +118,7 @@ const initialSettingData = {
     author: "",
     content: "",
     dislike: "",
+    thumbnail: "",
     isStreamOn: false,
     like: "",
     startTime: "",
@@ -65,6 +130,7 @@ const initialSettingData = {
 
 const initialError = {
   title: "",
+  img: "",
 };
 
 const validateRulesOptions = {
@@ -72,15 +138,31 @@ const validateRulesOptions = {
     label: "標題",
     rules: ["required"],
   },
+  img: {
+    label: "圖片",
+    rules: ["imgSize"],
+  },
 };
 
 const Setting = () => {
+  const navigate = useNavigate();
+  const { username } = useParams();
   const { currentUser } = useContext(UserContext);
   const [settingData, setSettingData] =
     useState<ISettingData>(initialSettingData);
+  const [tmpSettingData, setTmpSettingData] = useState(settingData);
   const [error, setError] = useState(initialError);
-  const { username } = useParams();
   const { stream, user } = settingData;
+  const [imageBlob, setImageBlob] = useState<Blob | null>(null);
+  const [imageUrl, setImageUrl] = useState<string>();
+  const { thumbnail } = stream;
+
+  const isDataChanged = !_.isEqual(settingData, tmpSettingData) || !!imageUrl;
+
+  const showThumbnail =
+    imageUrl ||
+    (thumbnail && `${import.meta.env.VITE_API_SERVER_URL}${thumbnail}`) ||
+    undefined;
 
   const handleChangeValue: React.ChangeEventHandler<
     HTMLInputElement | HTMLTextAreaElement
@@ -113,10 +195,20 @@ const Setting = () => {
     e.preventDefault();
     if (!username) return;
     const { title, content } = stream;
-    const inputValidateOptions = formatInputAndValidateOptions(
-      { title },
-      validateRulesOptions
-    );
+
+    let inputValidateOptions;
+
+    if (imageBlob) {
+      inputValidateOptions = formatInputAndValidateOptions(
+        { title, img: imageBlob },
+        validateRulesOptions
+      );
+    } else {
+      inputValidateOptions = formatInputAndValidateOptions(
+        { title },
+        validateRulesOptions
+      );
+    }
 
     const newErrorMessages = inputValidateOptions.reduce((errorObj, option) => {
       const { name } = option;
@@ -129,10 +221,69 @@ const Setting = () => {
       setError(newErrorMessages);
     } else {
       setError(initialError);
-      const data = await editUserMeta(username, {
+
+      let streamDataEditedSuccess = {};
+
+      if (!isDataChanged) return;
+      const { data } = await editUserMeta(username, {
         title,
         content,
       });
+
+      if (data) {
+        const { stream } = data;
+        streamDataEditedSuccess = Object.assign(
+          { ...stream },
+          streamDataEditedSuccess
+        );
+      }
+
+      console.log("streamDataEditedSuccess 1:", streamDataEditedSuccess);
+
+      if (imageBlob) {
+        try {
+          const formData = new FormData();
+          formData.append("thumbnail", imageBlob, "image.jpg");
+
+          const { data } = await createOrEditStreamThumbnail(
+            username,
+            formData
+          );
+
+          if (data) {
+            const { stream } = data;
+
+            if (!stream) return;
+
+            streamDataEditedSuccess = Object.assign(
+              { ...stream },
+              streamDataEditedSuccess
+            );
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      console.log("streamDataEditedSuccess 2:", streamDataEditedSuccess);
+
+      setSettingData((prev) => ({
+        ...prev,
+        stream: {
+          ...prev.stream,
+          ...streamDataEditedSuccess,
+        },
+      }));
+
+      setTmpSettingData(() => ({
+        ...settingData,
+        stream: {
+          ...settingData.stream,
+          ...streamDataEditedSuccess,
+        },
+      }));
+
+      setImageUrl("");
+      setImageBlob(null);
     }
   };
 
@@ -161,17 +312,36 @@ const Setting = () => {
   useEffect(() => {
     if (!currentUser) return;
 
-    const { username } = currentUser;
-
     const fetchMe = async () => {
       const { data } = await getMe();
 
       setSettingData(data);
+      setTmpSettingData(data);
     };
 
     fetchMe();
   }, [currentUser]);
 
+  const handleInputFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0];
+
+    if (!file) return;
+
+    convertFileToImageBlob(file, (blob) => {
+      setImageBlob(blob);
+      const url = URL.createObjectURL(blob);
+      setImageUrl(url);
+    });
+  };
+
+  const handleImageLoaded = () => {
+    if (imageUrl) {
+      URL.revokeObjectURL(imageUrl);
+    }
+  };
+
+  console.log({ settingData });
+  console.log({ tmpSettingData });
   return (
     <Container>
       <Title>Setting</Title>
@@ -196,6 +366,35 @@ const Setting = () => {
             />
           </Layout>
           <Layout>
+            <InputFileField>
+              <LabelWrap>
+                <Label>Stream Thumbnail</Label>
+              </LabelWrap>
+              <ThumbnailPreview>
+                <AddPhotoWrap>
+                  <AddPhotoButton>
+                    <PreviewImage
+                      handleImageLoaded={handleImageLoaded}
+                      showThumbnail={showThumbnail}
+                    />
+                    <input
+                      onChange={(e) => handleInputFile(e)}
+                      type="file"
+                      style={{
+                        display: "none",
+                      }}
+                    />
+                  </AddPhotoButton>
+                </AddPhotoWrap>
+              </ThumbnailPreview>
+              {error.img ? (
+                <ErrorMessage>{error.img}</ErrorMessage>
+              ) : (
+                <div>&nbsp;</div>
+              )}
+            </InputFileField>
+          </Layout>
+          <Layout>
             <ContentEditableField
               setValue={(content: string) => {
                 setSettingData((prev) => ({
@@ -216,14 +415,50 @@ const Setting = () => {
         </LayoutContainer>
         <Layout>
           <ButtonField>
-            <Button
-              type="submit"
-              fColor="#fff"
-              bgColor="#f2711c"
-              bgHover="#f26202"
-            >
-              確定
-            </Button>
+            {isDataChanged ? (
+              <StyledButton
+                type="button"
+                fColor="#fff"
+                bgColor="transparent"
+                onClick={() => {
+                  if (isDataChanged) {
+                    setSettingData(tmpSettingData)
+                    setImageUrl("");
+                    setImageBlob(null);
+                  }
+                }}
+              >
+                復原變更
+              </StyledButton>
+            ) : (
+              <StyledButton
+                type="button"
+                fColor="rgba(255,255,255,0.5)"
+                bgColor="transparent"
+                disabled
+              >
+                復原變更
+              </StyledButton>
+            )}
+            {isDataChanged ? (
+              <StyledButton
+                type="submit"
+                fColor="#fff"
+                bgColor="#f2711c"
+                bgHover="#f26202"
+              >
+                確定
+              </StyledButton>
+            ) : (
+              <StyledButton
+                type="submit"
+                fColor="rgba(255,255,255,0.5)"
+                bgColor="rgba(255,255,255,0.16)"
+                disabled
+              >
+                確定
+              </StyledButton>
+            )}
           </ButtonField>
         </Layout>
       </Form>

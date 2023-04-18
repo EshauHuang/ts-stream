@@ -12,8 +12,6 @@ import VideoPlayer from "@/components/video-player/video-player.component";
 import ChannelInfo from "@/components/channel-detail/channel-detail.component";
 import VideoEvaluation from "@/components/video-evaluation/video-evaluation.component";
 
-import { StyledContentEditable } from "@/components/send-message/send-message.style";
-
 import {
   getStream,
   addToLikeStream,
@@ -27,7 +25,6 @@ import {
 
 import { Container } from "./live.style";
 import useWindowResize from "@/hooks/useWindowResize";
-import { CatchingPokemon } from "@mui/icons-material";
 
 const IconStyle = css`
   padding: 8px 0;
@@ -153,6 +150,7 @@ export interface IUserData {
     title: string;
     content: string;
     author: string;
+    thumbnail: string;
     videoId: string;
     like: number;
     dislike: number;
@@ -172,6 +170,7 @@ export interface IStreamData {
     title: string;
     content: string;
     author: string;
+    thumbnail: string;
     videoId: string;
     like: number;
     dislike: number;
@@ -189,6 +188,7 @@ const initialUserData = {
     title: "",
     content: "",
     author: "",
+    thumbnail: "",
     videoId: "",
     like: 0,
     dislike: 0,
@@ -208,6 +208,7 @@ const initialStreamData = {
     title: "",
     content: "",
     author: "",
+    thumbnail: "",
     videoId: "",
     like: 0,
     dislike: 0,
@@ -227,7 +228,16 @@ const Live = () => {
   const { currentUser } = useContext(UserContext);
 
   const {
-    stream: { isStreamOn, title, content, author, videoId, like, dislike },
+    stream: {
+      isStreamOn,
+      title,
+      content,
+      author,
+      thumbnail,
+      videoId,
+      like,
+      dislike,
+    },
     user: { avatar, subscribes, username: authorUsername },
   } = streamData;
 
@@ -432,7 +442,7 @@ const Live = () => {
   return (
     <Container>
       <Primary>
-        <VideoPlayer videoId={videoId} isLive={true} />
+        <VideoPlayer thumbnail={thumbnail} videoId={videoId} isLive={true} />
         {dimensions && dimensions.width < 1030 && (
           <Chatroom
             setStream={setStreamData}

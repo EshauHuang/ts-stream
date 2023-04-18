@@ -354,6 +354,7 @@ https://twitter.com/kousuke_as
 下記リンクをご確認の上、お楽しみください。
 https://www.hololive.tv/request-to-mi...
 `,
+      thumbnail: "",
       videoId: "",
       startTime: "",
       like: 4155,
@@ -389,6 +390,7 @@ https://www.hololive.tv/request-to-mi...
       author: "123",
       type: "stream",
       title: "123 的直播間",
+      thumbnail: "images/1.jpg",
       content: `本家様：
 あの夏が飽和する。2020ver. / 鏡音レン・リン
 https://youtu.be/2hz0lhAs0Kg
@@ -418,6 +420,7 @@ https://twitter.com/kousuke_as
 下記リンクをご確認の上、お楽しみください。
 https://www.hololive.tv/request-to-mi...
 `,
+      thumbnail: "",
       videoId: "",
       startTime: "",
       like: 415,
@@ -470,6 +473,7 @@ usersTable.generateNewUser = async function (username, password, email) {
       type: "stream",
       author: username,
       title: `${username} 的直播間`,
+      thumbnail: "",
       content: "",
       startTime: "",
       like: 0,
@@ -655,7 +659,6 @@ usersTable.getStream = function (username) {
 
 usersTable.editUserMeta = function (username, options) {
   const user = usersTable.find((user) => user.username === username);
-  const { avatar, subscribes, stream } = user;
 
   Object.entries(options).forEach(([key, value]) => {
     if (Object.prototype.toString.call(value) === "[object Object]") {
@@ -668,16 +671,25 @@ usersTable.editUserMeta = function (username, options) {
     }
   });
 
-  return {
-    user: {
-      avatar,
-      subscribes,
-    },
-    stream: {
-      ...stream,
-      ...options.stream,
-    },
-  };
+  return options;
+};
+
+usersTable.getStreamThumbnail = function (username) {
+  const user = usersTable.find((user) => user.username === username);
+
+  if (!user) return "";
+
+  return user.stream.thumbnail;
+};
+
+usersTable.editStreamThumbnail = function (username) {
+  const user = usersTable.find((user) => user.username === username);
+
+  if (!user) return "";
+
+  user.stream.thumbnail = `/streams/${username}/thumbnail`;
+
+  return `/streams/${username}/thumbnail`;
 };
 
 usersTable.refreshStreamKey = function (username) {

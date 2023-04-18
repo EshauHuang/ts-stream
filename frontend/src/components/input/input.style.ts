@@ -11,6 +11,7 @@ export const Container = styled.div`
 export const LabelWrap = styled.div<{ labelWidth?: string}>`
   display: flex;
   align-items: center;
+  flex-shrink: 0;
   width: ${({ labelWidth }) => labelWidth ? `${labelWidth}rem` : "15rem"};
   font-weight: bold;
 `
