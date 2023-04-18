@@ -11,7 +11,8 @@ import multer from "multer";
 import generateDirectory from "./utils/generateDirectory.js";
 import path from "node:path";
 import { fileURLToPath } from "url";
-import { access, constants } from "node:fs/promises";
+import { access, constants, copyFile } from "node:fs/promises";
+import checkDirectory from "./utils/checkDirectory.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const toAbsolute = (p) => path.resolve(__dirname, p);
@@ -509,12 +510,25 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
     // room 名稱與 username 相同，取得此 room 的 comments
     const { comments } = rooms[username];
 
-    // console.log({ comments });
-    const { isStreamOn, ...streamData } = user.stream;
+    const { isStreamOn, thumbnail, ...streamData } = user.stream;
+    const streamThumbnailDirectory = toAbsolute(`publish/users/${username}`);
+    const videoThumbnailDirectory = toAbsolute(`publish/videos/${videoId}`);
+    const thumbnailFileName = "thumbnail.jpg";
+    const streamThumbnailPath = `${streamThumbnailDirectory}/${thumbnailFileName}`;
+    const videoThumbnailPath = `${videoThumbnailDirectory}/${thumbnailFileName}`;
+
+    const isFileExist =
+      !!thumbnail && (await checkDirectory(streamThumbnailPath));
+
+    if (isFileExist) {
+      await generateDirectory(videoThumbnailDirectory);
+      await copyFile(streamThumbnailPath, videoThumbnailPath);
+    }
 
     // 將此直播紀錄(影片、聊天室)儲存在 siteVideos 內
     videos.createVideo(videoId, {
       ...streamData,
+      thumbnail: `/videos/${videoId}/thumbnail`,
       comments,
       type: "video",
     });
@@ -522,6 +536,7 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
     // 將影片加至 user 的 videos 內
     user.videos.addVideo({
       ...streamData,
+      thumbnail: `/videos/${videoId}/thumbnail`,
       comments,
       type: "video",
     });
@@ -529,10 +544,6 @@ app.post("/rtmp/on_publish_done", async (req, res) => {
     usersTable.initialRoom(username);
 
     rooms.initialRoom(username);
-
-    // writeFile("video.json", JSON.stringify(user.videos));
-    // console.log(user.videos);
-
     res.status(204).end();
   } catch (error) {
     const { message } = error;
@@ -720,6 +731,24 @@ app.get("/streams/:username/thumbnail", async (req, res) => {
     res.status(400).json({ message: "no such file or directory" });
   }
 });
+
+app.get("/videos/:videoId/thumbnail", async (req, res) => {
+  try {
+    const { videoId } = req.params;
+
+    if (!videoId) return;
+
+    const directory = toAbsolute(`publish/videos/${videoId}/thumbnail.jpg`);
+    await access(directory, constants.F_OK);
+
+    res.sendFile(directory);
+  } catch (error) {
+    const { message } = error;
+
+    res.status(400).json({ message: "no such file or directory" });
+  }
+});
+
 
 app.post(
   "/streams/:username/thumbnail",
@@ -919,7 +948,7 @@ app.post("/videos/:videoId", (req, res) => {
     res.json({ message: "success", video });
   } catch (error) {
     const { message } = error;
-    
+
     res.status(400).json({
       message,
     });
@@ -949,7 +978,7 @@ app.put("/videos/:videoId/like/add", sessionAuth, (req, res) => {
     res.json({ message: "success", like, likeVideoList });
   } catch (error) {
     const { message } = error;
-    
+
     res.status(400).json({ message });
   }
 });
@@ -968,7 +997,7 @@ app.put("/videos/:videoId/like/reduce", sessionAuth, (req, res) => {
     res.json({ message: "success", like, likeVideoList });
   } catch (error) {
     const { message } = error;
-    
+
     res.status(400).json({ message });
   }
 });

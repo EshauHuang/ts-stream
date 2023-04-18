@@ -38,12 +38,22 @@ const VideoCard = ({ video }: { video: IVideoCard }) => {
   };
   const linkUrl = getLinkUrl(video);
 
+  console.log(video);
+
   return (
     <StyledVideoCard key={`${video.id}`}>
       <Link to={linkUrl}>
-        <Thumbnail>
-          <img src={video.thumbnail} />
-        </Thumbnail>
+        {
+          <Thumbnail>
+            {video.thumbnail ? (
+              <img
+                src={`${import.meta.env.VITE_API_SERVER_URL}${video.thumbnail}`}
+              />
+            ) : (
+              <img src="images/3.jpg" />
+            )}
+          </Thumbnail>
+        }
       </Link>
       <Detail>
         <Avatar>

@@ -1,6 +1,6 @@
 import { access, constants, mkdir } from "node:fs/promises";
 
-export default async function generateDirectory(directory) {
+export default async function (directory) {
   try {
     await access(directory, constants.F_OK);
   } catch (error) {

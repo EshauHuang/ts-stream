@@ -354,7 +354,7 @@ https://twitter.com/kousuke_as
 下記リンクをご確認の上、お楽しみください。
 https://www.hololive.tv/request-to-mi...
 `,
-      thumbnail: "",
+      thumbnail: "/streams/user01/thumbnail",
       videoId: "",
       startTime: "",
       like: 4155,
