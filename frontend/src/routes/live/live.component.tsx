@@ -149,7 +149,10 @@ export interface IUserData {
     isStreamOn: boolean;
     title: string;
     content: string;
-    author: string;
+    author: {
+      username: string;
+      nickname: string;
+    };
     thumbnail: string;
     videoId: string;
     like: number;
@@ -169,7 +172,10 @@ export interface IStreamData {
     isStreamOn: boolean;
     title: string;
     content: string;
-    author: string;
+    author: {
+      username: string;
+      nickname: string;
+    };
     thumbnail: string;
     videoId: string;
     like: number;
@@ -187,7 +193,10 @@ const initialUserData = {
     isStreamOn: false,
     title: "",
     content: "",
-    author: "",
+    author: {
+      username: "",
+      nickname: "",
+    },
     thumbnail: "",
     videoId: "",
     like: 0,
@@ -207,7 +216,10 @@ const initialStreamData = {
     isStreamOn: false,
     title: "",
     content: "",
-    author: "",
+    author: {
+      username: "",
+      nickname: "",
+    },
     thumbnail: "",
     videoId: "",
     like: 0,
@@ -461,7 +473,7 @@ const Live = () => {
                 </Avatar>
               </UserLink>
               <UserMeta>
-                <Author>{author}</Author>
+                <Author>{author.nickname}</Author>
                 <Subscribe>{subscribes} 訂閱者</Subscribe>
               </UserMeta>
               {isSubscribe ? (

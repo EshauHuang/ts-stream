@@ -43,19 +43,17 @@ export class Video {
   getVideo(id) {
     const { comments, startTime, author } = this[id];
 
-    const user = usersTable.findUser(author);
+    const user = usersTable.findUser(author.username);
 
-    const { username, avatar, email, subscribes } = user;
+    const { username, avatar, subscribes } = user || {};
 
     return {
-      ...this[id],
       user: {
-        username,
         avatar,
-        email,
         subscribes,
+        username,
       },
-      comments: comments.getNextComments(startTime),
+      video: { ...this[id], comments: comments.getNextComments(startTime) },
     };
   }
 
@@ -300,30 +298,22 @@ export const usersTable = [
   {
     id: 1,
     username: "user01",
+    nickname: "user01",
     streamKey: "U2FsdGVkX1__fd2ANVT33jYDE4shKW1l5lzgRRafZN4=",
     avatar: "/images/avatar/user01.jpg",
-    email: "123@gmail.com",
+    email: "user01@gmail.com",
     subscribes: 200,
     likeVideoList: [],
     dislikeVideoList: [],
     subscribeList: [],
-    videos: {
-      1: {
-        // 關聯到 siteVideosID
-      },
-      length: 1,
-      addVideo(video) {
-        const index = this.length + 1;
-        this[index] = video;
-        this.length++;
-
-        return { [index]: this[index] };
-      },
-    },
+    videos: new Video(),
     stream: {
       isStreamOn: false,
       type: "stream",
-      author: "user01",
+      author: {
+        username: "user01",
+        nickname: "user01",
+      },
       title: "user01 的直播間",
       content: `本家様：
 あの夏が飽和する。2020ver. / 鏡音レン・リン
@@ -364,6 +354,7 @@ https://www.hololive.tv/request-to-mi...
   {
     id: 2,
     username: "123",
+    nickname: "123",
     password: "$2b$10$J251lEpX3LI8UpxxIuXMiugtELV71EL4gO2bfHyMtUtPI2B4taNJu",
     streamKey: "U2FsdGVkX194rC63kIDq6ePffAq_cif1QEb1RcHnimk=",
     avatar: "/images/avatar/123.jpg",
@@ -372,22 +363,13 @@ https://www.hololive.tv/request-to-mi...
     likeVideoList: [],
     dislikeVideoList: [],
     subscribeList: [],
-    videos: {
-      1: {
-        // 關聯到 siteVideosID
-      },
-      length: 1,
-      addVideo(video) {
-        const index = this.length + 1;
-        this[index] = video;
-        this.length++;
-
-        return { [index]: this[index] };
-      },
-    },
+    videos: new Video(),
     stream: {
       isStreamOn: false,
-      author: "123",
+      author: {
+        username: "123",
+        nickname: "123",
+      },
       type: "stream",
       title: "123 的直播間",
       thumbnail: "images/1.jpg",
@@ -424,6 +406,31 @@ https://www.hololive.tv/request-to-mi...
       videoId: "",
       startTime: "",
       like: 415,
+      dislike: 0,
+    },
+  },
+  {
+    id: 3,
+    username: "bbbb",
+    nickname: "Bob",
+    streamKey: "U2FsdGVkX1__fd2ANVT33jYDE4shKW1l5lzgRRafZN4=",
+    avatar: "/images/avatar/user01.jpg",
+    email: "123@gmail.com",
+    subscribes: 200,
+    likeVideoList: [],
+    dislikeVideoList: [],
+    subscribeList: [],
+    videos: new Video(),
+    stream: {
+      isStreamOn: false,
+      type: "stream",
+      author: { username: "bbbb", nickname: "Bob" },
+      title: "user01 的直播間",
+      content: "",
+      thumbnail: "/streams/user01/thumbnail",
+      videoId: "",
+      startTime: "",
+      like: 4155,
       dislike: 0,
     },
   },
@@ -471,7 +478,10 @@ usersTable.generateNewUser = async function (username, password, email) {
     stream: {
       isStreamOn: false,
       type: "stream",
-      author: username,
+      author: {
+        username,
+        nickname: username,
+      },
       title: `${username} 的直播間`,
       thumbnail: "",
       content: "",
@@ -742,84 +752,69 @@ usersTable.removeSubscribeFromList = function (
 const siteVideos = {
   1: {
     type: "video",
-    title: "how programmers overprepare for job interviews",
-    author: "Joma Tech",
-    content: "asdsadsa",
-    thumbnail: "images/2.jpg",
+    title: "我理想中的家",
+    author: {
+      username: "bbbb",
+      nickname: "Bob",
+    },
+    content:
+      "我想到一個安靜、寧靜的地方，一個我可以放鬆和重新充電的地方。我的理想家園是一個溫馨、舒適的地方，擁有所有必要的設施，同時也是一個可以營造美好回憶的地方。",
+    thumbnail: "/videos/1/thumbnail",
     startTime: 1675759497647,
+    videoId: "1",
     comments: new Comments(),
   },
   2: {
     type: "video",
     title: "年薪300萬工程師辭職重考醫學系 醫: 腦袋壞掉",
-    author: "蒼藍鴿的醫學天地",
+    author: {
+      username: "bbbb",
+      nickname: "Bob",
+    },
     content: "asdsadsa",
-    thumbnail: "images/2.jpg",
+    thumbnail: "/videos/2/thumbnail",
   },
   3: {
     type: "video",
     title:
       "【中文配音心得26-鬼滅之刃遊廓篇(下)】台灣聲優竭盡全力的嘶吼，童磨的聲線帥到出水！",
-    author: "台灣聲優研究所",
+    author: {
+      username: "bbbb",
+      nickname: "Bob",
+    },
     content: "asdsadsa",
-    thumbnail: "images/2.jpg",
+    thumbnail: "/videos/3/thumbnail",
   },
   4: {
     type: "video",
     title:
       "Git for Professionals Tutorial - Tools & Concepts for Mastering Version Control with Git",
-    author: "freeCodeCamp.org",
+    author: {
+      username: "bbbb",
+      nickname: "Bob",
+    },
     content: "asdsadsa",
-    thumbnail: "images/2.jpg",
+    thumbnail: "/videos/4/thumbnail",
   },
   5: {
     type: "video",
     title: "是什麼讓事情變得「卡夫卡式」？　諾亞.泰夫林",
-    author: "TED-Ed",
+    author: {
+      username: "bbbb",
+      nickname: "Bob",
+    },
     content: "asdsadsa",
-    thumbnail: "images/1.jpg",
+    thumbnail: "/videos/5/thumbnail",
   },
   6: {
     type: "video",
     title: "【アニメ】あっははインドネシア〜！",
-    author: "hololive ホロライブ - VTuber Group",
+    author: {
+      username: "bbbb",
+      nickname: "Bob",
+    },
     content: "asdsadsa",
-    thumbnail: "images/3.jpg",
-  },
-  7: {
-    type: "video",
-    title: "星街すいせい - みちづれ / THE FIRST TAKE",
-    author: "THE FIRST TAKE",
-    content: "asdsadsa",
-    thumbnail: "images/3.jpg",
-  },
-  8: {
-    type: "video",
-    title: "CCC",
-    author: "AAA",
-    content: "asdsadsa",
-    thumbnail: "images/3.jpg",
-  },
-  9: {
-    type: "video",
-    title: "DDDD",
-    author: "AAA",
-    content: "asdsadsa",
-    thumbnail: "images/3.jpg",
-  },
-  10: {
-    type: "video",
-    title: "adasdas",
-    author: "AAA",
-    content: "asdsadsa",
-    thumbnail: "images/1.jpg",
-  },
-  11: {
-    type: "video",
-    title: "adasdas",
-    author: "AAA",
-    content: "asdsadsa",
-    thumbnail: "images/1.jpg",
+    thumbnail: "/videos/6/thumbnail",
   },
 };
 

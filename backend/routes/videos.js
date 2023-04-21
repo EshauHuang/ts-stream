@@ -40,6 +40,23 @@ export default router
       res.status(400).json({ message });
     }
   })
+  .get("/:videoId", (req, res) => {
+    try {
+      const { videoId } = req.params;
+      const videoData = videos.getVideo(videoId);
+
+      console.log(videoData);
+
+      res.json({ message: "success", data: { ...videoData } });
+    } catch (error) {
+      const { message } = error;
+      console.log("error", message);
+
+      res.status(400).json({
+        message,
+      });
+    }
+  })
   .get("/:videoId/thumbnail", async (req, res) => {
     try {
       const { videoId } = req.params;
@@ -55,21 +72,6 @@ export default router
       console.log("error", message);
 
       res.status(400).json({ message: "no such file or directory" });
-    }
-  })
-  .post("/:videoId", (req, res) => {
-    try {
-      const { videoId } = req.params;
-      const video = videos.getVideo(videoId);
-
-      res.json({ message: "success", video });
-    } catch (error) {
-      const { message } = error;
-      console.log("error", message);
-
-      res.status(400).json({
-        message,
-      });
     }
   })
   .post("/:videoId/comments", (req, res) => {

@@ -4,8 +4,6 @@ import { sessionAuth } from "../utils/sessionAuth.js";
 import { usersTable } from "../models/stream.js";
 import { upload } from "../utils/multerStorage.js";
 import { toAbsolute } from "../utils/toAbsolute.js";
-import { videos } from "../models/stream.js";
-import { checkStreamKey } from "../utils/streamKey.js";
 
 const router = express.Router();
 
@@ -18,8 +16,6 @@ export default router
   .post("/", (req, res) => {
     try {
       const { page, limit } = req.body;
-
-      console.log({ page, limit });
 
       const start = (page - 1) * limit;
       const end = page * limit;

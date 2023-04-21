@@ -118,7 +118,7 @@ export default router
       });
 
       // 將影片加至 user 的 videos 內
-      user.videos.addVideo({
+      user.videos.createVideo(videoId, {
         ...streamData,
         thumbnail: `/videos/${videoId}/thumbnail`,
         comments,

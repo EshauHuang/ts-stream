@@ -135,7 +135,10 @@ export interface IUserData {
     isStreamOn: boolean;
     title: string;
     content: string;
-    author: string;
+    author: {
+      username: string;
+      nickname: string;
+    };
     videoId: string;
     like: number;
     dislike: number;
@@ -149,18 +152,22 @@ export interface IUserData {
 }
 
 export interface IVideoData {
-  title: string;
-  content: string;
-  author: string;
-  videoId: string;
-  like: number;
-  dislike: number;
-  avatar: string;
-  subscribes: number;
-  comments: IComment[];
+  video: {
+    title: string;
+    content: string;
+    author: {
+      username: string;
+      nickname: string;
+    };
+    videoId: string;
+    like: number;
+    dislike: number;
+    avatar: string;
+    subscribes: number;
+    comments: IComment[];
+  };
   user: {
     avatar: string;
-    email: string;
     subscribes: number;
     username: string;
   };
@@ -171,7 +178,10 @@ const initialUserData = {
     isStreamOn: false,
     title: "",
     content: "",
-    author: "",
+    author: {
+      username: "",
+      nickname: "",
+    },
     videoId: "",
     like: 0,
     dislike: 0,
@@ -185,18 +195,22 @@ const initialUserData = {
 };
 
 const initialStreamData = {
-  title: "",
-  content: "",
-  author: "",
-  videoId: "",
-  like: 0,
-  dislike: 0,
-  avatar: "",
-  subscribes: 0,
-  comments: [],
+  video: {
+    title: "",
+    content: "",
+    author: {
+      username: "",
+      nickname: "",
+    },
+    videoId: "",
+    like: 0,
+    dislike: 0,
+    avatar: "",
+    subscribes: 0,
+    comments: [],
+  },
   user: {
     avatar: "",
-    email: "",
     subscribes: 0,
     username: "",
   },
@@ -211,12 +225,7 @@ const Video = () => {
   const { currentUser } = useContext(UserContext);
 
   const {
-    title,
-    comments,
-    author,
-    like,
-    dislike,
-    content,
+    video: { title, comments, author, like, dislike, content },
     user: { avatar, subscribes },
   } = videoData;
 
@@ -238,11 +247,13 @@ const Video = () => {
 
   useEffect(() => {
     const fetchVideoData = async () => {
-      const { video } = await getVideo(videoId);
+      const { data } = await getVideo(videoId);
 
-      if (video) {
-        setVideoData(video);
-        setVideoStartTime(video.startTime);
+      console.log({ data });
+
+      if (data) {
+        setVideoData(data);
+        setVideoStartTime(data.video.startTime);
       }
     };
 
@@ -391,7 +402,6 @@ const Video = () => {
       }));
     }
   };
-
   return (
     <Container>
       <Primary>
@@ -409,7 +419,7 @@ const Video = () => {
                 </Avatar>
               </UserLink>
               <UserMeta>
-                <Author>{author}</Author>
+                <Author>{author.nickname}</Author>
                 <Subscribe>{subscribes} 訂閱者</Subscribe>
               </UserMeta>
               <SubscribeButton>訂閱</SubscribeButton>

@@ -108,7 +108,7 @@ export const getVideos = async (page = 1, limit = 10) => {
 
 export const getVideo = async (videoId: string) => {
   const response = await fetch(`${SERVER_URL}/videos/${videoId}`, {
-    method: "POST",
+    method: "GET",
     headers: {
       "Content-Type": "application/json; charset=utf-8",
     },

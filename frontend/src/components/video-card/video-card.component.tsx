@@ -18,7 +18,10 @@ export interface IVideoCard {
   id: string;
   type: string;
   title: string;
-  author: string;
+  author: {
+    username: string;
+    nickname: string;
+  };
   content: string;
   thumbnail: string;
   startTime?: number;
@@ -63,7 +66,7 @@ const VideoCard = ({ video }: { video: IVideoCard }) => {
           <Link to={linkUrl}>
             <VideoTitle>{video.title}</VideoTitle>
           </Link>
-          <VideoAuthor>{video.author}</VideoAuthor>
+          <VideoAuthor>{video.author.nickname}</VideoAuthor>
           <MetaBottomLine></MetaBottomLine>
         </Meta>
       </Detail>
