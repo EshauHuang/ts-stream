@@ -37,3 +37,6 @@ STREAM_SERVER_URL=rtmp://172.17.0.1:1935
 
 ### 至 `http://localhost:3000`
 需等待一下才會開啟
+
+## docker-nginx-rtmp
+使用 [alfg/nginx-rtmp](https://github.com/alfg/docker-nginx-rtmp)，並稍作修改，主要作為串流的影片的輸出輸入
