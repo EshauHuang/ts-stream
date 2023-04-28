@@ -1,13 +1,15 @@
 import express from "express";
 import { copyFile } from "node:fs/promises";
+import path from "path";
 
 import { io } from "../index.js";
 import { usersTable } from "../models/stream.js";
 import { toAbsolute } from "../utils/toAbsolute.js";
 import { videos, rooms } from "../models/stream.js";
 import { checkStreamKey } from "../utils/streamKey.js";
-import checkDirectory from "../utils/checkDirectory.js"
-import generateDirectory from "../utils/generateDirectory.js"
+import checkDirectory from "../utils/checkDirectory.js";
+import generateDirectory from "../utils/generateDirectory.js";
+import watchMediaDirectory from "../utils/watchMediaDirectory.js";
 
 const router = express.Router();
 
@@ -60,18 +62,30 @@ export default router
   })
   .post("/start", (req, res) => {
     try {
-      console.log("直播開始");
+      console.log("Live stream started");
       const { username, name: videoId } = req.body;
 
       const user = usersTable.find((user) => user.username === username);
 
-      // 直播狀態改為 on，用於使用者進入直播間時可自動去抓取直播資源，videoId 用來取得影片位置
-      user.stream.startTime = Date.now();
-      user.stream.isStreamOn = true;
-      user.stream.videoId = videoId;
+      if (!username || !videoId) {
+        throw new Error(
+          "Missing or invalid 'username' or 'name' properties in request body"
+        );
+      }
 
-      // 傳送直播開始訊息，用於刷新影片
-      io.to(username).emit("stream-connected", { videoId });
+      const mediaDir = path.join(`/media/${videoId}`);
+
+      watchMediaDirectory(mediaDir, () => {
+        console.log("onM3U8Added");
+
+        // 直播狀態改為 on，用於使用者進入直播間時可自動去抓取直播資源，videoId 用來取得影片位置
+        user.stream.startTime = Date.now();
+        user.stream.isStreamOn = true;
+        user.stream.videoId = videoId;
+
+        // 傳送直播開始訊息，用於刷新影片
+        io.to(username).emit("stream-connected", { videoId });
+      });
 
       res.status(204).end();
     } catch (error) {

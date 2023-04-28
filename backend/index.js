@@ -4,19 +4,13 @@ import express from "express";
 import session from "express-session";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import { copyFile } from "node:fs/promises";
 
-import { usersTable, rooms, videos } from "./models/stream.js";
 import { startIo } from "./socket/chatroom.js";
-import { checkStreamKey } from "./utils/streamKey.js";
-import generateDirectory from "./utils/generateDirectory.js";
-import { toAbsolute } from "./utils/toAbsolute.js";
-import checkDirectory from "./utils/checkDirectory.js";
 import usersRoute from "./routes/users.js";
 import streamsRoute from "./routes/streams.js";
 import videosRoute from "./routes/videos.js";
 import signRoute from "./routes/sign.js";
-import liveRoute from "./routes/live.js"
+import liveRoute from "./routes/live.js";
 
 dotenv.config();
 

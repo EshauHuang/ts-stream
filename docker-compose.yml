@@ -8,12 +8,17 @@ services:
     build: ./frontend
     ports:
       - 3000:3000
+    networks:
+      - network
   api:
     build: ./backend
     ports:
       - 3535:3535
     volumes:
       - media:/media
+      - ~/Desktop/project/ts-stream/backend/index.js:/app/index.js
+    networks:
+      - network
   nginx-rtmp:
     build: ./docker-nginx-rtmp
     ports:
@@ -22,7 +27,18 @@ services:
       - 8443:443
     volumes:
       - media:/tmp/hls
+    networks:
+      - network
     environment:
       HTTP_PORT: 80
       RTMP_PORT: 1935
       API_SERVER: api
+
+networks:
+  network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.23.0.0/16"
+          gateway: 172.23.0.1

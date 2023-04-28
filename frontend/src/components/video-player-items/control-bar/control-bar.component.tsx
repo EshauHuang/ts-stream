@@ -1,4 +1,4 @@
-import { useRef, useContext } from "react";
+import { useContext } from "react";
 
 import TimelineSlider from "@/components/video-player-items/timeline-slider/timeline-slider.component";
 import LiveBlock from "@/components/video-player-items/live-block/live-block.component";
@@ -131,8 +131,8 @@ const ControlBar = ({
         isScrubbing={isScrubbing}
         handleUpdateVideoTimeByTimeline={handleUpdateVideoTimeByTimeline}
         handleMouseUp={() => {
-          fetchNewCommentsAndAddToDelayComments()
-          handleMouseUp()
+          fetchNewCommentsAndAddToDelayComments();
+          handleMouseUp();
         }}
       />
       <ControlBarLeftPart>
