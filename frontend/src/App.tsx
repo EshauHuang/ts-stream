@@ -7,7 +7,7 @@ import Live from "@/routes/live/live.component";
 import Video from "@/routes/video/video.component";
 import Setting from "@/routes/setting/setting.component";
 import Navbar from "@/components/navbar/navbar.component";
-import Test from "./components/test/test2";
+// import Test from "./components/test/test2";
 import RoomContextLayout from "@/routes/room-context-layout/room-context-layout.component";
 
 const App = () => {
@@ -24,7 +24,7 @@ const App = () => {
             <Route path="live/:username" element={<Live />} />
             <Route path="video/:videoId" element={<Video />} />
           </Route>
-          <Route path="test" element={<Test />} />
+          {/* <Route path="test" element={<Test />} /> */}
         </Route>
       </Routes>
     </>

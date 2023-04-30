@@ -168,6 +168,7 @@ COPY nginx.conf /etc/nginx/nginx.conf.template
 COPY hls-segment.sh /usr/hls-segment.sh
 RUN mkdir -p /opt/data && mkdir /www && mkdir -p /tmp/records && chmod -R 777 /tmp/records && chmod +x /usr/hls-segment.sh
 COPY static /www/static
+COPY records /tmp/records
 
 EXPOSE 1935
 EXPOSE 80
