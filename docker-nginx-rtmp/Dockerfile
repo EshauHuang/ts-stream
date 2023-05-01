@@ -165,10 +165,13 @@ COPY --from=build-ffmpeg /usr/lib/libfdk-aac.so.2 /usr/lib/libfdk-aac.so.2
 # Add NGINX path, config and static files.
 ENV PATH "${PATH}:/usr/local/nginx/sbin"
 COPY nginx.conf /etc/nginx/nginx.conf.template
-COPY hls-segment.sh /usr/hls-segment.sh
-RUN mkdir -p /opt/data && mkdir /www && mkdir -p /tmp/records && chmod -R 777 /tmp/records && chmod +x /usr/hls-segment.sh
+
+RUN mkdir -p /opt/data && mkdir /www && mkdir -p /opt/data/records && chmod -R 777 /opt/data/records && mkdir -p /opt/data/client && touch /opt/data/client/access.log && chmod -R 777 /opt/data/client/access.log && mkdir -p /opt/data/shell
 COPY static /www/static
-COPY records /tmp/records
+COPY records opt/data/records
+COPY shell /opt/data/shell
+
+RUN find /opt/data/shell -name "*.sh" -exec chmod +x {} \;
 
 EXPOSE 1935
 EXPOSE 80

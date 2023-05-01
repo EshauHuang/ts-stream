@@ -249,8 +249,6 @@ const Video = () => {
     const fetchVideoData = async () => {
       const { data } = await getVideo(videoId);
 
-      console.log({ data });
-
       if (data) {
         setVideoData(data);
         setVideoStartTime(data.video.startTime);

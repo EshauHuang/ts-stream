@@ -47,10 +47,8 @@ export default router
 
       // 利用新的 streamKey(videoId) 推到 nginx，同時需要推送 username，nginx 會自動將 params(username) 當成 post data 傳至 on_publish 及 on_publish_done
       res
-        .status(301)
-        .redirect(
-          `${process.env.STREAM_SERVER_URL}/hls_live/${videoId}?username=${username}`
-        );
+        .status(302)
+        .redirect(`${process.env.STREAM_SERVER_URL}/stream/${videoId}?username=${username}`);
     } catch (error) {
       const { message } = error;
       console.log("error", message);

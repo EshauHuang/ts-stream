@@ -21,7 +21,6 @@ export interface IVideoPlayer {
   src?: string;
   isLive?: boolean;
   videoId?: string | number;
-  // shouldVideoPlay: boolean;
 }
 
 const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
@@ -144,7 +143,6 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
     }));
   };
 
-  // Mouse down event
   const handleUpdateVideoTimeByTimeline = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
@@ -292,8 +290,8 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
 
       hls.on(Hls.Events.MEDIA_ATTACHED, () => {
         const url = isLive
-          ? `${STREAM_SERVER_URL}/live/${videoId}/index.m3u8`
-          : `${STREAM_SERVER_URL}/videos/${videoId}/index.m3u8`;
+          ? `${STREAM_SERVER_URL}/live/${videoId}.m3u8`
+          : `${STREAM_SERVER_URL}/videos/${videoId}/master.m3u8`;
         hls.loadSource(url);
       });
 
