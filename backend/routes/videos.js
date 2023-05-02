@@ -45,8 +45,6 @@ export default router
       const { videoId } = req.params;
       const videoData = videos.getVideo(videoId);
 
-      console.log(videoData);
-
       res.json({ message: "success", data: { ...videoData } });
     } catch (error) {
       const { message } = error;

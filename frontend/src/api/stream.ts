@@ -165,7 +165,7 @@ export const refreshStreamKey = async (username: string) => {
 }
 
 // Stream
-export const addToLikeStream = async (username: string, currentUser: IUser) => {
+export const addStreamToLikeList = async (username: string, currentUser: IUser) => {
   const response = await fetch(`${SERVER_URL}/streams/${username}/like/add`, {
     method: "PUT",
     headers: {
@@ -180,7 +180,7 @@ export const addToLikeStream = async (username: string, currentUser: IUser) => {
   return await response.json()
 }
 
-export const removeFromLikeStream = async (username: string, currentUser: IUser) => {
+export const removeStreamFromLikeList = async (username: string, currentUser: IUser) => {
   const response = await fetch(`${SERVER_URL}/streams/${username}/like/reduce`, {
     method: "PUT",
     headers: {
@@ -195,7 +195,7 @@ export const removeFromLikeStream = async (username: string, currentUser: IUser)
   return await response.json()
 }
 
-export const addToDislikeStream = async (username: string, currentUser: IUser) => {
+export const addStreamToDislikeList = async (username: string, currentUser: IUser) => {
   const response = await fetch(`${SERVER_URL}/streams/${username}/dislike/add`, {
     method: "PUT",
     headers: {
@@ -210,7 +210,7 @@ export const addToDislikeStream = async (username: string, currentUser: IUser) =
   return await response.json()
 }
 
-export const removeFromDislikeStream = async (username: string, currentUser: IUser) => {
+export const removeStreamFromDislikeList = async (username: string, currentUser: IUser) => {
   const response = await fetch(`${SERVER_URL}/streams/${username}/dislike/reduce`, {
     method: "PUT",
     headers: {
@@ -227,7 +227,7 @@ export const removeFromDislikeStream = async (username: string, currentUser: IUs
 
 
 // Video
-export const addToLikeVideos = async (videoId: string, currentUser: IUser) => {
+export const addLikeToVideo = async (videoId: string, currentUser: IUser) => {
   const response = await fetch(`${SERVER_URL}/videos/${videoId}/like/add`, {
     method: "PUT",
     headers: {
@@ -242,7 +242,7 @@ export const addToLikeVideos = async (videoId: string, currentUser: IUser) => {
   return await response.json()
 }
 
-export const removeFromLikeVideos = async (username: string, currentUser: IUser) => {
+export const removeFromLikeVideoList = async (username: string, currentUser: IUser) => {
   const response = await fetch(`${SERVER_URL}/videos/${username}/like/reduce`, {
     method: "PUT",
     headers: {
@@ -257,7 +257,7 @@ export const removeFromLikeVideos = async (username: string, currentUser: IUser)
   return await response.json()
 }
 
-export const addToDislikeVideo = async (username: string, currentUser: IUser) => {
+export const addDislikeVideoToList = async (username: string, currentUser: IUser) => {
   const response = await fetch(`${SERVER_URL}/videos/${username}/dislike/add`, {
     method: "PUT",
     headers: {
@@ -272,7 +272,7 @@ export const addToDislikeVideo = async (username: string, currentUser: IUser) =>
   return await response.json()
 }
 
-export const removeFromDislikeVideo = async (username: string, currentUser: IUser) => {
+export const removeFromDislikeVideoList = async (username: string, currentUser: IUser) => {
   const response = await fetch(`${SERVER_URL}/videos/${username}/dislike/reduce`, {
     method: "PUT",
     headers: {

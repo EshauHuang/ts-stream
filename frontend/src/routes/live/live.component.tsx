@@ -14,11 +14,11 @@ import VideoEvaluation from "@/components/video-evaluation/video-evaluation.comp
 
 import {
   getStream,
-  addToLikeStream,
   getUser,
-  removeFromLikeStream,
-  addToDislikeStream,
-  removeFromDislikeStream,
+  addStreamToLikeList,
+  removeStreamFromLikeList,
+  addStreamToDislikeList,
+  removeStreamFromDislikeList,
   addSubscribeToList,
   removeSubscribeFromList,
 } from "@/api/stream";
@@ -304,7 +304,7 @@ const Live = () => {
     if (!currentUser) return;
 
     if (isDislikeVideo) {
-      const { dislike, dislikeVideoList } = await removeFromDislikeStream(
+      const { dislike, dislikeVideoList } = await removeStreamFromDislikeList(
         username,
         currentUser
       );
@@ -325,12 +325,12 @@ const Live = () => {
         },
       }));
     } else if (isLikeVideo) {
-      const { dislike, dislikeVideoList } = await addToDislikeStream(
+      const { dislike, dislikeVideoList } = await addStreamToDislikeList(
         username,
         currentUser
       );
 
-      const { like, likeVideoList } = await removeFromLikeStream(
+      const { like, likeVideoList } = await removeStreamFromLikeList(
         username,
         currentUser
       );
@@ -353,7 +353,7 @@ const Live = () => {
         },
       }));
     } else {
-      const { dislike, dislikeVideoList } = await addToDislikeStream(
+      const { dislike, dislikeVideoList } = await addStreamToDislikeList(
         username,
         currentUser
       );
@@ -380,7 +380,7 @@ const Live = () => {
     if (!currentUser) return;
 
     if (isLikeVideo) {
-      const { like, likeVideoList } = await removeFromLikeStream(
+      const { like, likeVideoList } = await removeStreamFromLikeList(
         username,
         currentUser
       );
@@ -401,12 +401,12 @@ const Live = () => {
         },
       }));
     } else if (isDislikeVideo) {
-      const { like, likeVideoList } = await addToLikeStream(
+      const { like, likeVideoList } = await addStreamToLikeList(
         username,
         currentUser
       );
 
-      const { dislike, dislikeVideoList } = await removeFromDislikeStream(
+      const { dislike, dislikeVideoList } = await removeStreamFromDislikeList(
         username,
         currentUser
       );
@@ -429,7 +429,7 @@ const Live = () => {
         },
       }));
     } else {
-      const { like, likeVideoList } = await addToLikeStream(
+      const { like, likeVideoList } = await addStreamToLikeList(
         username,
         currentUser
       );

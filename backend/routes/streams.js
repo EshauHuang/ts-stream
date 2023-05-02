@@ -80,7 +80,6 @@ export default router
         const { username } = req.params;
         const { file } = req;
 
-        console.log(file);
         if (!username || !file) return;
 
         const thumbnail = usersTable.editStreamThumbnail(username);

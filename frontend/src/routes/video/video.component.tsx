@@ -10,20 +10,17 @@ import ChannelInfo from "@/components/channel-detail/channel-detail.component";
 import VideoEvaluation from "@/components/video-evaluation/video-evaluation.component";
 import Chatroom from "@/components/chatroom/chatroom.component";
 import VideoPlayer from "@/components/video-player/video-player.component";
-import { IVideoCard } from "@/components/video-card/video-card.component";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 
 import {
-  getStream,
-  addToLikeVideos,
+  addLikeToVideo,
   getUser,
-  removeFromLikeVideos,
-  addToDislikeVideo,
-  removeFromDislikeVideo,
+  removeFromLikeVideoList,
+  addDislikeVideoToList,
+  removeFromDislikeVideoList,
 } from "@/api/stream";
 
 import useWindowResize from "@/hooks/useWindowResize";
-import { CatchingPokemon } from "@mui/icons-material";
 
 import { Container } from "./video.style";
 
@@ -194,7 +191,7 @@ const initialUserData = {
   },
 };
 
-const initialStreamData = {
+const initialVideoData = {
   video: {
     title: "",
     content: "",
@@ -218,7 +215,7 @@ const initialStreamData = {
 
 const Video = () => {
   const { videoId } = useParams() as { videoId: string };
-  const [videoData, setVideoData] = useState<IVideoData>(initialStreamData);
+  const [videoData, setVideoData] = useState<IVideoData>(initialVideoData);
   const { setVideoStartTime } = useContext(CommentsContext);
   const [currentUserData, setCurrentUserData] =
     useState<IUserData>(initialUserData);
@@ -271,7 +268,7 @@ const Video = () => {
     if (!currentUser) return;
 
     if (isDislikeVideo) {
-      const { dislike, dislikeVideoList } = await removeFromDislikeVideo(
+      const { dislike, dislikeVideoList } = await removeFromDislikeVideoList(
         videoId,
         currentUser
       );
@@ -286,15 +283,18 @@ const Video = () => {
 
       setVideoData((prev) => ({
         ...prev,
-        dislike,
+        video: {
+          ...prev.video,
+          dislike,
+        },
       }));
     } else if (isLikeVideo) {
-      const { dislike, dislikeVideoList } = await addToDislikeVideo(
+      const { dislike, dislikeVideoList } = await addDislikeVideoToList(
         videoId,
         currentUser
       );
 
-      const { like, likeVideoList } = await removeFromLikeVideos(
+      const { like, likeVideoList } = await removeFromLikeVideoList(
         videoId,
         currentUser
       );
@@ -310,11 +310,14 @@ const Video = () => {
 
       setVideoData((prev) => ({
         ...prev,
-        like,
-        dislike,
+        video: {
+          ...prev.video,
+          like,
+          dislike,
+        },
       }));
     } else {
-      const { dislike, dislikeVideoList } = await addToDislikeVideo(
+      const { dislike, dislikeVideoList } = await addDislikeVideoToList(
         videoId,
         currentUser
       );
@@ -329,7 +332,10 @@ const Video = () => {
 
       setVideoData((prev) => ({
         ...prev,
-        dislike,
+        video: {
+          ...prev.video,
+          dislike,
+        },
       }));
     }
   };
@@ -338,7 +344,7 @@ const Video = () => {
     if (!currentUser) return;
 
     if (isLikeVideo) {
-      const { like, likeVideoList } = await removeFromLikeVideos(
+      const { like, likeVideoList } = await removeFromLikeVideoList(
         videoId,
         currentUser
       );
@@ -353,15 +359,18 @@ const Video = () => {
 
       setVideoData((prev) => ({
         ...prev,
-        like,
+        video: {
+          ...prev.video,
+          like,
+        },
       }));
     } else if (isDislikeVideo) {
-      const { like, likeVideoList } = await addToLikeVideos(
+      const { like, likeVideoList } = await addLikeToVideo(
         videoId,
         currentUser
       );
 
-      const { dislike, dislikeVideoList } = await removeFromDislikeVideo(
+      const { dislike, dislikeVideoList } = await removeFromDislikeVideoList(
         videoId,
         currentUser
       );
@@ -377,11 +386,14 @@ const Video = () => {
 
       setVideoData((prev) => ({
         ...prev,
-        like,
-        dislike,
+        video: {
+          ...prev.video,
+          like,
+          dislike,
+        },
       }));
     } else {
-      const { like, likeVideoList } = await addToLikeVideos(
+      const { like, likeVideoList } = await addLikeToVideo(
         videoId,
         currentUser
       );
@@ -396,7 +408,10 @@ const Video = () => {
 
       setVideoData((prev) => ({
         ...prev,
-        like,
+        video: {
+          ...prev.video,
+          like,
+        },
       }));
     }
   };
