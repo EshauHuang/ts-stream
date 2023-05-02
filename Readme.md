@@ -14,7 +14,13 @@
 
 ## 如何部屬
 
+### clone 專案
+```
+git clone https://github.com/EshauHuang/ts-stream.git
+```
+
 ### 安裝 docker
+請參考: https://docs.docker.com/engine/install
 
 ### 設定 .env
 
