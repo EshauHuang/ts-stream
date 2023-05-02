@@ -1,5 +1,4 @@
 import { useState, useEffect, useContext } from "react";
-import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import _ from "lodash-es";
 
@@ -14,7 +13,7 @@ import {
   LabelWrap,
   Label,
 } from "@/components/ui/ui.style";
-import { Button, ButtonField } from "@/components/ui/button.style";
+import { ButtonField } from "@/components/ui/button.style";
 import { Container, Form, Title } from "./setting.style";
 
 import { UserContext } from "@/contexts/userContext";
@@ -30,55 +29,16 @@ import {
   inputValidate,
   formatInputAndValidateOptions,
 } from "@/utils/inputValidate";
-
 import convertFileToImageBlob from "@/utils/convertFileToImageBlob";
 
-const InputFileField = styled.div`
-  display: flex;
-  align-items: center;
-  position: relative;
+import {
+  InputFileField,
+  ThumbnailPreview,
+  AddPhotoWrap,
+  AddPhotoButton,
+  StyledButton,
+} from "./setting.style";
 
-  & > :first-child {
-    width: 15rem;
-    flex-shrink: 0;
-  }
-
-  & > :last-child {
-    img {
-      object-fit: cover;
-      width: 100%;
-    }
-  }
-`;
-
-const AddPhotoWrap = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const AddPhotoButton = styled.label`
-  width: 100%;
-  height: 100%;
-  width: 50%;
-  aspect-ratio: 1280/720;
-  max-width: 200px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: black;
-  }
-`;
-
-const ThumbnailPreview = styled.div`
-  flex-grow: 1;
-`;
-
-const StyledButton = styled(Button)`
-  & + & {
-    margin-left: 1.2rem;
-  }
-`;
 
 interface ISettingData {
   user: {

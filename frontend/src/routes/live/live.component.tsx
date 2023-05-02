@@ -1,11 +1,8 @@
 import { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
-import styled, { css } from "styled-components";
 import _ from "lodash-es";
 
 import { UserContext } from "@/contexts/userContext";
-
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 
 import Chatroom from "@/components/chatroom/chatroom.component";
 import VideoPlayer from "@/components/video-player/video-player.component";
@@ -23,126 +20,26 @@ import {
   removeSubscribeFromList,
 } from "@/api/stream";
 
-import { Container } from "./live.style";
 import useWindowResize from "@/hooks/useWindowResize";
 
-const IconStyle = css`
-  padding: 8px 0;
-  width: 40px;
-  height: 40px;
-  color: #fff;
-`;
-
-const MoreHorizIconButton = styled(MoreHorizIcon)`
-  ${IconStyle}
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-  }
-`;
-
-const Primary = styled.div`
-  flex-grow: 1;
-  color: white;
-`;
-
-const Secondary = styled.div``;
-
-const Title = styled.h1`
-  font-size: 2rem;
-  color: #fff;
-`;
-
-const Meta = styled.div`
-  padding: 1rem;
-`;
-
-const ActionRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-
-const ChannelMeta = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const UserLink = styled.a`
-  padding-right: 0.8rem;
-`;
-
-const Avatar = styled.div`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  overflow: hidden;
-
-  img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-`;
-
-const UserMeta = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 4px 0;
-  margin-right: 2.4rem;
-`;
-
-const Author = styled.div`
-  color: white;
-  font-size: 1.6rem;
-`;
-
-const Subscribe = styled.div`
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 1.2rem;
-`;
-
-const SubscribeOnButton = styled.button`
-  background-color: rgba(255, 255, 255, 1);
-  color: black;
-  padding: 0 1.6rem;
-  height: 3.6rem;
-  line-height: 3.6rem;
-  border-radius: 1.8rem;
-  font-weight: bold;
-  cursor: pointer;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.8);
-  }
-`;
-
-const SubscribeOffButton = styled.button`
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
-  padding: 0 1.6rem;
-  height: 3.6rem;
-  line-height: 3.6rem;
-  border-radius: 1.8rem;
-  font-weight: bold;
-  cursor: pointer;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-  }
-`;
-
-const FeedbackMeta = styled.div`
-  display: flex;
-  align-items: center;
-`;
+import {
+  Container,
+  Primary,
+  Meta,
+  Title,
+  ActionRow,
+  ChannelMeta,
+  UserLink,
+  Avatar,
+  UserMeta,
+  Author,
+  SubscribeOnButton,
+  SubscribeOffButton,
+  Subscribe,
+  FeedbackMeta,
+  MoreHorizIconButton,
+  Secondary,
+} from "./live.style";
 
 export interface IUserData {
   stream: {
