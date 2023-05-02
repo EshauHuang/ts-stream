@@ -299,6 +299,7 @@ export const usersTable = [
     id: 1,
     username: "user01",
     nickname: "user01",
+    password: "$2b$10$MA3UqIccGM04Jr8fhoH7TO2BApigmB4OIGJmGN.lNi4d3k2v4KcgK",
     streamKey: "U2FsdGVkX1__fd2ANVT33jYDE4shKW1l5lzgRRafZN4=",
     avatar: "/images/avatar/user01.jpg",
     email: "user01@gmail.com",
@@ -315,35 +316,7 @@ export const usersTable = [
         nickname: "user01",
       },
       title: "user01 的直播間",
-      content: `本家様：
-あの夏が飽和する。2020ver. / 鏡音レン・リン
-https://youtu.be/2hz0lhAs0Kg
-あの夏が飽和する。/鏡音レン・リン
-https://youtu.be/mKaRxty1j7g
-
-歌：天音かなた
-https://twitter.com/amanekanatach
-
-イラスト：つむみ
-https://twitter.com/kandumesss
-
-動画：ろりー / Roly
-https://twitter.com/yosinO_mo
-
-MIX：mutuëmon
-https://twitter.com/mutuemon
-
-Inst：山本こーすけ
-https://twitter.com/kousuke_as
-
-
-※歌ってみた動画です
-
-
-※ホロライブプロダクションから未成年の視聴者の方々へのお願い
-下記リンクをご確認の上、お楽しみください。
-https://www.hololive.tv/request-to-mi...
-`,
+      content: ``,
       thumbnail: "/streams/user01/thumbnail",
       videoId: "",
       startTime: "",
@@ -373,35 +346,7 @@ https://www.hololive.tv/request-to-mi...
       type: "stream",
       title: "123 的直播間",
       thumbnail: "images/1.jpg",
-      content: `本家様：
-あの夏が飽和する。2020ver. / 鏡音レン・リン
-https://youtu.be/2hz0lhAs0Kg
-あの夏が飽和する。/鏡音レン・リン
-https://youtu.be/mKaRxty1j7g
-
-歌：天音かなた
-https://twitter.com/amanekanatach
-
-イラスト：つむみ
-https://twitter.com/kandumesss
-
-動画：ろりー / Roly
-https://twitter.com/yosinO_mo
-
-MIX：mutuëmon
-https://twitter.com/mutuemon
-
-Inst：山本こーすけ
-https://twitter.com/kousuke_as
-
-
-※歌ってみた動画です
-
-
-※ホロライブプロダクションから未成年の視聴者の方々へのお願い
-下記リンクをご確認の上、お楽しみください。
-https://www.hololive.tv/request-to-mi...
-`,
+      content: ``,
       thumbnail: "",
       videoId: "",
       startTime: "",
@@ -426,7 +371,7 @@ https://www.hololive.tv/request-to-mi...
       type: "stream",
       author: { username: "bbbb", nickname: "Bob" },
       title: "user01 的直播間",
-      content: "",
+      content: ``,
       thumbnail: "/streams/user01/thumbnail",
       videoId: "",
       startTime: "",

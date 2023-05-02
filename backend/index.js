@@ -1,5 +1,5 @@
+import "dotenv/config";
 import cors from "cors";
-import dotenv from "dotenv";
 import express from "express";
 import session from "express-session";
 import { createServer } from "http";
@@ -11,8 +11,6 @@ import streamsRoute from "./routes/streams.js";
 import videosRoute from "./routes/videos.js";
 import signRoute from "./routes/sign.js";
 import liveRoute from "./routes/live.js";
-
-dotenv.config();
 
 const PORT = 3535;
 const app = express();
