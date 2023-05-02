@@ -35,6 +35,8 @@ VITE_API_SERVER_URL=http://localhost:8080
 ```
 // 依照 Docker Host IP 位置設定
 STREAM_SERVER_URL=rtmp://172.17.0.1:1935
+// For streamKey
+SECRET_KEY=...
 ```
 
 ### `docker compose build`
