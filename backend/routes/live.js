@@ -71,7 +71,7 @@ export default router
         );
       }
 
-      const mediaDir = path.join(`/media/${videoId}`);
+      const mediaDir = path.join(`/app/media/${videoId}.m3u8`);
 
       watchMediaDirectory(mediaDir, () => {
         console.log("onM3U8Added");

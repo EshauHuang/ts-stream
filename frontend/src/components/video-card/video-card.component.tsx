@@ -41,8 +41,6 @@ const VideoCard = ({ video }: { video: IVideoCard }) => {
   };
   const linkUrl = getLinkUrl(video);
 
-  console.log(video);
-
   return (
     <StyledVideoCard key={`${video.id}`}>
       <Link to={linkUrl}>

@@ -15,7 +15,7 @@ services:
     ports:
       - 3535:3535
     volumes:
-      - media:/media
+      - media:/app/media
       - ~/Desktop/project/ts-stream/backend/index.js:/app/index.js
     networks:
       - network

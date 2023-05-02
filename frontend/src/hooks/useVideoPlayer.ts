@@ -123,7 +123,8 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
     if (!timeline || isScrubbing || !isPlay) return;
 
     const { currentTime } = e.target as HTMLVideoElement;
-    const percent = currentTime / duration;
+    const percent = isLive ? 1 : currentTime / duration;
+
     timeline.style.setProperty("--progress-position", `${percent}`);
 
     setVideoOptions((prev) => ({
@@ -142,6 +143,19 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
       duration,
     }));
   };
+
+  const handleVideoEnded = () => {
+    const video = videoRef.current
+
+    if (!video) return;
+
+    // 只設定 isPlay: false 會使 handleVideoTime() return，導致影片自動停止，故原本設定的停止方式會沒有生效
+    setVideoOptions((prev) => ({
+      ...prev,
+      isPlay: false,
+      isPlaying: false
+    }));
+  }
 
   const handleUpdateVideoTimeByTimeline = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
@@ -308,7 +322,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
       hls.on(
         Hls.Events.ERROR,
         _.throttle(function (_, data) {
-          var errorType = data.type;
+          const errorType = data.type;
           switch (errorType) {
             case Hls.ErrorTypes.NETWORK_ERROR:
               hls.recoverMediaError();
@@ -372,7 +386,8 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
       handleToggleTheaterMode,
       handleToggleFullMode,
       handleVideoTime,
-      handleVideoLoaded
+      handleVideoLoaded,
+      handleVideoEnded
     }
   }
 

@@ -32,6 +32,7 @@ export interface IVideoControllers {
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => void;
   handleMouseUp: () => void;
+  handleVideoEnded: () => void;
 }
 
 export interface IVideoPlayer {
@@ -54,8 +55,12 @@ const VideoPlayer: React.FC<IVideoPlayer> = ({
       isLive,
     });
   const { isFull, isTheater, isLoaded } = videoOptions;
-  const { handleTogglePlay, handleVideoTime, handleVideoLoaded } =
-    videoControllers;
+  const {
+    handleTogglePlay,
+    handleVideoTime,
+    handleVideoLoaded,
+    handleVideoEnded,
+  } = videoControllers;
 
   const shouldRenderVideo = src || videoId;
 
@@ -70,6 +75,7 @@ const VideoPlayer: React.FC<IVideoPlayer> = ({
             onClick={() => handleTogglePlay()}
             onTimeUpdate={(e) => handleVideoTime(e)}
             onLoadedMetadata={(e) => handleVideoLoaded(e)}
+            onEnded={() => handleVideoEnded()}
           ></Video>
           {isLoaded && (
             <ControlBar
