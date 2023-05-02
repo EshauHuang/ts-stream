@@ -10,7 +10,7 @@
 - 使用 Docker 進行部屬
 - 使用 Hls.js 播放直播及影片
 - 使用 alfg/nginx-rtmp 建立 rtmp server
-- 基本技術: React, TypeScript, Styled-Component, Express
+- 其他技術: React, TypeScript, Styled-Component, Express
 
 ## 如何部屬
 
