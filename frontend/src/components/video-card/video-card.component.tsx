@@ -12,7 +12,7 @@ import {
   Meta,
 } from "./video-card.style";
 
-import img5 from "/images/5.jpg";
+import { StyledAccountCircleIcon } from "@/components/ui/icon.style";
 
 export interface IVideoCard {
   id: string;
@@ -21,6 +21,7 @@ export interface IVideoCard {
   author: {
     username: string;
     nickname: string;
+    avatar: string;
   };
   content: string;
   thumbnail: string;
@@ -34,12 +35,16 @@ const VideoCard = ({ video }: { video: IVideoCard }) => {
       case "video":
         return `/video/${id}`;
       case "stream":
-        return `/live/${author}`;
+        return `/live/${author.username}`;
       default:
         return "";
     }
   };
   const linkUrl = getLinkUrl(video);
+
+  const avatarUrl = video.author.avatar
+    ? `${import.meta.env.VITE_API_SERVER_URL}${video.author.avatar}`
+    : "";
 
   return (
     <StyledVideoCard key={`${video.id}`}>
@@ -58,7 +63,11 @@ const VideoCard = ({ video }: { video: IVideoCard }) => {
       </Link>
       <Detail>
         <Avatar>
-          <AvatarImage src={img5} />
+          {avatarUrl ? (
+            <AvatarImage src={avatarUrl} />
+          ) : (
+            <StyledAccountCircleIcon />
+          )}
         </Avatar>
         <Meta>
           <Link to={linkUrl}>

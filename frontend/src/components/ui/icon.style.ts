@@ -11,6 +11,7 @@ import { ReactComponent as MiniPlayerSvg } from "@/assets/icons/screen/mini-play
 import { ReactComponent as TheaterTallSvg } from "@/assets/icons/screen/theater-tall.svg";
 import { ReactComponent as TheaterWideSvg } from "@/assets/icons/screen/theater-wide.svg";
 import { ReactComponent as CaptionsSvg } from "@/assets/icons/captions.svg";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 export const PlayPauseIcon = styled(PlayPauseSvg)``;
 
@@ -33,3 +34,9 @@ export const TheaterTallIcon = styled(TheaterTallSvg)``;
 export const TheaterWideIcon = styled(TheaterWideSvg)``;
 
 export const CaptionsIcon = styled(CaptionsSvg)``;
+
+export const StyledAccountCircleIcon = styled(AccountCircleIcon)`
+  width: 100%;
+  height: 100%;
+  color: white;
+`

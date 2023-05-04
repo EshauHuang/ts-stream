@@ -301,7 +301,7 @@ export const usersTable = [
     nickname: "user01",
     password: "$2b$10$MA3UqIccGM04Jr8fhoH7TO2BApigmB4OIGJmGN.lNi4d3k2v4KcgK",
     streamKey: "U2FsdGVkX1__fd2ANVT33jYDE4shKW1l5lzgRRafZN4=",
-    avatar: "/images/avatar/user01.jpg",
+    avatar: "/users/user01/avatar",
     email: "user01@gmail.com",
     subscribes: 200,
     likeVideoList: [],
@@ -311,17 +311,18 @@ export const usersTable = [
     stream: {
       isStreamOn: false,
       type: "stream",
-      author: {
-        username: "user01",
-        nickname: "user01",
-      },
       title: "user01 的直播間",
-      content: ``,
+      content: "",
       thumbnail: "/streams/user01/thumbnail",
       videoId: "",
       startTime: "",
       like: 4155,
       dislike: 0,
+      author: {
+        username: "user01",
+        nickname: "user01",
+        avatar: "/users/user01/avatar",
+      },
     },
   },
   {
@@ -330,7 +331,7 @@ export const usersTable = [
     nickname: "123",
     password: "$2b$10$J251lEpX3LI8UpxxIuXMiugtELV71EL4gO2bfHyMtUtPI2B4taNJu",
     streamKey: "U2FsdGVkX194rC63kIDq6ePffAq_cif1QEb1RcHnimk=",
-    avatar: "/images/avatar/123.jpg",
+    avatar: "/users/123/avatar",
     email: "123@gmail.com",
     subscribes: 500,
     likeVideoList: [],
@@ -338,20 +339,20 @@ export const usersTable = [
     subscribeList: [],
     videos: new Video(),
     stream: {
-      isStreamOn: false,
-      author: {
-        username: "123",
-        nickname: "123",
-      },
       type: "stream",
+      isStreamOn: false,
       title: "123 的直播間",
-      thumbnail: "images/1.jpg",
-      content: ``,
-      thumbnail: "",
+      thumbnail: "/streams/123/thumbnail",
+      content: "",
       videoId: "",
       startTime: "",
       like: 415,
       dislike: 0,
+      author: {
+        username: "123",
+        nickname: "123",
+        avatar: "/users/123/avatar",
+      },
     },
   },
   {
@@ -359,24 +360,28 @@ export const usersTable = [
     username: "bbbb",
     nickname: "Bob",
     streamKey: "U2FsdGVkX1__fd2ANVT33jYDE4shKW1l5lzgRRafZN4=",
-    avatar: "/images/avatar/user01.jpg",
-    email: "123@gmail.com",
+    avatar: "/users/bbbb/avatar",
+    email: "bbbb@gmail.com",
     subscribes: 200,
     likeVideoList: [],
     dislikeVideoList: [],
     subscribeList: [],
     videos: new Video(),
+    title: "bbbb 的直播間",
+    content: ``,
+    thumbnail: "/streams/bbbb/thumbnail",
+    videoId: "",
+    startTime: "",
+    like: 4155,
+    dislike: 0,
     stream: {
       isStreamOn: false,
       type: "stream",
-      author: { username: "bbbb", nickname: "Bob" },
-      title: "user01 的直播間",
-      content: ``,
-      thumbnail: "/streams/user01/thumbnail",
-      videoId: "",
-      startTime: "",
-      like: 4155,
-      dislike: 0,
+      author: {
+        username: "bbbb",
+        nickname: "Bob",
+        avatar: "/users/bbbb/avatar",
+      },
     },
   },
 ];
@@ -405,18 +410,10 @@ usersTable.generateNewUser = async function (username, password, email) {
     username,
     password: passwordHash,
     streamKey: streamKey,
+    avatar: `/users/${username}/avatar`,
     subscribes: 0,
     email,
-    videos: {
-      length: 0,
-      addVideo(video) {
-        const index = this.length + 1;
-        this[index] = video;
-        this.length++;
-
-        return { [index]: this[index] };
-      },
-    },
+    videos: new Video(),
     dislikeVideoList: [],
     likeVideoList: [],
     subscribeList: [],
@@ -426,9 +423,10 @@ usersTable.generateNewUser = async function (username, password, email) {
       author: {
         username,
         nickname: username,
+        avatar: `/users/${username}/avatar`,
       },
       title: `${username} 的直播間`,
-      thumbnail: "",
+      thumbnail: `/streams/${username}/thumbnail`,
       content: "",
       startTime: "",
       like: 0,
@@ -437,10 +435,11 @@ usersTable.generateNewUser = async function (username, password, email) {
   };
 
   this.push(newUser);
+  const { password: currentPassword, stream, ...userData } = newUser;
 
   return {
-    username,
-    email,
+    user: userData,
+    stream,
   };
 };
 
@@ -581,10 +580,11 @@ usersTable.verifyUser = function (username, password) {
   });
 
   if (!user) return null;
+  const { password: currentPassword, stream, ...userData } = user;
 
   return {
-    username: user.username,
-    email: user.email,
+    user: userData,
+    stream,
   };
 };
 
@@ -701,6 +701,7 @@ const siteVideos = {
     author: {
       username: "bbbb",
       nickname: "Bob",
+      avatar: "/users/bbbb/avatar",
     },
     content:
       "我想到一個安靜、寧靜的地方，一個我可以放鬆和重新充電的地方。我的理想家園是一個溫馨、舒適的地方，擁有所有必要的設施，同時也是一個可以營造美好回憶的地方。",
@@ -717,6 +718,7 @@ const siteVideos = {
     author: {
       username: "bbbb",
       nickname: "Bob",
+      avatar: "/users/bbbb/avatar",
     },
     content: `在一個晴朗的下午，小明來到了一家古老的書店，這裡的每一本書都帶著故事和記憶，它們似乎有著自己的生命和靈魂。
 
@@ -739,6 +741,7 @@ const siteVideos = {
     author: {
       username: "bbbb",
       nickname: "Bob",
+      avatar: "/users/bbbb/avatar",
     },
     content: `在沙漠中，每一滴水都比黃金更加珍貴。在這個充滿著極端天氣和恶劣环境的地方，只有最強壯、最智慧、最有毅力的人才能生存下來。
 
@@ -761,6 +764,7 @@ const siteVideos = {
     author: {
       username: "bbbb",
       nickname: "Bob",
+      avatar: "/users/bbbb/avatar",
     },
     content: `在一個寒冷的冬天，城市中的每個角落都瀰漫著聖誕節的氣息。大家都在忙著準備節日的盛宴，購買禮物、裝飾房子、煮美食、唱聖誕歌，這是一個快樂、熱鬧的節日。
 
@@ -783,6 +787,7 @@ const siteVideos = {
     author: {
       username: "bbbb",
       nickname: "Bob",
+      avatar: "/users/bbbb/avatar",
     },
     content: `人類一直以來都對宇宙充滿了好奇和探索的精神。在一個不久的將來，人類將踏上火星的土地，並開始一段新的冒險之旅。
 
@@ -805,6 +810,7 @@ const siteVideos = {
     author: {
       username: "bbbb",
       nickname: "Bob",
+      avatar: "/users/bbbb/avatar",
     },
     content: `在現代城市，交通是一個非常重要的問題。人們經常需要搭乘公共交通工具或開車到處移動。但是，交通問題也帶來了許多困擾，例如塞車、污染和交通事故。
 

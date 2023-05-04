@@ -41,6 +41,8 @@ import {
   Secondary,
 } from "./live.style";
 
+import { StyledAccountCircleIcon } from "@/components/ui/icon.style";
+
 export interface IUserData {
   stream: {
     isStreamOn: boolean;
@@ -349,6 +351,10 @@ const Live = () => {
     }
   };
 
+  const avatarUrl = avatar
+    ? `${import.meta.env.VITE_API_SERVER_URL}${avatar}`
+    : "";
+
   return (
     <Container>
       <Primary>
@@ -366,7 +372,11 @@ const Live = () => {
             <ChannelMeta>
               <UserLink>
                 <Avatar>
-                  <img src={avatar} />
+                  {avatarUrl ? (
+                    <img src={avatarUrl} />
+                  ) : (
+                    <StyledAccountCircleIcon />
+                  )}
                 </Avatar>
               </UserLink>
               <UserMeta>

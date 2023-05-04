@@ -38,7 +38,7 @@ import {
   Secondary,
 } from "./video.style";
 
-
+import { StyledAccountCircleIcon } from "@/components/ui/icon.style";
 
 export interface IUserData {
   stream: {
@@ -328,6 +328,11 @@ const Video = () => {
       }));
     }
   };
+
+  const avatarUrl = avatar
+    ? `${import.meta.env.VITE_API_SERVER_URL}${avatar}`
+    : "";
+
   return (
     <Container>
       <Primary>
@@ -341,7 +346,11 @@ const Video = () => {
             <ChannelMeta>
               <UserLink>
                 <Avatar>
-                  <img src={avatar} />
+                  {avatarUrl ? (
+                    <img src={avatarUrl} />
+                  ) : (
+                    <StyledAccountCircleIcon />
+                  )}
                 </Avatar>
               </UserLink>
               <UserMeta>

@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import ContentEditable from "@/components/content-editable/content-editable.component";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 
 export const Form = styled.form``;
 
@@ -13,12 +14,20 @@ export const TopField = styled.div`
   display: flex;
 `;
 
-export const Photo = styled.div`
+export const Avatar = styled.div`
   width: 24px;
   height: 24px;
   min-width: 24px;
-  background-color: blue;
   border-radius: 50%;
+  overflow: hidden;
+  border-radius: 50%;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 
 export const InputField = styled.div`
@@ -66,3 +75,26 @@ export const BottomField = styled.div`
 `;
 
 export const EmojiPicker = styled.div``;
+
+export const ReadOnly = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+export const Container = styled.div`
+  width: 100%;
+  padding: 20px;
+`;
+
+export const ErrorOutlineButton = styled(ErrorOutlineIcon)`
+  width: 24px;
+  height: 24px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-right: 1.6rem;
+`;
+
+export const Text = styled.span`
+  font-size: 1.4rem;
+  color: rgba(255, 255, 255, 0.7);
+`;
+

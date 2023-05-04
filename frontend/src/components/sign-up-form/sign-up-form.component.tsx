@@ -83,9 +83,11 @@ const SignUp = () => {
     }
 
     // 註冊
-    const { user: userData } = await signUp(inputUser);
+    const { data } = await signUp(inputUser);
 
-    if (userData) {
+    const { user: userData } = data || {};
+
+    if (user) {
       setCurrentUser(userData);
     }
   };

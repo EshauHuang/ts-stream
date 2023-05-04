@@ -33,9 +33,7 @@ export default router
       });
     } catch (error) {
       const { message } = error;
-      console.log("error", message);
-
-      console.log({ message });
+      console.log(message);
 
       res.status(400).json({ message });
     }

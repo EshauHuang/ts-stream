@@ -44,14 +44,19 @@ export default router
         throw new Error("Duplicate account or email");
       }
 
-      const user = await usersTable.generateNewUser(username, password, email);
-      rooms.addRoom(username);
+      const data = await usersTable.generateNewUser(username, password, email);
 
-      req.session.user = username;
+      if (!data) {
+        throw new Error("Something went wrong");
+      }
+
+      rooms.addRoom(data.user.username);
+
+      req.session.user = data.user.username;
 
       res.status(200).json({
         message: "Register success",
-        user,
+        data,
       });
     } catch (error) {
       const { message } = error;
@@ -70,17 +75,17 @@ export default router
         throw new Error("Empty value");
       }
 
-      const user = usersTable.verifyUser(username, password);
+      const data = usersTable.verifyUser(username, password);
 
-      if (!user) {
+      if (!data) {
         throw new Error("Verify wrong");
       }
 
-      req.session.user = username;
+      req.session.user = data.user.username;
 
       res.status(200).json({
         message: "Login success",
-        user,
+        data,
       });
     } catch (error) {
       const { message } = error;

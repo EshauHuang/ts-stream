@@ -5,43 +5,24 @@ import { ContentEditableEvent } from "react-contenteditable";
 
 import { UserContext } from "@/contexts/userContext";
 
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { Button, ButtonField } from "@/components/ui/button.style";
-
+import { StyledAccountCircleIcon } from "@/components/ui/icon.style";
 
 import {
   Form,
   Username,
   TopField,
-  Photo,
+  Avatar,
   InputField,
   StyledContentEditable,
   Underline,
   BottomField,
   EmojiPicker,
+  ReadOnly,
+  Container,
+  ErrorOutlineButton,
+  Text,
 } from "./send-message.style";
-
-const ReadOnly = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const Container = styled.div`
-  width: 100%;
-  padding: 20px;
-`;
-
-const ErrorOutlineButton = styled(ErrorOutlineIcon)`
-  width: 24px;
-  height: 24px;
-  color: rgba(255, 255, 255, 0.7);
-  margin-right: 1.6rem;
-`;
-
-const Text = styled.span`
-  font-size: 1.4rem;
-  color: rgba(255, 255, 255, 0.7);
-`;
 
 interface ISendMessage {
   socket: Socket | null;
@@ -54,7 +35,11 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
   const contentRef = useRef<HTMLDivElement | null>(null);
   const placeHolderRef = useRef<HTMLLabelElement | null>(null);
 
-  const { username } = currentUser || {};
+  const { username, avatar } = currentUser || {};
+
+  const avatarUrl = avatar
+    ? `${import.meta.env.VITE_API_SERVER_URL}${avatar}`
+    : "";
 
   useEffect(() => {
     if (!currentUser) return;
@@ -118,7 +103,13 @@ const SendMessage: React.FC<ISendMessage> = ({ socket }) => {
       {currentUser ? (
         <Form onSubmit={handleSubmit}>
           <TopField>
-            <Photo />
+            <Avatar>
+              {avatarUrl ? (
+                <img src={avatarUrl} />
+              ) : (
+                <StyledAccountCircleIcon />
+              )}
+            </Avatar>
             <InputField>
               <Username>{username}</Username>
               <StyledContentEditable

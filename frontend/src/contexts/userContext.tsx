@@ -3,8 +3,17 @@ import { createContext, useState, useEffect } from "react";
 import { getMe } from "@/api/stream";
 
 export interface IUser {
+  avatar: string;
+  dislikeVideoList: string[];
   email: string;
+  id: number;
+  likeVideoList: string[];
+  nickname: string;
+  streamKey: string;
+  subscribeList: string[];
+  subscribes: number;
   username: string;
+  videos: object;
 }
 
 interface UserContextProps {

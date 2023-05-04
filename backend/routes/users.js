@@ -1,6 +1,8 @@
 import express from "express";
 import { sessionAuth } from "../utils/sessionAuth.js";
 import { usersTable } from "../models/stream.js";
+import { toAbsolute } from "../utils/toAbsolute.js";
+import { access, constants } from "node:fs/promises";
 
 const router = express.Router();
 
@@ -84,6 +86,7 @@ export default router
       res.json({ message: "success", subscribeList });
     } catch (error) {
       const { message } = error;
+      console.log("error", message);
 
       res.status(400).json({ message });
     }
@@ -99,5 +102,24 @@ export default router
     } catch (error) {
       const { message } = error;
       res.json({ message });
+    }
+  })
+  .get("/:username/avatar", async (req, res) => {
+    try {
+      const { username } = req.params;
+
+      if (!username) {
+        throw new Error("Invalid data!");
+      };
+
+      const directory = toAbsolute(`publish/users/${username}/avatar.jpg`);
+      await access(directory, constants.F_OK);
+
+      res.sendFile(directory);
+    } catch (error) {
+      const { message } = error;
+      console.log("error", message);
+
+      res.status(400).json({ message: "no such file or directory" });
     }
   });

@@ -74,27 +74,13 @@ const SignInForm = () => {
     }
 
     // 註冊
-    // const res = await fetch(`${import.meta.env.VITE_API_SERVER_URL}/sign-in`, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json; charset=utf-8",
-    //   },
-    //   credentials: 'include',
-    //   body: JSON.stringify(inputUser),
-    // });
+    const { data } = await signIn(inputUser);
 
-    const { user: currentUser } = await signIn(inputUser);
+    const { user: userData } = data || {};
 
     if (user) {
-      setCurrentUser(currentUser);
+      setCurrentUser(userData);
     }
-
-    // if (res.ok) {
-    //   const { message, user } = await res.json();
-    //   setCurrentUser(user);
-    // } else {
-    //   const { message } = await res.json();
-    // }
   };
 
   const handleChangeValue: React.ChangeEventHandler<HTMLInputElement> = (e) => {
