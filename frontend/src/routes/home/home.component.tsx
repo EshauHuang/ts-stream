@@ -50,12 +50,12 @@ const Home = () => {
   return (
     <Container>
       <CategoriesList>
-        <CategoryItem
+        {/* <CategoryItem
           isTarget={tabName === "all"}
           onClick={() => setTabName("all")}
         >
           全部
-        </CategoryItem>
+        </CategoryItem> */}
         <CategoryItem
           isTarget={tabName === "video"}
           onClick={() => setTabName("video")}

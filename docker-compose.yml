@@ -16,7 +16,7 @@ services:
       - 3535:3535
     volumes:
       - media:/app/media
-      - ~/Desktop/project/ts-stream/backend/index.js:/app/index.js
+      # - ~/Desktop/project/ts-stream/backend/index.js:/app/index.js
     networks:
       - network
   nginx-rtmp:
@@ -41,7 +41,7 @@ services:
     networks:
       - network
     environment:
-      SERVER_NAME: localhost
+      SERVER_NAME: abc.redice.live
 networks:
   network:
     driver: bridge
