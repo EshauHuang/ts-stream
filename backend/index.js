@@ -48,18 +48,12 @@ export const io = new Server(server, {
 
 startIo(io);
 
-// app.use("/", signRoute);
-// app.use("/users", usersRoute);
-// app.use("/streams", streamsRoute);
-// app.use("/videos", videosRoute);
-// app.use("/live", liveRoute);
-
 apiRouter.use("/", signRoute);
 apiRouter.use("/users", usersRoute);
 apiRouter.use("/streams", streamsRoute);
 apiRouter.use("/videos", videosRoute);
-apiRouter.use("/live", liveRoute);
 
+app.use("/live", liveRoute);
 app.use("/api", apiRouter);
 
 server.listen(PORT, () => {

@@ -40,6 +40,8 @@ services:
       - 443:443
     networks:
       - network
+    environment:
+      SERVER_NAME: localhost
 networks:
   network:
     driver: bridge
