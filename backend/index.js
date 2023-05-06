@@ -14,6 +14,7 @@ import liveRoute from "./routes/live.js";
 
 const PORT = 3535;
 const app = express();
+const apiRouter = express.Router();
 
 app.use(
   cors({
@@ -21,7 +22,7 @@ app.use(
     allowedHeaders: ["Content-Type"],
     credentials: true,
     preflightContinue: true,
-    origin: "http://localhost:3000",
+    origin: process.env.SERVER_DOMAIN,
     cookie: { maxAge: 600 * 1000 }, //10分鐘到期
   })
 );
@@ -47,15 +48,13 @@ export const io = new Server(server, {
 
 startIo(io);
 
-app.use("/", signRoute);
+apiRouter.use("/", signRoute);
+apiRouter.use("/users", usersRoute);
+apiRouter.use("/streams", streamsRoute);
+apiRouter.use("/videos", videosRoute);
+apiRouter.use("/live", liveRoute);
 
-app.use("/users", usersRoute);
-
-app.use("/streams", streamsRoute);
-
-app.use("/videos", videosRoute);
-
-app.use("/live", liveRoute);
+app.use("/api", apiRouter);
 
 server.listen(PORT, () => {
   console.log(`Server is running on ${PORT} port`);
