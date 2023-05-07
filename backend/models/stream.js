@@ -1,6 +1,11 @@
 import * as _ from "lodash-es";
+import { copyFile, constants } from "node:fs/promises";
+
+import { usersDir } from "../utils/toAbsolute.js";
 import { genStreamKey } from "../utils/streamKey.js";
 import { genSalt, hashPassword, checkPassword } from "../utils/password.js";
+import checkDirectory from "../utils/checkDirectory.js";
+import generateDirectory from "../utils/generateDirectory.js";
 
 export class Video {
   constructor(videos) {
@@ -433,6 +438,28 @@ usersTable.generateNewUser = async function (username, password, email) {
       dislike: 0,
     },
   };
+
+  try {
+    const userDir = `${usersDir}/${username}`;
+    const defaultAvatar = `${usersDir}/default/avatar.jpg`;
+    const defaultThumbnail = `${usersDir}/default/thumbnail.jpg`;
+
+    if (!await checkDirectory(userDir)) {
+      await generateDirectory(userDir);
+    }
+    await copyFile(
+      defaultAvatar,
+      `${userDir}/avatar.jpg`
+    );
+    await copyFile(
+      defaultThumbnail,
+      `${userDir}/thumbnail.jpg`
+    );
+  } catch (error) {
+    console.log("error", error);
+
+    return {};
+  }
 
   this.push(newUser);
   const { password: currentPassword, stream, ...userData } = newUser;

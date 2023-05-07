@@ -5,7 +5,6 @@ export default async function (directory) {
     await access(directory, constants.F_OK);
     return true;
   } catch (error) {
-    console.log({ error });
     return false;
   }
 }
