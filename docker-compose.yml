@@ -41,7 +41,7 @@ services:
     networks:
       - network
     environment:
-      SERVER_NAME: abc.redice.live
+      SERVER_NAME: localhost
 networks:
   network:
     driver: bridge
