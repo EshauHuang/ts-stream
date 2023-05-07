@@ -48,7 +48,7 @@ const Chatroom: React.FC<IChatroomProps> = ({
     if (!roomName) return;
 
     const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-      `${import.meta.env.VITE_API_SERVER_URL}`
+      `${import.meta.env.VITE_SOCKET_URL}`
     );
 
     socket.on("connect", () => {
