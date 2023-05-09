@@ -12,4 +12,6 @@ COPY . .
 
 EXPOSE 3000
 
-CMD yarn build && yarn start
+CMD yarn dev
+
+# CMD yarn build && yarn start
