@@ -5,7 +5,7 @@ LOG_FILE="/opt/data/client/access.log"
 videoId=$(echo $2 | cut -d'_' -f1)
 OUTPUT_DIR="/opt/data/records/$videoId/$2"
 
-VARIANT_NAMES="${videoId}_360p878kbs ${videoId}_240p528kbs"
+VARIANT_NAMES="${videoId}_240p528kbs"
 
 # VARIANT_NAMES="${videoId}_1080p4628kbs ${videoId}_720p2628kbs ${videoId}_480p1128kbs ${videoId}_360p878kbs ${videoId}_240p528kbs"
 
