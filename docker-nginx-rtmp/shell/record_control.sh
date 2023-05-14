@@ -28,7 +28,7 @@ echo "Create a lock file to indicate the script is running ${LOCK_FILE}" >> "${L
 
 touch ${LOCK_FILE}
 
-while [ $LIMIT_GENERATE_WAITING_COUNT -lt 2 ]; do
+while [ $LIMIT_GENERATE_WAITING_COUNT -lt 1 ]; do
     all_m3u8_exist=true
 
     for variant in ${VARIANT_NAMES}; do
