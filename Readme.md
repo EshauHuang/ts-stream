@@ -21,9 +21,10 @@ password: user01
 
 ### OBS 設定
 至 Settings -> Stream 設定
-- Server: rtmp://abc.redice.live/live
+- Server: rtmp://a.rtmp.redice.live/live
 - Stream Key: 設定頁面的 Primary Stream key
-![obs-setting](https://github.com/EshauHuang/ts-stream/assets/52191824/e1db7c0c-823e-4ae3-9c2e-54adc49e73f7)
+![obs-setting](https://github.com/EshauHuang/ts-stream/assets/52191824/34c492c5-ca31-4cdb-bda2-d42a817f48da)
+
 
 ### 直播頁面
 可在直播頁面看見剛才設定的直播資訊，觀眾可以在直播期間留言與直播主互動(目前直播延遲約 30~40秒)
