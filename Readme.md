@@ -53,14 +53,14 @@ password: user01
 請參考: https://docs.docker.com/engine/install
 
 ### clone 專案
-```
+```cmd
 git clone https://github.com/EshauHuang/ts-stream.git
 ```
 
 ### 設定 .env
 
 #### 修改 `frontend/.env.example` -> `frontend/.env`
-```
+```.env
 # Setting up an Nginx server to get a m3u8 file using HTTP protocol.
 VITE_GET_STREAM_URL=http://localhost
 
@@ -72,7 +72,7 @@ VITE_SOCKET_URL=http://localhost
 ```
 
 #### 修改 `bakcend/.env.example` -> `bakcend/.env`
-```
+```.env
 # Setting up an Nginx server to push a stream using RTMP protocol.(docker network IP)
 # 直播推播的 Nginx server 目前設定為此 App 的 Network IP(請見 `docker-compose.yml` 的 networks)
 STREAM_SERVER_URL=rtmp://172.23.0.1
@@ -85,6 +85,15 @@ SECRET_KEY=testtest
 # Node server 可接收的 domain
 SERVER_DOMAIN=http:/localhost
 ```
+
+#### 修改 `docker-compose.yml`
+```docker-compose.yml
+nginx-reverse:
+  environment:
+    # 修改成自己網站的網域
+    SERVER_NAME: localhost
+```
+
 
 ### 建立測試 APP 或產品 APP
 ```
