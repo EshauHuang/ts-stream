@@ -1,0 +1,9 @@
+services:
+  web:
+    command: yarn build && yarn start
+    volumes:
+      - /app/node_modules/
+  api:
+    volumes:
+      - media:/app/media
+      - /app/node_modules/

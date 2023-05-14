@@ -1,0 +1,10 @@
+services:
+  web:
+    volumes:
+      - ~/Desktop/project/ts-stream/frontend:/app
+      - /app/node_modules/
+  api:
+    volumes:
+      - media:/app/media
+      - ~/Desktop/project/ts-stream/backend:/app
+      - /app/node_modules/
