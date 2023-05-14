@@ -8,6 +8,9 @@ services:
     build: ./frontend
     ports:
       - 3000:3000
+    # volumes:
+    #   - ~/Desktop/project/ts-stream/frontend:/app
+    #   - /app/node_modules/
     networks:
       - network
   api:
@@ -16,7 +19,8 @@ services:
       - 3535:3535
     volumes:
       - media:/app/media
-      # - ~/Desktop/project/ts-stream/backend/index.js:/app/index.js
+      # - ~/Desktop/project/ts-stream/backend:/app
+      # - /app/node_modules/
     networks:
       - network
   nginx-rtmp:
