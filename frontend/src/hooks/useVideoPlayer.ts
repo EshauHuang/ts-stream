@@ -157,6 +157,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
     }));
   }
 
+  // 調整 timeline
   const handleUpdateVideoTimeByTimeline = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
@@ -239,6 +240,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
     [isLoaded]
   );
 
+  // 統一由此依據資料判斷 video 執行的動作
   useEffect(() => {
     const video = videoRef.current;
 
@@ -372,7 +374,6 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   }, [src])
 
   return {
-
     videoRef,
     timelineRef,
     videoOptions,

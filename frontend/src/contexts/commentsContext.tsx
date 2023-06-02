@@ -63,14 +63,11 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
     ]);
   };
 
-  const addNewComments = (comments: IComment[]) => {
-    setCurrentComments((prev) => [...prev, ...comments]);
-  };
-
   const addNewDelayComments = (comments: IComment[]) => {
     setCommentsDelay((prev) => [...prev, ...comments]);
   };
 
+  // call api 抓取最後一個留言之後的時間
   const fetchNewCommentsAndAddToDelayComments = async () => {
     if (!videoStartTime) return;
 
