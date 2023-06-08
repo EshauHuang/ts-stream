@@ -7,6 +7,16 @@ import { genSalt, hashPassword, checkPassword } from "../utils/password";
 import checkDirectory from "../utils/checkDirectory";
 import generateDirectory from "../utils/generateDirectory";
 
+type TShowVideoAuthorInfo = {
+  avatar: string,
+  subscribes: number,
+  username: string,
+}
+
+type TShowVideoInfo = TVideoInfo & {
+  comments: TCommentInfo[];
+}
+
 type TCommentAuthorInfo = {
   username: string;
 }
@@ -25,13 +35,13 @@ interface IComment {
   createTime: number;
   addComment(author: TCommentAuthorInfo, text: string): TCommentInfo | {};
   searchComments(): TCommentInfo[];
-  getPreviousComments(targetTime: number | string, limit: number): TCommentInfo[];
-  getNextComments(targetTime: number | string, limit: number): TCommentInfo[];
+  getPreviousComments(targetTime: number | string, limit?: number): TCommentInfo[];
+  getNextComments(targetTime: number | string, limit?: number): TCommentInfo[];
   filterCommentsByStartTime(startTime: number | string): TCommentInfo[];
   sliceComments(startTime: number | string, limit: number): TCommentInfo[];
 }
 
-interface IVideo {
+type TVideoInfo = {
   type: string;
   title: string;
   author: {
@@ -43,53 +53,64 @@ interface IVideo {
   thumbnail: string;
   startTime: number;
   videoId: string;
-  comments: IComment;
+  // comments: IComment;
   like: number;
   dislike: number;
 }
 
-export class Video {
-  [key: string]: any;
+type TVideoInfoIncludeComments = TVideoInfo & {
+  comments: IComment;
+}
 
-  constructor(videos: any = []) {
-    if (videos) {
-      const videosClone = _.cloneDeep(videos);
+interface IVideo {
+  videos: {
+    [key: string]: TVideoInfoIncludeComments;
+  }
+  length: number;
+  newVideoId(): string;
+  createVideo(videoId: number | string, video: TVideoInfoIncludeComments): string;
+  // getVideo(videoId: number | string): {
+  //   video: TShowVideoInfo;
+  //   user: TShowVideoAuthorInfo;
+  // };
+  getVideos(page: number, limit: number): TVideoInfo[];
+  getVideoComments(id: number | string, startTime: number | string, mode: number): TCommentInfo[];
+  addLike(videoId: number | string): number;
+  reduceLike(videoId: number | string): number;
+  addDislike(videoId: number | string): number;
+  reduceDislike(videoId: number | string): number;
+}
 
-      Object.entries(videosClone).forEach(([key, value]) => {
-        this[key] = value;
-      });
+export class Video implements IVideo {
+  constructor(public videos: {
+    [key: string]: TVideoInfoIncludeComments
+  } = {}) { }
 
-      Object.defineProperty(this, "length", {
-        value: Object.keys(videosClone).length,
-        writable: true,
-        enumerable: false,
-        configurable: false,
-      });
-    } else {
-      Object.defineProperty(this, "length", {
-        value: 0,
-        writable: true,
-        enumerable: false,
-        configurable: false,
-      });
-    }
+  get length() {
+    return Object.keys(this.videos).length
   }
 
   newVideoId() {
     const id = this.length + 1;
-    this.length++;
 
-    return id;
+    return id.toString();
   }
 
-  createVideo(id: string, video: any) {
-    this[id] = video;
+  createVideo(videoId: number | string, video: TVideoInfoIncludeComments) {
+    videoId = videoId.toString();
 
-    return id;
+    this.videos = {
+      ...this.videos,
+      [videoId]: video
+    }
+
+    return videoId;
   }
 
-  getVideo(id: any) {
-    const { comments, startTime, author } = this[id];
+  getVideo(videoId: number | string) {
+    videoId = videoId.toString();
+
+    const { comments, startTime, author } = this.videos[videoId];
 
     const user = usersTable.findUser(author.username);
 
@@ -101,16 +122,39 @@ export class Video {
         subscribes,
         username,
       },
-      video: { ...this[id], comments: comments.getNextComments(startTime) },
+      video: { ...this.videos[videoId], comments: comments.getNextComments(startTime) },
     };
   }
 
-  getVideoComments(id: any, startTime: any, mode: any) {
-    if (!this[id]) return;
+  getVideos(page: number, limit: number) {
+    const start = (page - 1) * limit;
+    const end = page * limit;
 
-    const { comments } = this[id];
+    return Object.entries(this.videos)
+      .slice(start, end)
+      .map(([id, video]) => {
+        const { comments, ...videoInfo } = video;
 
-    if (!comments || !startTime) return;
+        return ({
+          id,
+          ...videoInfo,
+        })
+      });
+
+  }
+
+  getVideoComments(id: number | string, startTime: number | string, mode: number) {
+    id = Number(id);
+
+    if (isNaN(id)) {
+      throw new Error("Invalid id!")
+    }
+
+    if (!this.videos[id]) {
+      throw new Error("Can't find the video!");
+    };
+
+    const { comments } = this.videos[id];
 
     switch (mode) {
       case 1:
@@ -122,8 +166,10 @@ export class Video {
     }
   }
 
-  addLike(videoId: any) {
-    const video = this[videoId];
+  addLike(videoId: number | string) {
+    videoId = videoId.toString();
+
+    const video = this.videos[videoId];
 
     if (!video) return -1;
 
@@ -132,8 +178,10 @@ export class Video {
     return video.like;
   }
 
-  reduceLike(videoId: any) {
-    const video = this[videoId];
+  reduceLike(videoId: number | string) {
+    videoId = videoId.toString();
+
+    const video = this.videos[videoId];
 
     if (!video) return -1;
 
@@ -142,8 +190,10 @@ export class Video {
     return video.like;
   }
 
-  addDislike(videoId: any) {
-    const video = this[videoId];
+  addDislike(videoId: number | string) {
+    videoId = videoId.toString();
+
+    const video = this.videos[videoId];
 
     if (!video) return -1;
 
@@ -152,8 +202,10 @@ export class Video {
     return video.dislike;
   }
 
-  reduceDislike(videoId: any) {
-    const video = this[videoId];
+  reduceDislike(videoId: number | string) {
+    videoId = videoId.toString();
+
+    const video = this.videos[videoId];
 
     if (!video) return -1;
 
@@ -997,6 +1049,7 @@ const siteVideos = {
 
 小明從這次經歷中明白到，書本不僅是知識的載體，更是一個可以帶領他進入另一個世界的鑰匙。他深深體會到，只要擁有一本好書，他就擁有了無限的可能性和無窮的探索之旅。`,
     thumbnail: "/videos/2/thumbnail",
+    startTime: 1675759497647,
     videoId: "2",
     comments: new Comments(),
     like: 587,
@@ -1020,6 +1073,7 @@ const siteVideos = {
 
 當艾倫最終回到了家中時，他覺得自己變得更加強大和智慧。他深深體會到，沙漠雖然充滿了艱難和危險，但它也是一個充滿生命力和驚喜的地方。`,
     thumbnail: "/videos/3/thumbnail",
+    startTime: 1675759497647,
     videoId: "3",
     comments: new Comments(),
     like: 440,
@@ -1043,6 +1097,7 @@ const siteVideos = {
 
 從此以後，小杰開始理解到，即使是在孤單的時候，他也可以在節日裡找到歡樂和幸福。他深深體會到，聖誕節不僅是一個節日，更是一個關懷和關愛他人的時刻。`,
     thumbnail: "/videos/4/thumbnail",
+    startTime: 1675759497647,
     videoId: "4",
     comments: new Comments(),
     like: 1351,
@@ -1066,6 +1121,7 @@ const siteVideos = {
 
 最終，艾莉斯成功地完成了她的任務，並帶著許多寶貴的知識和經驗返回地球。她的探險不僅使人類更加了解火星和宇宙，還啟發了人類繼續探索宇宙的渴望和勇氣。`,
     thumbnail: "/videos/5/thumbnail",
+    startTime: 1675759497647,
     videoId: "5",
     comments: new Comments(),
     like: 11200,
@@ -1089,6 +1145,7 @@ const siteVideos = {
 
 這個故事告訴我們，每個人都可以做出貢獻，保護我們的環境和城市。只要我們採取積極的行動，將環保觀念融入我們的日常生活，就可以改善我們的城市和環境，讓我們的未來更加美好。`,
     thumbnail: "/videos/6/thumbnail",
+    startTime: 1675759497647,
     videoId: "6",
     comments: new Comments(),
     like: 6321,

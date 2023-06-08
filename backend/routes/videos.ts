@@ -20,12 +20,7 @@ export default router
       const start = (page - 1) * limit;
       const end = page * limit;
 
-      const sliceVideos = Object.entries(videos)
-        .slice(start, end)
-        .map((entry) => ({
-          id: entry[0],
-          ...entry[1],
-        }));
+      const sliceVideos = videos.getVideos(page, limit);
 
       res.json({
         message: "success",
