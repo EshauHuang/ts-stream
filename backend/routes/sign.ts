@@ -1,6 +1,8 @@
 import express from "express";
-import { usersTable } from "../models/stream.js";
-import { rooms } from "../models/stream.js";
+import { usersTable } from "../models/stream";
+import { rooms } from "../models/stream";
+import { CustomRequest  } from "../index"
+
 
 const router = express.Router();
 
@@ -18,7 +20,7 @@ export default router
       });
 
       res.status(200).json({ message: "sign out" });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
@@ -27,7 +29,7 @@ export default router
       });
     }
   })
-  .post("/sign-up", async (req, res) => {
+  .post("/sign-up", async (req: CustomRequest, res) => {
     try {
       const { username, password, email } = req.body;
 
@@ -37,7 +39,7 @@ export default router
 
       // check username or email weren't duplicate
       const isDuplicate = usersTable.some(
-        (user) => user.username === username || user.email === email
+        (user: any) => user.username === username || user.email === email
       );
 
       if (isDuplicate) {
@@ -58,7 +60,7 @@ export default router
         message: "Register success",
         data,
       });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
@@ -67,7 +69,7 @@ export default router
       });
     }
   })
-  .post("/sign-in", async (req, res) => {
+  .post("/sign-in", async (req: CustomRequest, res) => {
     try {
       const { username, password } = req.body;
 
@@ -87,7 +89,7 @@ export default router
         message: "Login success",
         data,
       });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 

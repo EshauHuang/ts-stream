@@ -1,9 +1,9 @@
-import { rooms } from "../models/stream.js";
+import { rooms } from "../models/stream";
 
-export const startIo = (io) => {
-  io.on("connection", (socket) => {
+export const startIo = (io: any) => {
+  io.on("connection", (socket: any) => {
 
-    socket.on("user-connect", (user, roomName) => {
+    socket.on("user-connect", (user: string, roomName: string) => {
       socket.join(roomName);
 
       if (user) {
@@ -11,8 +11,8 @@ export const startIo = (io) => {
       }
     });
 
-    socket.on("send-message", (message, callback) => {
-      currentRoomToDo((room) => {
+    socket.on("send-message", (message: string, callback: ({ status }: { status: string }) => void) => {
+      currentRoomToDo((room: any) => {
         const comment = rooms.addCommentToRoom(room, message, socket.id);
 
         io.in(room).emit("chat-message", comment);
@@ -25,12 +25,12 @@ export const startIo = (io) => {
     });
 
     socket.on("disconnecting", async function () {
-      currentRoomToDo((room) => {
+      currentRoomToDo((room: any) => {
         rooms.removeUserFromRoom(room, socket.id);
       });
     });
 
-    function currentRoomToDo(func) {
+    function currentRoomToDo(func: (room: any) => void) {
       for (const room of socket.rooms) {
         if (room !== socket.id) {
           func(room);

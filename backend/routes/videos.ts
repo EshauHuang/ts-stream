@@ -31,7 +31,7 @@ export default router
         message: "success",
         videos: sliceVideos,
       });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log(message);
 
@@ -44,7 +44,7 @@ export default router
       const videoData = videos.getVideo(videoId);
 
       res.json({ message: "success", data: { ...videoData } });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
@@ -63,7 +63,7 @@ export default router
       await access(directory, constants.F_OK);
 
       res.sendFile(directory);
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
@@ -90,7 +90,7 @@ export default router
       const like = videos.addLike(videoId);
 
       res.json({ message: "success", like, likeVideoList });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
@@ -109,7 +109,7 @@ export default router
       const like = videos.reduceLike(videoId);
 
       res.json({ message: "success", like, likeVideoList });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
@@ -129,7 +129,7 @@ export default router
       const dislike = videos.addDislike(videoId);
 
       res.json({ message: "success", dislike, dislikeVideoList });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
@@ -152,7 +152,7 @@ export default router
       const dislike = videos.reduceDislike(videoId);
 
       res.json({ message: "success", dislike, dislikeVideoList });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 

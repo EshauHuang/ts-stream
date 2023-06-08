@@ -21,12 +21,12 @@ export default router
       const end = page * limit;
 
       const streams = usersTable
-        .filter((user) => user.stream.isStreamOn)
+        .filter((user: any) => user.stream.isStreamOn)
         .slice(start, end)
-        .map((user) => user.stream);
+        .map((user: any) => user.stream);
 
       res.json({ message: "success", streams });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
@@ -46,7 +46,7 @@ export default router
           ...streamMeta,
         },
       });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
@@ -64,7 +64,7 @@ export default router
       await access(directory, constants.F_OK);
 
       res.sendFile(directory);
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
@@ -88,7 +88,7 @@ export default router
           message: "success",
           data: { stream: { thumbnail } },
         });
-      } catch (error) {
+      } catch (error: any) {
         const { message } = error;
         console.log("error", message);
 
@@ -107,7 +107,7 @@ export default router
       const streamKey = usersTable.refreshStreamKey(username);
 
       res.json({ message: "success", streamKey });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
@@ -130,7 +130,7 @@ export default router
       const like = usersTable.addLike(username);
 
       res.json({ message: "success", like, likeVideoList });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
@@ -153,7 +153,7 @@ export default router
       const like = usersTable.reduceLike(username);
 
       res.json({ message: "success", like, likeVideoList });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
@@ -177,7 +177,7 @@ export default router
       const dislike = usersTable.addDislike(username);
 
       res.json({ message: "success", dislike, dislikeVideoList });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
@@ -204,7 +204,7 @@ export default router
       const dislike = usersTable.reduceDislike(username);
 
       res.json({ message: "success", dislike, dislikeVideoList });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 

@@ -1,14 +1,17 @@
 import * as _ from "lodash-es";
 import { copyFile, constants } from "node:fs/promises";
 
-import { usersDir } from "../utils/toAbsolute.js";
+import { usersDir } from "../utils/toAbsolute";
 import { genStreamKey } from "../utils/streamKey.js";
-import { genSalt, hashPassword, checkPassword } from "../utils/password.js";
-import checkDirectory from "../utils/checkDirectory.js";
-import generateDirectory from "../utils/generateDirectory.js";
+import { genSalt, hashPassword, checkPassword } from "../utils/password";
+import checkDirectory from "../utils/checkDirectory";
+import generateDirectory from "../utils/generateDirectory";
+
 
 export class Video {
-  constructor(videos) {
+  [key: string]: any;
+
+  constructor(videos: any = []) {
     if (videos) {
       const videosClone = _.cloneDeep(videos);
 
@@ -39,13 +42,13 @@ export class Video {
     return id;
   }
 
-  createVideo(id, video) {
+  createVideo(id: string, video: any) {
     this[id] = video;
 
     return id;
   }
 
-  getVideo(id) {
+  getVideo(id: any) {
     const { comments, startTime, author } = this[id];
 
     const user = usersTable.findUser(author.username);
@@ -62,7 +65,7 @@ export class Video {
     };
   }
 
-  getVideoComments(id, startTime, mode) {
+  getVideoComments(id: any, startTime: any, mode: any) {
     if (!this[id]) return;
 
     const { comments } = this[id];
@@ -79,7 +82,7 @@ export class Video {
     }
   }
 
-  addLike(videoId) {
+  addLike(videoId: any) {
     const video = this[videoId];
 
     if (!video) return -1;
@@ -89,7 +92,7 @@ export class Video {
     return video.like;
   }
 
-  reduceLike(videoId) {
+  reduceLike(videoId: any) {
     const video = this[videoId];
 
     if (!video) return -1;
@@ -99,7 +102,7 @@ export class Video {
     return video.like;
   }
 
-  addDislike(videoId) {
+  addDislike(videoId: any) {
     const video = this[videoId];
 
     if (!video) return -1;
@@ -109,7 +112,7 @@ export class Video {
     return video.dislike;
   }
 
-  reduceDislike(videoId) {
+  reduceDislike(videoId: any) {
     const video = this[videoId];
 
     if (!video) return -1;
@@ -121,6 +124,8 @@ export class Video {
 }
 
 export class Comments {
+  [key: string | number]: any;
+
   constructor() {
     Object.defineProperty(this, "length", {
       value: 0,
@@ -137,7 +142,7 @@ export class Comments {
     });
   }
 
-  addComment(user, text) {
+  addComment(user: any, text: any) {
     if (!user || !text) return;
 
     const comment = {
@@ -153,7 +158,7 @@ export class Comments {
     return comment;
   }
 
-  addFakeComment(time, user, message) {
+  addFakeComment(time: any, user: any, message: any) {
     if (!time || !user || !message) return;
 
     const comment = {
@@ -171,7 +176,7 @@ export class Comments {
     return this;
   }
 
-  getPreviousComments(targetTime, limit = 10) {
+  getPreviousComments(targetTime: any, limit = 10) {
     const commentsArray = Object.values(this);
 
     const index = commentsArray.findIndex(
@@ -186,7 +191,7 @@ export class Comments {
     return previousComments;
   }
 
-  getNextComments(targetTime, limit = 10) {
+  getNextComments(targetTime: any, limit = 10) {
     const commentsArray = Object.values(this);
     const commentsCount = commentsArray.length;
 
@@ -203,7 +208,7 @@ export class Comments {
     return nextComments;
   }
 
-  filterCommentsByStartTime(startTime) {
+  filterCommentsByStartTime(startTime: any) {
     const comments = Object.values(this).filter((comment) => {
       return comment.time > Number(startTime);
     });
@@ -211,24 +216,28 @@ export class Comments {
     return comments;
   }
 
-  sliceComments(startTime, limit = 10) {
+  sliceComments(startTime: any, limit = 10) {
     return this.filterCommentsByStartTime(startTime).slice(0, limit);
   }
 }
 
 export class Users {
+  [key: string]: any;
+  length: number;
+  createTime: number | string;
+
   constructor() {
     this.length = 0;
     this.createTime = Date.now();
   }
 
-  addUser(socketId, user) {
+  addUser(socketId: any, user: any) {
     if (!socketId || !user) return;
     this[socketId] = user;
     this.length++;
   }
 
-  removeUser(socketId) {
+  removeUser(socketId: any) {
     if (!socketId || !this[socketId]) return;
     delete this[socketId];
     this.length--;
@@ -236,11 +245,14 @@ export class Users {
 }
 
 export class Rooms {
+  [key: string]: any;
+  length: number;
+
   constructor() {
     this.length = 0;
   }
 
-  addRoom(room) {
+  addRoom(room: any) {
     if (this[room]) return;
     this[room] = {
       users: new Users(),
@@ -249,7 +261,7 @@ export class Rooms {
     this.length++;
   }
 
-  initialRoom(room) {
+  initialRoom(room: any) {
     if (!this[room]) return;
     this[room] = {
       users: new Users(),
@@ -257,26 +269,26 @@ export class Rooms {
     };
   }
 
-  removeRoom(room) {
+  removeRoom(room: any) {
     if (!this[room]) return;
     delete this[room];
 
     this.length--;
   }
 
-  addUserToRoom(room, socketId, user) {
+  addUserToRoom(room: any, socketId: any, user: any) {
     if (!room || !socketId || !user) return;
     if (!this[room] || !this[room].users) return;
     this[room].users.addUser(socketId, user);
   }
 
-  removeUserFromRoom(room, socketId) {
+  removeUserFromRoom(room: any, socketId: any) {
     if (!room || !socketId) return;
     if (!this[room] || !this[room].users) return;
     this[room].users.removeUser(socketId);
   }
 
-  addCommentToRoom(room, message, socketId) {
+  addCommentToRoom(room: any, message: any, socketId: any) {
     if (!room || !message || !socketId) return;
     const user = this.searchUserFromRoom(room, socketId);
 
@@ -285,12 +297,12 @@ export class Rooms {
     return comment;
   }
 
-  searchRoomComments(room) {
+  searchRoomComments(room: any) {
     if (!this[room]) return;
     return this[room].comments.searchComments();
   }
 
-  searchUserFromRoom(room, socketId) {
+  searchUserFromRoom(room: any, socketId: any) {
     if (!room || !socketId) return;
     if (!this[room] || !this[room].users) return;
 
@@ -299,7 +311,7 @@ export class Rooms {
 }
 
 // 儲存每個用戶的資訊
-export const usersTable = [
+export const usersTable: any = [
   {
     id: 1,
     username: "user01",
@@ -391,7 +403,7 @@ export const usersTable = [
   },
 ];
 
-usersTable.initialRoom = function (username) {
+usersTable.initialRoom = function (username: any) {
   const user = this.findUser(username);
 
   if (user) {
@@ -406,7 +418,7 @@ usersTable.initialRoom = function (username) {
   }
 };
 
-usersTable.generateNewUser = async function (username, password, email) {
+usersTable.generateNewUser = async function (username: any, password: any, email: any) {
   const streamKey = genStreamKey(username);
   const salt = genSalt();
   const passwordHash = hashPassword(password, salt);
@@ -470,27 +482,27 @@ usersTable.generateNewUser = async function (username, password, email) {
   };
 };
 
-usersTable.checkLikeVideoExist = function (username, videoId) {
+usersTable.checkLikeVideoExist = function (username: any, videoId: any) {
   const user = this.findUser(username);
 
   if (!user) return false;
 
-  return user.likeVideoList.find((id) => id === videoId);
+  return user.likeVideoList.find((id: any) => id === videoId);
 };
 
-usersTable.checkDislikeVideoExist = function (username, videoId) {
+usersTable.checkDislikeVideoExist = function (username: any, videoId: any) {
   const user = this.findUser(username);
 
   if (!user) return false;
 
-  return user.dislikeVideoList.find((id) => id === videoId);
+  return user.dislikeVideoList.find((id: any) => id === videoId);
 };
 
-usersTable.findUser = function (username) {
-  return this.find((user) => user.username === username);
+usersTable.findUser = function (username: any) {
+  return this.find((user: any) => user.username === username);
 };
 
-usersTable.getUser = function (username) {
+usersTable.getUser = function (username: any) {
   const user = this.findUser(username);
 
   if (user) {
@@ -505,7 +517,7 @@ usersTable.getUser = function (username) {
   return {};
 };
 
-usersTable.addLikeVideoToList = function (username, videoId) {
+usersTable.addLikeVideoToList = function (username: any, videoId: any) {
   if (!username || !videoId) return;
   const user = this.findUser(username);
 
@@ -516,19 +528,19 @@ usersTable.addLikeVideoToList = function (username, videoId) {
   return user.likeVideoList;
 };
 
-usersTable.removeLikeVideoFromList = function (username, videoId) {
+usersTable.removeLikeVideoFromList = function (username: any, videoId: any) {
   if (!username || !videoId) return;
   const user = this.findUser(username);
 
   const isLikeVideoExist = usersTable.checkLikeVideoExist(username, videoId);
   if (isLikeVideoExist) {
-    user.likeVideoList = user.likeVideoList.filter((id) => id !== videoId);
+    user.likeVideoList = user.likeVideoList.filter((id: any) => id !== videoId);
   }
   return user.likeVideoList;
 };
 
-usersTable.addLike = function (username) {
-  const user = this.find((user) => user.username === username);
+usersTable.addLike = function (username: any) {
+  const user = this.find((user: any) => user.username === username);
 
   if (!user) return -1;
 
@@ -537,8 +549,8 @@ usersTable.addLike = function (username) {
   return user.stream.like;
 };
 
-usersTable.reduceLike = function (username) {
-  const user = this.find((user) => user.username === username);
+usersTable.reduceLike = function (username: any) {
+  const user = this.find((user: any) => user.username === username);
 
   if (!user) return -1;
 
@@ -547,7 +559,7 @@ usersTable.reduceLike = function (username) {
   return user.stream.like;
 };
 
-usersTable.addDislikeVideoToList = function (username, videoId) {
+usersTable.addDislikeVideoToList = function (username: any, videoId: any) {
   if (!username || !videoId) return;
   const user = this.findUser(username);
 
@@ -561,7 +573,7 @@ usersTable.addDislikeVideoToList = function (username, videoId) {
   return user.dislikeVideoList;
 };
 
-usersTable.removeDislikeVideoFromList = function (username, videoId) {
+usersTable.removeDislikeVideoFromList = function (username: any, videoId: any) {
   if (!username || !videoId) return;
   const user = this.findUser(username);
 
@@ -571,15 +583,15 @@ usersTable.removeDislikeVideoFromList = function (username, videoId) {
   );
   if (isDislikeVideoExist) {
     user.dislikeVideoList = user.dislikeVideoList.filter(
-      (id) => id !== videoId
+      (id: any) => id !== videoId
     );
   }
 
   return user.dislikeVideoList;
 };
 
-usersTable.addDislike = function (username) {
-  const user = this.find((user) => user.username === username);
+usersTable.addDislike = function (username: any) {
+  const user = this.find((user: any) => user.username === username);
 
   if (!user) return -1;
 
@@ -588,8 +600,8 @@ usersTable.addDislike = function (username) {
   return user.stream.dislike;
 };
 
-usersTable.reduceDislike = function (username) {
-  const user = this.find((user) => user.username === username);
+usersTable.reduceDislike = function (username: any) {
+  const user = this.find((user: any) => user.username === username);
 
   if (!user) return -1;
 
@@ -598,8 +610,8 @@ usersTable.reduceDislike = function (username) {
   return user.stream.dislike;
 };
 
-usersTable.verifyUser = function (username, password) {
-  const user = this.find((user) => {
+usersTable.verifyUser = function (username: any, password: any) {
+  const user = this.find((user: any) => {
     if (user.username === username) {
       const result = checkPassword(password, user.password);
       return result;
@@ -615,8 +627,8 @@ usersTable.verifyUser = function (username, password) {
   };
 };
 
-usersTable.getMe = function (username) {
-  const user = usersTable.find((user) => user.username === username);
+usersTable.getMe = function (username: any) {
+  const user = usersTable.find((user: any) => user.username === username);
   const { password, stream, ...userData } = user;
 
   return {
@@ -625,8 +637,8 @@ usersTable.getMe = function (username) {
   };
 };
 
-usersTable.getStream = function (username) {
-  const user = usersTable.find((user) => user.username === username);
+usersTable.getStream = function (username: any) {
+  const user = usersTable.find((user: any) => user.username === username);
   const { avatar, subscribes, stream } = user;
 
   return {
@@ -639,10 +651,10 @@ usersTable.getStream = function (username) {
   };
 };
 
-usersTable.editUserMeta = function (username, options) {
-  const user = usersTable.find((user) => user.username === username);
+usersTable.editUserMeta = function (username: any, options: any) {
+  const user = usersTable.find((user: any) => user.username === username);
 
-  Object.entries(options).forEach(([key, value]) => {
+  Object.entries(options).forEach(([key, value]: [any, any]) => {
     if (Object.prototype.toString.call(value) === "[object Object]") {
       user[key] = {
         ...user[key],
@@ -656,16 +668,16 @@ usersTable.editUserMeta = function (username, options) {
   return options;
 };
 
-usersTable.getStreamThumbnail = function (username) {
-  const user = usersTable.find((user) => user.username === username);
+usersTable.getStreamThumbnail = function (username: any) {
+  const user = usersTable.find((user: any) => user.username === username);
 
   if (!user) return "";
 
   return user.stream.thumbnail;
 };
 
-usersTable.editStreamThumbnail = function (username) {
-  const user = usersTable.find((user) => user.username === username);
+usersTable.editStreamThumbnail = function (username: any) {
+  const user = usersTable.find((user: any) => user.username === username);
 
   if (!user) return "";
 
@@ -674,8 +686,8 @@ usersTable.editStreamThumbnail = function (username) {
   return `/streams/${username}/thumbnail`;
 };
 
-usersTable.refreshStreamKey = function (username) {
-  const user = usersTable.find((user) => user.username === username);
+usersTable.refreshStreamKey = function (username: any) {
+  const user = usersTable.find((user: any) => user.username === username);
   const streamKey = genStreamKey(username);
 
   user.streamKey = streamKey;
@@ -683,13 +695,13 @@ usersTable.refreshStreamKey = function (username) {
   return streamKey;
 };
 
-usersTable.addSubscribeToList = function (currentUsername, subscribeUsername) {
+usersTable.addSubscribeToList = function (currentUsername: any, subscribeUsername: any) {
   const currentUser = this.findUser(currentUsername);
 
   if (!currentUser) return [];
 
   const isSubscribe = !!currentUser.subscribeList.find(
-    (username) => username === subscribeUsername
+    (username: any) => username === subscribeUsername
   );
 
   if (!isSubscribe) {
@@ -700,20 +712,20 @@ usersTable.addSubscribeToList = function (currentUsername, subscribeUsername) {
 };
 
 usersTable.removeSubscribeFromList = function (
-  currentUsername,
-  subscribeUsername
+  currentUsername: any,
+  subscribeUsername: any
 ) {
   const currentUser = this.findUser(currentUsername);
 
   if (!currentUser) return [];
 
   const isSubscribe = !!currentUser.subscribeList.find(
-    (username) => username === subscribeUsername
+    (username: any) => username === subscribeUsername
   );
 
   if (isSubscribe) {
     currentUser.subscribeList = currentUser.subscribeList.filter(
-      (username) => username !== subscribeUsername
+      (username: any) => username !== subscribeUsername
     );
   }
 

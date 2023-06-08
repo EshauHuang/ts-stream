@@ -2,7 +2,7 @@ import express from "express";
 import { copyFile } from "node:fs/promises";
 import path from "path";
 
-import { io } from "../index.js";
+import { io } from "../index";
 import { usersTable } from "../models/stream.js";
 import { toAbsolute } from "../utils/toAbsolute.js";
 import { videos, rooms } from "../models/stream.js";
@@ -33,7 +33,7 @@ export default router
       }
 
       // 確認是否有該 user
-      const user = usersTable.find((user) => user.username === username);
+      const user = usersTable.find((user: any) => user.username === username);
 
       if (!user) {
         console.log("無此 user");
@@ -49,7 +49,7 @@ export default router
       res
         .status(302)
         .redirect(`${process.env.STREAM_SERVER_URL}/stream/${videoId}?username=${username}`);
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
@@ -63,7 +63,7 @@ export default router
       console.log("Live stream started");
       const { username, name: videoId } = req.body;
 
-      const user = usersTable.find((user) => user.username === username);
+      const user = usersTable.find((user: any) => user.username === username);
 
       if (!username || !videoId) {
         throw new Error(
@@ -86,7 +86,7 @@ export default router
       });
 
       res.status(204).end();
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
@@ -101,7 +101,7 @@ export default router
       const { name: videoId, username } = req.body;
 
       // 取得此 streamKey 的擁有者
-      const user = usersTable.find((user) => user.username === username);
+      const user = usersTable.find((user: any) => user.username === username);
 
       // room 名稱與 username 相同，取得此 room 的 comments
       const { comments } = rooms[username];
@@ -141,7 +141,7 @@ export default router
 
       rooms.initialRoom(username);
       res.status(204).end();
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 

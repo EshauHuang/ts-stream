@@ -3,6 +3,7 @@ import { sessionAuth } from "../utils/sessionAuth.js";
 import { usersTable } from "../models/stream.js";
 import { toAbsolute } from "../utils/toAbsolute.js";
 import { access, constants } from "node:fs/promises";
+import { CustomRequest} from "../index"
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ router.use((req, res, next) => {
 });
 
 export default router
-  .get("/me", sessionAuth, (req, res) => {
+  .get("/me", sessionAuth, (req: CustomRequest, res) => {
     try {
       const { user } = req.session;
 
@@ -26,7 +27,7 @@ export default router
         message: "success",
         data,
       });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
@@ -42,7 +43,7 @@ export default router
       const data = usersTable.getUser(username);
 
       res.json({ message: "success", data });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
@@ -69,7 +70,7 @@ export default router
         message: "success",
         data: options,
       });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
@@ -84,7 +85,7 @@ export default router
       const subscribeList = usersTable.addSubscribeToList(user, username);
 
       res.json({ message: "success", subscribeList });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
@@ -99,7 +100,7 @@ export default router
       const subscribeList = usersTable.removeSubscribeFromList(user, username);
 
       res.json({ message: "success", subscribeList });
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       res.json({ message });
     }
@@ -116,7 +117,7 @@ export default router
       await access(directory, constants.F_OK);
 
       res.sendFile(directory);
-    } catch (error) {
+    } catch (error: any) {
       const { message } = error;
       console.log("error", message);
 
