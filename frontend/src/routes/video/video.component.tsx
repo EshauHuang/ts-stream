@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 
 import { getVideo } from "@/api/stream";
 import { UserContext } from "@/contexts/userContext";
-import { CommentsContext, IComment } from "@/contexts/commentsContext";
+import { CommentsContext, TCommentInfo } from "@/contexts/commentsContext";
 
 import ChannelInfo from "@/components/channel-detail/channel-detail.component";
 import VideoEvaluation from "@/components/video-evaluation/video-evaluation.component";
@@ -74,7 +74,7 @@ export interface IVideoData {
     dislike: number;
     avatar: string;
     subscribes: number;
-    comments: IComment[];
+    comments: TCommentInfo[];
   };
   user: {
     avatar: string;

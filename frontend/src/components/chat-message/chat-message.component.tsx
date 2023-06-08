@@ -1,4 +1,4 @@
-import { IComment } from "@/contexts/commentsContext";
+import { TCommentInfo } from "@/contexts/commentsContext";
 
 import {
   Container,
@@ -13,10 +13,10 @@ import {
 
 import { StyledAccountCircleIcon } from "@/components/ui/icon.style";
 
-const ChatMessage: React.FC<IComment> = ({ user, message }) => {
+const ChatMessage: React.FC<TCommentInfo> = ({ author, message }) => {
 
-  const avatarUrl = user.username
-    ? `${import.meta.env.VITE_API_SERVER_URL}/users/${user.username}/avatar`
+  const avatarUrl = author.username
+    ? `${import.meta.env.VITE_API_SERVER_URL}/users/${author.username}/avatar`
     : "";
 
   return (
@@ -27,7 +27,7 @@ const ChatMessage: React.FC<IComment> = ({ user, message }) => {
       <Content>
         <AuthorChip>
           {/* <Timestamp>{message.date}</Timestamp> */}
-          <AuthorName>{user.username}</AuthorName>
+          <AuthorName>{author.username}</AuthorName>
           {/* <MemberIcon /> */}
         </AuthorChip>
         <Message>{message.text}</Message>
