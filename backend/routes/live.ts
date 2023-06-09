@@ -104,7 +104,7 @@ export default router
       const user = usersTable.find((user: any) => user.username === username);
 
       // room 名稱與 username 相同，取得此 room 的 comments
-      const { comments } = rooms[username];
+      const { comments } = rooms.rooms[username];
 
       const { isStreamOn, thumbnail, ...streamData } = user.stream;
       const streamThumbnailDirectory = toAbsolute(`publish/users/${username}`);
@@ -138,8 +138,8 @@ export default router
       });
 
       usersTable.initialRoom(username);
-
       rooms.initialRoom(username);
+
       res.status(204).end();
     } catch (error: any) {
       const { message } = error;

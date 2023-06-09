@@ -1,9 +1,11 @@
 import { rooms } from "../models/stream";
 
+import { TAuthorInfo } from "../models/stream"
+
 export const startIo = (io: any) => {
   io.on("connection", (socket: any) => {
 
-    socket.on("user-connect", (user: string, roomName: string) => {
+    socket.on("user-connect", (user: TAuthorInfo, roomName: string) => {
       socket.join(roomName);
 
       if (user) {
@@ -25,7 +27,7 @@ export const startIo = (io: any) => {
     });
 
     socket.on("disconnecting", async function () {
-      currentRoomToDo((room: any) => {
+      currentRoomToDo((room: string) => {
         rooms.removeUserFromRoom(room, socket.id);
       });
     });

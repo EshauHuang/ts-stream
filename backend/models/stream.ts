@@ -354,11 +354,7 @@ export class Users implements ISocketUsers {
   }
 
   removeUser(socketId: string) {
-    console.log(socketId, this.users, this.users[socketId]);
-
-    if (!socketId || !this.users[socketId]) {
-      throw new Error("Socket id or user was empty!");
-    };
+    if (!socketId || !this.users[socketId]) return;
 
     delete this.users[socketId];
   }
@@ -402,7 +398,7 @@ export class Rooms implements IRooms {
   initialRoom(room: string) {
     if (!this.rooms[room]) return;
     this.rooms[room] = {
-      ...this.rooms[room],
+      users: new Users(),
       comments: new Comments(),
     };
   }

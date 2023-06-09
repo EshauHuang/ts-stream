@@ -17,7 +17,7 @@ export type TCommentInfo = {
   time: number | string;
   author: TCommentAuthorInfo;
   message: TMessage;
-}
+};
 
 interface CommentsContextProps {
   currentComments: TCommentInfo[] | [];
@@ -39,13 +39,15 @@ export const CommentsContext = createContext({} as CommentsContextProps);
 export const CommentsProvider: React.FC<CommentsProviderProps> = ({
   children,
 }) => {
-  const [currentComments, setCurrentComments] = useState<TCommentInfo[] | []>([]);
+  const [currentComments, setCurrentComments] = useState<TCommentInfo[] | []>(
+    []
+  );
   const [commentsDelay, setCommentsDelay] = useState<TCommentInfo[] | []>([]);
   const timerRef = useRef<NodeJS.Timer | null>(null);
   const [isFetchNewComments, setIsFetchNewComments] = useState(false);
   const [isNextComments, setIsNextComments] = useState(true);
   const [videoStartTime, setVideoStartTime] = useState<number>();
-  
+
   const {
     videoOptions: { currentTime, videoId, isScrubbing },
   } = useContext(VideoOptionsContext);
@@ -69,8 +71,8 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
   const fetchNewCommentsAndAddToDelayComments = async () => {
     if (!videoStartTime) return;
 
-    const videoRealTime =
-      (currentTime - 1 < 0 ? 0 : currentTime - 1) * 1000 + videoStartTime;
+    const videoRealTime = currentTime * 1000 + videoStartTime;
+
     const { comments } = await getComments(videoId, videoRealTime, -1);
 
     const { time: lastCommentTime } = comments[comments.length - 1] || {};
