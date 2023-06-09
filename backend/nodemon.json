@@ -1,5 +1,5 @@
 {
   "ext": "ts",
-  "ignore": ["publish/**/*"],
+  "ignore": ["publish/**/*", "media/**/*"],
   "exec": "npx ts-node ./index.ts"
 }
