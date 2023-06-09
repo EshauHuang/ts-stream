@@ -7,11 +7,7 @@ import { genSalt, hashPassword, checkPassword } from "../utils/password";
 import checkDirectory from "../utils/checkDirectory";
 import generateDirectory from "../utils/generateDirectory";
 
-type TUserInfo = {
-
-}
-
-type TShowVideoAuthorInfo = {
+type TResponseVideoAuthorInfo = {
   avatar: string,
   subscribes: number,
   username: string,
@@ -72,10 +68,10 @@ interface IVideo {
   length: number;
   newVideoId(): string;
   createVideo(videoId: number | string, video: TVideoInfoIncludeComments): string;
-  // getVideo(videoId: number | string): {
-  //   video: TShowVideoInfo;
-  //   user: TShowVideoAuthorInfo;
-  // };
+  getVideo(videoId: number | string): {
+    video: TShowVideoInfo;
+    user: TResponseVideoAuthorInfo;
+  };
   getVideos(page: number, limit: number): TVideoInfo[];
   getVideoComments(id: number | string, startTime: number | string, mode: number): TCommentInfo[];
   addLike(videoId: number | string): number;
@@ -335,7 +331,7 @@ type ISocketUsers = {
   removeUser(socketId: string): void;
 }
 
-export class Users implements ISocketUsers {
+export class SocketUser implements ISocketUsers {
   createTime: number;
 
   constructor(public users: { [key: string]: TSocketUserInfo; } = {}) {
@@ -390,7 +386,7 @@ export class Rooms implements IRooms {
   addRoom(room: string) {
     if (this.rooms[room]) return;
     this.rooms[room] = {
-      users: new Users(),
+      users: new SocketUser(),
       comments: new Comments(),
     };
   }
@@ -398,7 +394,7 @@ export class Rooms implements IRooms {
   initialRoom(room: string) {
     if (!this.rooms[room]) return;
     this.rooms[room] = {
-      users: new Users(),
+      users: new SocketUser(),
       comments: new Comments(),
     };
   }
@@ -459,6 +455,464 @@ export class Rooms implements IRooms {
   }
 }
 
+type TMemberInfo = {
+  id: number;
+  username: string;
+  password: string;
+  streamKey: string;
+  avatar: string;
+  subscribes: number;
+  email: string;
+  videos: IVideo;
+  dislikeVideoList: string[];
+  likeVideoList: string[];
+  subscribeList: string[];
+}
+
+type TMemberStreamInfo = {
+  videoId: string;
+  isStreamOn: boolean;
+  type: string;
+  author: {
+    username: string;
+    nickname: string;
+    avatar: string;
+  };
+  title: string;
+  thumbnail: string;
+  content: string;
+  startTime: string;
+  like: number;
+  dislike: number;
+}
+
+type TCompleteMemberInfo = TMemberInfo & {
+  [key: string]: any;
+  stream: TMemberStreamInfo
+}
+
+type TVisibleMemberInfo = Omit<TMemberInfo, "password">
+
+type TResponseMemberInfo = {
+  user: TVisibleMemberInfo, stream: TMemberStreamInfo
+}
+
+interface IMembers {
+  length: number;
+  members: TCompleteMemberInfo[];
+  initialRoom(username: string): void;
+  findUser(username: string): TCompleteMemberInfo | undefined;
+  generateNewUser(username: string, password: string, email: string): Promise<TResponseMemberInfo | {}>;
+  checkLikeVideoExist(username: string, videoId: number | string): boolean;
+  checkDislikeVideoExist(username: string, videoId: number | string): boolean;
+  getUser(username: string): TResponseMemberInfo | {};
+  addLikeVideoToList(username: string, videoId: number | string): string[];
+  removeLikeVideoFromList(username: string, videoId: number | string): string[];
+  addDislikeVideoToList(username: string, videoId: number | string): string[];
+  removeDislikeVideoFromList(username: string, videoId: number | string): string[];
+  addLike(username: string): number;
+  reduceLike(username: string): number;
+  addDislike(username: string): number;
+  reduceDislike(username: string): number;
+  verifyUser(username: string, password: string): TResponseMemberInfo | null;
+  getMe(username: string): TResponseMemberInfo | {};
+  getStream(username: string): {
+    user: TResponseVideoAuthorInfo,
+    stream: TMemberStreamInfo;
+  } | {};
+
+  // options 的型別應該定義的更清楚(或許可以使用 ReturnType)
+  editUserMeta(username: string, options: {
+    stream: TMemberStreamInfo;
+  }): {
+    stream: TMemberStreamInfo
+  } | {};
+  getStreamThumbnail(username: string): string;
+  editStreamThumbnail(username: string): string;
+  refreshStreamKey(username: string): string;
+  getStreamThumbnail(username: string): string;
+  addSubscribeToList(currentUsername: string, subscribeUsername: string): string[];
+  removeSubscribeFromList(currentUsername: string, subscribeUsername: string): string[];
+}
+
+class Members implements IMembers {
+  constructor(public members: TCompleteMemberInfo[] = []) { }
+
+  get length(): number {
+    return this.members.length;
+  }
+
+  initialRoom(username: string) {
+    const user = this.findUser(username);
+
+    if (user) {
+      user.stream = {
+        ...user.stream,
+        isStreamOn: false,
+        startTime: "",
+        like: 0,
+        dislike: 0,
+        videoId: "",
+      };
+    }
+  };
+
+  findUser(username: string) {
+    return this.members.find((user: TCompleteMemberInfo) => user.username === username);
+  };
+
+  async generateNewUser(username: string, password: string, email: string) {
+    const streamKey = genStreamKey(username);
+    const salt = genSalt();
+    const passwordHash = hashPassword(password, salt);
+    const newUser: TCompleteMemberInfo = {
+      id: this.length,
+      username,
+      password: passwordHash,
+      streamKey: streamKey,
+      avatar: `/users/${username}/avatar`,
+      subscribes: 0,
+      email,
+      videos: new Video(),
+      dislikeVideoList: [],
+      likeVideoList: [],
+      subscribeList: [],
+      stream: {
+        videoId: this.length.toString(),
+        isStreamOn: false,
+        type: "stream",
+        author: {
+          username,
+          nickname: username,
+          avatar: `/users/${username}/avatar`,
+        },
+        title: `${username} 的直播間`,
+        thumbnail: `/streams/${username}/thumbnail`,
+        content: "",
+        startTime: "",
+        like: 0,
+        dislike: 0,
+      },
+    };
+
+    try {
+      const userDir = `${usersDir}/${username}`;
+      const defaultAvatar = `${usersDir}/default/avatar.jpg`;
+      const defaultThumbnail = `${usersDir}/default/thumbnail.jpg`;
+
+      if (!await checkDirectory(userDir)) {
+        await generateDirectory(userDir);
+      }
+      await copyFile(
+        defaultAvatar,
+        `${userDir}/avatar.jpg`
+      );
+      await copyFile(
+        defaultThumbnail,
+        `${userDir}/thumbnail.jpg`
+      );
+    } catch (error) {
+      console.log("error", error);
+
+      return {};
+    }
+
+    this.members.push(newUser);
+    const { password: currentPassword, stream, ...userData } = newUser;
+
+    return {
+      user: userData,
+      stream,
+    };
+  };
+
+  checkLikeVideoExist(username: string, videoId: number | string) {
+    videoId = videoId.toString();
+    const user = this.findUser(username);
+
+    return !!(user && user.likeVideoList.find((id: string) => id === videoId));
+  };
+
+  checkDislikeVideoExist(username: string, videoId: number | string) {
+    videoId = videoId.toString();
+    const user = this.findUser(username);
+
+    return !!(user && user.dislikeVideoList.find((id: any) => id === videoId));
+  };
+
+  getUser(username: string) {
+    const user = this.findUser(username);
+
+    if (user) {
+      const { streamKey, password, stream, ...userData } = user;
+
+      return {
+        user: userData,
+        stream,
+      };
+    }
+
+    return {};
+  };
+
+  addLikeVideoToList(username: string, videoId: number | string) {
+    videoId = videoId.toString();
+
+    if (!username || !videoId) return [];
+
+    const user = this.findUser(username);
+
+    if (!user) return [];
+
+    const isLikeVideoExist = this.checkLikeVideoExist(username, videoId);
+
+    if (!isLikeVideoExist) {
+      user.likeVideoList.push(videoId);
+    }
+    return user.likeVideoList;
+  };
+
+  removeLikeVideoFromList(username: string, videoId: number | string) {
+    videoId = videoId.toString();
+
+    if (!username || !videoId) return [];
+
+    const user = this.findUser(username);
+
+    if (!user) return [];
+
+    const isLikeVideoExist = this.checkLikeVideoExist(username, videoId);
+
+    if (isLikeVideoExist) {
+      const index = user.likeVideoList.indexOf(videoId);
+      // user.likeVideoList = user.likeVideoList.filter((id: any) => id !== videoId);
+      user.likeVideoList.splice(index, 1);
+
+    }
+    return user.likeVideoList;
+  };
+
+  addDislikeVideoToList(username: string, videoId: number | string) {
+    videoId = videoId.toString();
+
+    if (!username || !videoId) return [];
+
+    const user = this.findUser(username);
+
+    if (!user) return [];
+
+    const isDislikeVideoExist = this.checkDislikeVideoExist(
+      username,
+      videoId
+    );
+
+    if (!isDislikeVideoExist) {
+      user.dislikeVideoList.push(videoId);
+    }
+    return user.dislikeVideoList;
+  };
+
+  removeDislikeVideoFromList(username: string, videoId: number | string) {
+    videoId = videoId.toString();
+
+    if (!username || !videoId) return [];
+
+    const user = this.findUser(username);
+
+    if (!user) return [];
+
+    const isDislikeVideoExist = this.checkDislikeVideoExist(
+      username,
+      videoId
+    );
+
+    if (isDislikeVideoExist) {
+      const index = user.dislikeVideoList.indexOf(videoId);
+      user.dislikeVideoList.splice(index, 1);
+    }
+
+    return user.dislikeVideoList;
+  };
+
+  addLike(username: string) {
+    const user = this.findUser(username);
+
+    if (!user) return -1;
+
+    user.stream.like++;
+
+    return user.stream.like;
+  };
+
+  reduceLike(username: string) {
+    const user = this.findUser(username);
+
+    if (!user) return -1;
+
+    user.stream.like--;
+
+    return user.stream.like;
+  };
+
+  addDislike(username: string) {
+    const user = this.findUser(username);
+
+    if (!user) return -1;
+
+    user.stream.dislike++;
+
+    return user.stream.dislike;
+  };
+
+  reduceDislike(username: string) {
+    const user = this.findUser(username);
+
+    if (!user) return -1;
+
+    user.stream.dislike--;
+
+    return user.stream.dislike;
+  };
+
+  verifyUser(username: string, password: string) {
+    // const user = this.find((user: any) => {
+    //   if (user.username === username) {
+    //     const result = checkPassword(password, user.password);
+    //     return result;
+    //   }
+    // });
+    const user = this.findUser(username);
+
+    if (!user) return null;
+
+    if (checkPassword(password, user.password)) {
+
+      const { password: currentPassword, stream, ...userData } = user;
+
+      return {
+        user: userData,
+        stream,
+      };
+    }
+
+    return null;
+  };
+
+  getMe(username: string) {
+    const user = this.findUser(username);
+
+    if (!user) return {};
+
+    const { password, stream, ...userData } = user;
+
+    return {
+      user: userData,
+      stream,
+    };
+  };
+
+  getStream(username: string) {
+    const user = this.findUser(username);
+
+    if (!user) return {};
+
+    const { avatar, subscribes, stream } = user;
+
+    return {
+      user: {
+        avatar,
+        subscribes,
+        username,
+      },
+      stream,
+    };
+  };
+
+  editUserMeta(username: string, options: {
+    stream: TMemberStreamInfo;
+  }) {
+    const user = this.findUser(username);
+
+    if (!user) return {};
+
+    Object.entries(options).forEach(([key, value]: [string, object | string]) => {
+      if (typeof value === "string") {
+        user[key] = value;
+      } else if (Object.prototype.toString.call(value) === "[object Object]") {
+        user[key] = {
+          ...user[key],
+          ...value,
+        };
+      }
+    });
+
+    return options;
+  };
+
+  getStreamThumbnail(username: string) {
+    const user = this.findUser(username);
+
+    if (!user) return "";
+
+    return user.stream.thumbnail;
+  };
+
+  editStreamThumbnail(username: string) {
+    const user = this.findUser(username);
+
+    if (!user) return "";
+
+    user.stream.thumbnail = `/streams/${username}/thumbnail`;
+
+    return `/streams/${username}/thumbnail`;
+  };
+
+  refreshStreamKey(username: string) {
+    const user = this.findUser(username);
+
+    if (!user) return "";
+
+    const newStreamKey = genStreamKey(username);
+
+    user.streamKey = newStreamKey;
+
+    return newStreamKey;
+  };
+
+  addSubscribeToList(currentUsername: string, subscribeUsername: string) {
+    const currentUser = this.findUser(currentUsername);
+
+    if (!currentUser) return [];
+
+    const isSubscribe = !!currentUser.subscribeList.find(
+      (username) => username === subscribeUsername
+    );
+
+    if (!isSubscribe) {
+      currentUser.subscribeList.push(subscribeUsername);
+    }
+
+    return currentUser.subscribeList;
+  };
+
+  removeSubscribeFromList(currentUsername: string, subscribeUsername: string) {
+    const currentUser = this.findUser(currentUsername);
+
+    if (!currentUser) return [];
+
+    const isSubscribe = !!currentUser.subscribeList.find(
+      (username) => username === subscribeUsername
+    );
+
+    if (isSubscribe) {
+      currentUser.subscribeList = currentUser.subscribeList.filter(
+        (username) => username !== subscribeUsername
+      );
+    }
+
+    return currentUser.subscribeList;
+  };
+}
 
 // 儲存每個用戶的資訊
 export const usersTable: any = [
