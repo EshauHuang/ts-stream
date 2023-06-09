@@ -7,6 +7,10 @@ import { genSalt, hashPassword, checkPassword } from "../utils/password";
 import checkDirectory from "../utils/checkDirectory";
 import generateDirectory from "../utils/generateDirectory";
 
+type TUserInfo = {
+
+}
+
 type TShowVideoAuthorInfo = {
   avatar: string,
   subscribes: number,
@@ -17,13 +21,13 @@ type TShowVideoInfo = TVideoInfo & {
   comments: TCommentInfo[];
 }
 
-type TCommentAuthorInfo = {
+export type TAuthorInfo = {
   username: string;
 }
 
 interface TCommentInfo {
   time: number;
-  author: TCommentAuthorInfo
+  author: TAuthorInfo
   message: {
     text: string;
   }
@@ -33,7 +37,7 @@ interface IComment {
   comments: TCommentInfo[];
   length: number;
   createTime: number;
-  addComment(author: TCommentAuthorInfo, text: string): TCommentInfo | {};
+  addComment(author: TAuthorInfo, message: string): TCommentInfo | {};
   searchComments(): TCommentInfo[];
   getPreviousComments(targetTime: number | string, limit?: number): TCommentInfo[];
   getNextComments(targetTime: number | string, limit?: number): TCommentInfo[];
@@ -53,7 +57,6 @@ type TVideoInfo = {
   thumbnail: string;
   startTime: number;
   videoId: string;
-  // comments: IComment;
   like: number;
   dislike: number;
 }
@@ -226,7 +229,7 @@ export class Comments implements IComment {
     return this.comments.length
   }
 
-  addComment(author: TCommentAuthorInfo, text: string) {
+  addComment(author: TAuthorInfo, text: string) {
     if (!author || !text) return {};
     const comment = {
       time: new Date().getTime(),
@@ -317,92 +320,146 @@ export class Comments implements IComment {
   }
 }
 
-export class Users {
-  [key: string]: any;
-  length: number;
-  createTime: number | string;
 
-  constructor() {
-    this.length = 0;
+type TSocketUserInfo = {
+  username: string;
+}
+
+type ISocketUsers = {
+  users: {
+    [key: string]: TSocketUserInfo;
+  }
+  createTime: number;
+  length: number;
+  addUser(socketId: string, user: TSocketUserInfo): void;
+  removeUser(socketId: string): void;
+}
+
+export class Users implements ISocketUsers {
+  createTime: number;
+
+  constructor(public users: { [key: string]: TSocketUserInfo; } = {}) {
     this.createTime = Date.now();
   }
 
-  addUser(socketId: any, user: any) {
-    if (!socketId || !user) return;
-    this[socketId] = user;
-    this.length++;
+  get length() {
+    return Object(this.users).length;
   }
 
-  removeUser(socketId: any) {
-    if (!socketId || !this[socketId]) return;
-    delete this[socketId];
-    this.length--;
+  addUser(socketId: string, user: TSocketUserInfo) {
+    if (!socketId || !user) {
+      throw new Error("Socket id or user was empty!");
+    };
+    this.users[socketId] = user;
+  }
+
+  removeUser(socketId: string) {
+    console.log(socketId, this.users, this.users[socketId]);
+
+    if (!socketId || !this.users[socketId]) {
+      throw new Error("Socket id or user was empty!");
+    };
+
+    delete this.users[socketId];
   }
 }
 
-export class Rooms {
-  [key: string]: any;
+type TRoomInfo = {
+  [socketId: string]: {
+    users: ISocketUsers;
+    comments: IComment;
+  }
+}
+
+interface IRooms {
+  rooms: TRoomInfo;
   length: number;
+  addRoom(room: string): void;
+  initialRoom(room: string): void;
+  removeRoom(room: string): void;
+  addUserToRoom(room: string, socketId: string, author: TAuthorInfo): void;
+  removeUserFromRoom(room: string, socketId: string): void;
+  addCommentToRoom(room: string, message: string, socketId: string): TCommentInfo | {};
+  searchRoomComments(room: string): TCommentInfo[];
+  searchUserFromRoom(room: string, socketId: string): TSocketUserInfo;
+}
 
-  constructor() {
-    this.length = 0;
+export class Rooms implements IRooms {
+  constructor(public rooms: TRoomInfo = {}) { }
+
+  get length() {
+    return Object.keys(this.rooms).length;
   }
 
-  addRoom(room: any) {
-    if (this[room]) return;
-    this[room] = {
+  addRoom(room: string) {
+    if (this.rooms[room]) return;
+    this.rooms[room] = {
       users: new Users(),
       comments: new Comments(),
     };
-    this.length++;
   }
 
-  initialRoom(room: any) {
-    if (!this[room]) return;
-    this[room] = {
-      users: new Users(),
+  initialRoom(room: string) {
+    if (!this.rooms[room]) return;
+    this.rooms[room] = {
+      ...this.rooms[room],
       comments: new Comments(),
     };
   }
 
-  removeRoom(room: any) {
-    if (!this[room]) return;
-    delete this[room];
-
-    this.length--;
+  removeRoom(room: string) {
+    if (!this.rooms[room]) return;
+    delete this.rooms[room];
   }
 
-  addUserToRoom(room: any, socketId: any, user: any) {
-    if (!room || !socketId || !user) return;
-    if (!this[room] || !this[room].users) return;
-    this[room].users.addUser(socketId, user);
+  addUserToRoom(room: string, socketId: string, author: TAuthorInfo) {
+    console.log("addUserToRoom", room, socketId, author);
+    if (!room || !socketId || !author) return;
+    if (!this.rooms[room] || !this.rooms[room].users) return;
+    this.rooms[room].users.addUser(socketId, author);
+    console.log(this.rooms[room].users.users);
   }
 
-  removeUserFromRoom(room: any, socketId: any) {
+  removeUserFromRoom(room: string, socketId: string) {
     if (!room || !socketId) return;
-    if (!this[room] || !this[room].users) return;
-    this[room].users.removeUser(socketId);
+    if (!this.rooms[room] || !this.rooms[room].users) return;
+    this.rooms[room].users.removeUser(socketId);
   }
 
-  addCommentToRoom(room: any, message: any, socketId: any) {
-    if (!room || !message || !socketId) return;
+  addCommentToRoom(room: string, message: string, socketId: string) {
+    if (!room || !message || !socketId) {
+      throw new Error("Room, message or socket id was empty!")
+    };
+
     const author = this.searchUserFromRoom(room, socketId);
 
-    if (!this[room] || !this[room].comments) return;
-    const comment = this[room].comments.addComment(author, message);
+    if (!this.rooms[room] || !this.rooms[room].comments || !author) {
+      throw new Error("Didn't found Room, comments or author!");
+    };
+
+    const comment = this.rooms[room].comments.addComment(author, message);
+
     return comment;
   }
 
-  searchRoomComments(room: any) {
-    if (!this[room]) return;
-    return this[room].comments.searchComments();
+  searchRoomComments(room: string) {
+    if (!this.rooms[room]) {
+      throw new Error("Didn't found Room!");
+    };
+
+    return this.rooms[room].comments.searchComments();
   }
 
-  searchUserFromRoom(room: any, socketId: any) {
-    if (!room || !socketId) return;
-    if (!this[room] || !this[room].users) return;
+  searchUserFromRoom(room: string, socketId: string) {
+    if (!room || !socketId) {
+      throw new Error("Room or socket id was empty!")
+    };
 
-    return this[room].users[socketId];
+    if (!this.rooms[room] || !this.rooms[room].users) {
+      throw new Error("Didn't found Room or users!");
+    };
+
+    return this.rooms[room].users.users[socketId];
   }
 }
 
