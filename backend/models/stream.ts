@@ -7,79 +7,6 @@ import { genSalt, hashPassword, checkPassword } from "../utils/password";
 import checkDirectory from "../utils/checkDirectory";
 import generateDirectory from "../utils/generateDirectory";
 
-type TResponseVideoAuthorInfo = {
-  avatar: string,
-  subscribes: number,
-  username: string,
-}
-
-type TShowVideoInfo = TVideoInfo & {
-  comments: TCommentInfo[];
-}
-
-export type TAuthorInfo = {
-  username: string;
-}
-
-interface TCommentInfo {
-  time: number;
-  author: TAuthorInfo
-  message: {
-    text: string;
-  }
-}
-
-interface IComment {
-  comments: TCommentInfo[];
-  length: number;
-  createTime: number;
-  addComment(author: TAuthorInfo, message: string): TCommentInfo | {};
-  searchComments(): TCommentInfo[];
-  getPreviousComments(targetTime: number | string, limit?: number): TCommentInfo[];
-  getNextComments(targetTime: number | string, limit?: number): TCommentInfo[];
-  filterCommentsByStartTime(startTime: number | string): TCommentInfo[];
-  sliceComments(startTime: number | string, limit: number): TCommentInfo[];
-}
-
-type TVideoInfo = {
-  type: string;
-  title: string;
-  author: {
-    username: string;
-    nickname: string;
-    avatar: string;
-  }
-  content: string;
-  thumbnail: string;
-  startTime: number;
-  videoId: string;
-  like: number;
-  dislike: number;
-}
-
-type TVideoInfoIncludeComments = TVideoInfo & {
-  comments: IComment;
-}
-
-interface IVideo {
-  videos: {
-    [key: string]: TVideoInfoIncludeComments;
-  }
-  length: number;
-  newVideoId(): string;
-  createVideo(videoId: number | string, video: TVideoInfoIncludeComments): string;
-  getVideo(videoId: number | string): {
-    video: TShowVideoInfo;
-    user: TResponseVideoAuthorInfo;
-  };
-  getVideos(page: number, limit: number): TVideoInfo[];
-  getVideoComments(id: number | string, startTime: number | string, mode: number): TCommentInfo[];
-  addLike(videoId: number | string): number;
-  reduceLike(videoId: number | string): number;
-  addDislike(videoId: number | string): number;
-  reduceDislike(videoId: number | string): number;
-}
-
 export class Video implements IVideo {
   constructor(public videos: {
     [key: string]: TVideoInfoIncludeComments
@@ -113,7 +40,9 @@ export class Video implements IVideo {
 
     const user = usersTable.findUser(author.username);
 
-    const { username, avatar, subscribes } = user || {};
+    if (!user) return {};
+
+    const { username, avatar, subscribes } = user;
 
     return {
       user: {
@@ -214,327 +143,6 @@ export class Video implements IVideo {
   }
 }
 
-export class Comments implements IComment {
-  public createTime: number
-
-  constructor(public comments: TCommentInfo[] = []) {
-    this.createTime = Date.now();
-  }
-
-  get length() {
-    return this.comments.length
-  }
-
-  addComment(author: TAuthorInfo, text: string) {
-    if (!author || !text) return {};
-    const comment = {
-      time: new Date().getTime(),
-      author,
-      message: {
-        text,
-      },
-    }
-    this.comments = [...this.comments, comment];
-
-    return comment;
-  }
-
-  searchComments() {
-    return this.comments
-  }
-
-  getPreviousComments(targetTime: number | string, limit: number = 10) {
-    let time: number
-
-    if (typeof targetTime === "string") {
-      time = Number(targetTime)
-    } else {
-      time = targetTime
-    }
-
-    const commentsArray = this.comments
-
-    const index = commentsArray.findIndex(
-      (comment) => comment.time > time
-    );
-    const previousCommentIndex = index - limit;
-    const previousComments = commentsArray.slice(
-      previousCommentIndex > 0 ? previousCommentIndex : 0,
-      index
-    );
-
-    return previousComments;
-  }
-
-  getNextComments(targetTime: number | string, limit: number = 10) {
-    let time: number
-
-    if (typeof targetTime === "string") {
-      time = Number(targetTime)
-    } else {
-      time = targetTime
-    }
-
-    const commentsArray = this.comments
-    const commentsCount = commentsArray.length;
-
-    const index = commentsArray.findIndex(
-      (comment) => comment.time > time
-    );
-
-    const nextCommentIndex = index + limit;
-    const nextComments = commentsArray.slice(
-      index,
-      nextCommentIndex > commentsCount ? commentsCount : nextCommentIndex
-    );
-
-    return nextComments;
-  }
-
-  filterCommentsByStartTime(startTime: number | string) {
-    let time: number
-
-    if (typeof startTime === "string") {
-      time = Number(startTime)
-    } else {
-      time = startTime
-    }
-
-    return this.comments.filter((comment) => comment.time > time);;
-  }
-
-  sliceComments(startTime: number | string, limit = 10) {
-    let time: number
-
-    if (typeof startTime === "string") {
-      time = Number(startTime)
-    } else {
-      time = startTime
-    }
-
-    return this.filterCommentsByStartTime(time).slice(0, limit);
-  }
-}
-
-
-type TSocketUserInfo = {
-  username: string;
-}
-
-type ISocketUsers = {
-  users: {
-    [key: string]: TSocketUserInfo;
-  }
-  createTime: number;
-  length: number;
-  addUser(socketId: string, user: TSocketUserInfo): void;
-  removeUser(socketId: string): void;
-}
-
-export class SocketUser implements ISocketUsers {
-  createTime: number;
-
-  constructor(public users: { [key: string]: TSocketUserInfo; } = {}) {
-    this.createTime = Date.now();
-  }
-
-  get length() {
-    return Object(this.users).length;
-  }
-
-  addUser(socketId: string, user: TSocketUserInfo) {
-    if (!socketId || !user) {
-      throw new Error("Socket id or user was empty!");
-    };
-    this.users[socketId] = user;
-  }
-
-  removeUser(socketId: string) {
-    if (!socketId || !this.users[socketId]) return;
-
-    delete this.users[socketId];
-  }
-}
-
-type TRoomInfo = {
-  [socketId: string]: {
-    users: ISocketUsers;
-    comments: IComment;
-  }
-}
-
-interface IRooms {
-  rooms: TRoomInfo;
-  length: number;
-  addRoom(room: string): void;
-  initialRoom(room: string): void;
-  removeRoom(room: string): void;
-  addUserToRoom(room: string, socketId: string, author: TAuthorInfo): void;
-  removeUserFromRoom(room: string, socketId: string): void;
-  addCommentToRoom(room: string, message: string, socketId: string): TCommentInfo | {};
-  searchRoomComments(room: string): TCommentInfo[];
-  searchUserFromRoom(room: string, socketId: string): TSocketUserInfo;
-}
-
-export class Rooms implements IRooms {
-  constructor(public rooms: TRoomInfo = {}) { }
-
-  get length() {
-    return Object.keys(this.rooms).length;
-  }
-
-  addRoom(room: string) {
-    if (this.rooms[room]) return;
-    this.rooms[room] = {
-      users: new SocketUser(),
-      comments: new Comments(),
-    };
-  }
-
-  initialRoom(room: string) {
-    if (!this.rooms[room]) return;
-    this.rooms[room] = {
-      users: new SocketUser(),
-      comments: new Comments(),
-    };
-  }
-
-  removeRoom(room: string) {
-    if (!this.rooms[room]) return;
-    delete this.rooms[room];
-  }
-
-  addUserToRoom(room: string, socketId: string, author: TAuthorInfo) {
-    console.log("addUserToRoom", room, socketId, author);
-    if (!room || !socketId || !author) return;
-    if (!this.rooms[room] || !this.rooms[room].users) return;
-    this.rooms[room].users.addUser(socketId, author);
-    console.log(this.rooms[room].users.users);
-  }
-
-  removeUserFromRoom(room: string, socketId: string) {
-    if (!room || !socketId) return;
-    if (!this.rooms[room] || !this.rooms[room].users) return;
-    this.rooms[room].users.removeUser(socketId);
-  }
-
-  addCommentToRoom(room: string, message: string, socketId: string) {
-    if (!room || !message || !socketId) {
-      throw new Error("Room, message or socket id was empty!")
-    };
-
-    const author = this.searchUserFromRoom(room, socketId);
-
-    if (!this.rooms[room] || !this.rooms[room].comments || !author) {
-      throw new Error("Didn't found Room, comments or author!");
-    };
-
-    const comment = this.rooms[room].comments.addComment(author, message);
-
-    return comment;
-  }
-
-  searchRoomComments(room: string) {
-    if (!this.rooms[room]) {
-      throw new Error("Didn't found Room!");
-    };
-
-    return this.rooms[room].comments.searchComments();
-  }
-
-  searchUserFromRoom(room: string, socketId: string) {
-    if (!room || !socketId) {
-      throw new Error("Room or socket id was empty!")
-    };
-
-    if (!this.rooms[room] || !this.rooms[room].users) {
-      throw new Error("Didn't found Room or users!");
-    };
-
-    return this.rooms[room].users.users[socketId];
-  }
-}
-
-type TMemberInfo = {
-  id: number;
-  username: string;
-  password: string;
-  streamKey: string;
-  avatar: string;
-  subscribes: number;
-  email: string;
-  videos: IVideo;
-  dislikeVideoList: string[];
-  likeVideoList: string[];
-  subscribeList: string[];
-}
-
-type TMemberStreamInfo = {
-  videoId: string;
-  isStreamOn: boolean;
-  type: string;
-  author: {
-    username: string;
-    nickname: string;
-    avatar: string;
-  };
-  title: string;
-  thumbnail: string;
-  content: string;
-  startTime: string;
-  like: number;
-  dislike: number;
-}
-
-type TCompleteMemberInfo = TMemberInfo & {
-  [key: string]: any;
-  stream: TMemberStreamInfo
-}
-
-type TVisibleMemberInfo = Omit<TMemberInfo, "password">
-
-type TResponseMemberInfo = {
-  user: TVisibleMemberInfo, stream: TMemberStreamInfo
-}
-
-interface IMembers {
-  length: number;
-  members: TCompleteMemberInfo[];
-  initialRoom(username: string): void;
-  findUser(username: string): TCompleteMemberInfo | undefined;
-  generateNewUser(username: string, password: string, email: string): Promise<TResponseMemberInfo | {}>;
-  checkLikeVideoExist(username: string, videoId: number | string): boolean;
-  checkDislikeVideoExist(username: string, videoId: number | string): boolean;
-  getUser(username: string): TResponseMemberInfo | {};
-  addLikeVideoToList(username: string, videoId: number | string): string[];
-  removeLikeVideoFromList(username: string, videoId: number | string): string[];
-  addDislikeVideoToList(username: string, videoId: number | string): string[];
-  removeDislikeVideoFromList(username: string, videoId: number | string): string[];
-  addLike(username: string): number;
-  reduceLike(username: string): number;
-  addDislike(username: string): number;
-  reduceDislike(username: string): number;
-  verifyUser(username: string, password: string): TResponseMemberInfo | null;
-  getMe(username: string): TResponseMemberInfo | {};
-  getStream(username: string): {
-    user: TResponseVideoAuthorInfo,
-    stream: TMemberStreamInfo;
-  } | {};
-
-  // options 的型別應該定義的更清楚(或許可以使用 ReturnType)
-  editUserMeta(username: string, options: {
-    stream: TMemberStreamInfo;
-  }): {
-    stream: TMemberStreamInfo
-  } | {};
-  getStreamThumbnail(username: string): string;
-  editStreamThumbnail(username: string): string;
-  refreshStreamKey(username: string): string;
-  getStreamThumbnail(username: string): string;
-  addSubscribeToList(currentUsername: string, subscribeUsername: string): string[];
-  removeSubscribeFromList(currentUsername: string, subscribeUsername: string): string[];
-}
-
 class Members implements IMembers {
   constructor(public members: TCompleteMemberInfo[] = []) { }
 
@@ -549,7 +157,7 @@ class Members implements IMembers {
       user.stream = {
         ...user.stream,
         isStreamOn: false,
-        startTime: "",
+        startTime: -1,
         like: 0,
         dislike: 0,
         videoId: "",
@@ -578,7 +186,7 @@ class Members implements IMembers {
       likeVideoList: [],
       subscribeList: [],
       stream: {
-        videoId: this.length.toString(),
+        videoId: "",
         isStreamOn: false,
         type: "stream",
         author: {
@@ -589,7 +197,7 @@ class Members implements IMembers {
         title: `${username} 的直播間`,
         thumbnail: `/streams/${username}/thumbnail`,
         content: "",
-        startTime: "",
+        startTime: -1,
         like: 0,
         dislike: 0,
       },
@@ -828,8 +436,11 @@ class Members implements IMembers {
     };
   };
 
-  editUserMeta(username: string, options: {
-    stream: TMemberStreamInfo;
+  editMemberInfo(username: string, options: {
+    stream: {
+      title: string;
+      content: string;
+    };
   }) {
     const user = this.findUser(username);
 
@@ -915,7 +526,7 @@ class Members implements IMembers {
 }
 
 // 儲存每個用戶的資訊
-export const usersTable: any = [
+const members: TCompleteMemberInfo[] = [
   {
     id: 1,
     username: "user01",
@@ -936,7 +547,7 @@ export const usersTable: any = [
       content: "",
       thumbnail: "/streams/user01/thumbnail",
       videoId: "",
-      startTime: "",
+      startTime: -1,
       like: 4155,
       dislike: 0,
       author: {
@@ -966,7 +577,7 @@ export const usersTable: any = [
       thumbnail: "/streams/123/thumbnail",
       content: "",
       videoId: "",
-      startTime: "",
+      startTime: -1,
       like: 415,
       dislike: 0,
       author: {
@@ -981,6 +592,7 @@ export const usersTable: any = [
     username: "bbbb",
     nickname: "Bob",
     streamKey: "U2FsdGVkX1__fd2ANVT33jYDE4shKW1l5lzgRRafZN4=",
+    password: "$2b$10$J251lEpX3LI8UpxxIuXMiugtELV71EL4gO2bfHyMtUtPI2B4taNJu",
     avatar: "/users/bbbb/avatar",
     email: "bbbb@gmail.com",
     subscribes: 200,
@@ -996,8 +608,15 @@ export const usersTable: any = [
     like: 4155,
     dislike: 0,
     stream: {
-      isStreamOn: false,
       type: "stream",
+      isStreamOn: false,
+      title: "bbbb 的直播間",
+      videoId: "",
+      thumbnail: "/streams/123/thumbnail",
+      content: "",
+      startTime: -1,
+      like: 415,
+      dislike: 0,
       author: {
         username: "bbbb",
         nickname: "Bob",
@@ -1007,334 +626,409 @@ export const usersTable: any = [
   },
 ];
 
-usersTable.initialRoom = function (username: any) {
-  const user = this.findUser(username);
+export const usersTable = new Members(members)
 
-  if (user) {
-    user.stream = {
-      ...user.stream,
-      isStreamOn: false,
-      startTime: "",
-      like: 0,
-      dislike: 0,
-      videoId: "",
-    };
+type TResponseVideoAuthorInfo = {
+  avatar: string,
+  subscribes: number,
+  username: string,
+}
+
+type TShowVideoInfo = TVideoInfo & {
+  comments: TCommentInfo[];
+}
+
+export type TAuthorInfo = {
+  username: string;
+}
+
+interface TCommentInfo {
+  time: number;
+  author: TAuthorInfo
+  message: {
+    text: string;
   }
-};
+}
 
-usersTable.generateNewUser = async function (username: any, password: any, email: any) {
-  const streamKey = genStreamKey(username);
-  const salt = genSalt();
-  const passwordHash = hashPassword(password, salt);
-  const newUser = {
-    id: this.length,
-    username,
-    password: passwordHash,
-    streamKey: streamKey,
-    avatar: `/users/${username}/avatar`,
-    subscribes: 0,
-    email,
-    videos: new Video(),
-    dislikeVideoList: [],
-    likeVideoList: [],
-    subscribeList: [],
-    stream: {
-      isStreamOn: false,
-      type: "stream",
-      author: {
-        username,
-        nickname: username,
-        avatar: `/users/${username}/avatar`,
+interface IComment {
+  comments: TCommentInfo[];
+  length: number;
+  createTime: number;
+  addComment(author: TAuthorInfo, message: string): TCommentInfo | {};
+  searchComments(): TCommentInfo[];
+  getPreviousComments(targetTime: number | string, limit?: number): TCommentInfo[];
+  getNextComments(targetTime: number | string, limit?: number): TCommentInfo[];
+  filterCommentsByStartTime(startTime: number | string): TCommentInfo[];
+  sliceComments(startTime: number | string, limit: number): TCommentInfo[];
+}
+
+type TVideoInfo = {
+  type: string;
+  title: string;
+  author: {
+    username: string;
+    nickname: string;
+    avatar: string;
+  }
+  content: string;
+  thumbnail: string;
+  startTime: number;
+  videoId: string;
+  like: number;
+  dislike: number;
+}
+
+type TVideoInfoIncludeComments = TVideoInfo & {
+  comments: IComment;
+}
+
+interface IVideo {
+  videos: {
+    [key: string]: TVideoInfoIncludeComments;
+  }
+  length: number;
+  newVideoId(): string;
+  createVideo(videoId: number | string, video: TVideoInfoIncludeComments): string;
+  getVideo(videoId: number | string): {
+    video: TShowVideoInfo;
+    user: TResponseVideoAuthorInfo;
+  } | {};
+  getVideos(page: number, limit: number): TVideoInfo[];
+  getVideoComments(id: number | string, startTime: number | string, mode: number): TCommentInfo[];
+  addLike(videoId: number | string): number;
+  reduceLike(videoId: number | string): number;
+  addDislike(videoId: number | string): number;
+  reduceDislike(videoId: number | string): number;
+}
+
+
+
+export class Comments implements IComment {
+  public createTime: number
+
+  constructor(public comments: TCommentInfo[] = []) {
+    this.createTime = Date.now();
+  }
+
+  get length() {
+    return this.comments.length
+  }
+
+  addComment(author: TAuthorInfo, text: string) {
+    if (!author || !text) return {};
+    const comment = {
+      time: new Date().getTime(),
+      author,
+      message: {
+        text,
       },
-      title: `${username} 的直播間`,
-      thumbnail: `/streams/${username}/thumbnail`,
-      content: "",
-      startTime: "",
-      like: 0,
-      dislike: 0,
-    },
-  };
-
-  try {
-    const userDir = `${usersDir}/${username}`;
-    const defaultAvatar = `${usersDir}/default/avatar.jpg`;
-    const defaultThumbnail = `${usersDir}/default/thumbnail.jpg`;
-
-    if (!await checkDirectory(userDir)) {
-      await generateDirectory(userDir);
     }
-    await copyFile(
-      defaultAvatar,
-      `${userDir}/avatar.jpg`
-    );
-    await copyFile(
-      defaultThumbnail,
-      `${userDir}/thumbnail.jpg`
-    );
-  } catch (error) {
-    console.log("error", error);
+    this.comments = [...this.comments, comment];
 
-    return {};
+    return comment;
   }
 
-  this.push(newUser);
-  const { password: currentPassword, stream, ...userData } = newUser;
+  searchComments() {
+    return this.comments
+  }
 
-  return {
-    user: userData,
-    stream,
-  };
-};
+  getPreviousComments(targetTime: number | string, limit: number = 10) {
+    let time: number
 
-usersTable.checkLikeVideoExist = function (username: any, videoId: any) {
-  const user = this.findUser(username);
+    if (typeof targetTime === "string") {
+      time = Number(targetTime)
+    } else {
+      time = targetTime
+    }
 
-  if (!user) return false;
+    const commentsArray = this.comments
 
-  return user.likeVideoList.find((id: any) => id === videoId);
-};
+    const index = commentsArray.findIndex(
+      (comment) => comment.time > time
+    );
+    const previousCommentIndex = index - limit;
+    const previousComments = commentsArray.slice(
+      previousCommentIndex > 0 ? previousCommentIndex : 0,
+      index
+    );
 
-usersTable.checkDislikeVideoExist = function (username: any, videoId: any) {
-  const user = this.findUser(username);
+    return previousComments;
+  }
 
-  if (!user) return false;
+  getNextComments(targetTime: number | string, limit: number = 10) {
+    let time: number
 
-  return user.dislikeVideoList.find((id: any) => id === videoId);
-};
+    if (typeof targetTime === "string") {
+      time = Number(targetTime)
+    } else {
+      time = targetTime
+    }
 
-usersTable.findUser = function (username: any) {
-  return this.find((user: any) => user.username === username);
-};
+    const commentsArray = this.comments
+    const commentsCount = commentsArray.length;
 
-usersTable.getUser = function (username: any) {
-  const user = this.findUser(username);
+    const index = commentsArray.findIndex(
+      (comment) => comment.time > time
+    );
 
-  if (user) {
-    const { streamKey, password, stream, ...userData } = user;
+    const nextCommentIndex = index + limit;
+    const nextComments = commentsArray.slice(
+      index,
+      nextCommentIndex > commentsCount ? commentsCount : nextCommentIndex
+    );
 
-    return {
-      user: userData,
-      stream,
+    return nextComments;
+  }
+
+  filterCommentsByStartTime(startTime: number | string) {
+    let time: number
+
+    if (typeof startTime === "string") {
+      time = Number(startTime)
+    } else {
+      time = startTime
+    }
+
+    return this.comments.filter((comment) => comment.time > time);;
+  }
+
+  sliceComments(startTime: number | string, limit = 10) {
+    let time: number
+
+    if (typeof startTime === "string") {
+      time = Number(startTime)
+    } else {
+      time = startTime
+    }
+
+    return this.filterCommentsByStartTime(time).slice(0, limit);
+  }
+}
+
+
+type TSocketUserInfo = {
+  username: string;
+}
+
+type ISocketUsers = {
+  users: {
+    [key: string]: TSocketUserInfo;
+  }
+  createTime: number;
+  length: number;
+  addUser(socketId: string, user: TSocketUserInfo): void;
+  removeUser(socketId: string): void;
+}
+
+export class SocketUser implements ISocketUsers {
+  createTime: number;
+
+  constructor(public users: { [key: string]: TSocketUserInfo; } = {}) {
+    this.createTime = Date.now();
+  }
+
+  get length() {
+    return Object(this.users).length;
+  }
+
+  addUser(socketId: string, user: TSocketUserInfo) {
+    if (!socketId || !user) {
+      throw new Error("Socket id or user was empty!");
+    };
+    this.users[socketId] = user;
+  }
+
+  removeUser(socketId: string) {
+    if (!socketId || !this.users[socketId]) return;
+
+    delete this.users[socketId];
+  }
+}
+
+type TRoomInfo = {
+  [socketId: string]: {
+    users: ISocketUsers;
+    comments: IComment;
+  }
+}
+
+interface IRooms {
+  rooms: TRoomInfo;
+  length: number;
+  addRoom(room: string): void;
+  initialRoom(room: string): void;
+  removeRoom(room: string): void;
+  addUserToRoom(room: string, socketId: string, author: TAuthorInfo): void;
+  removeUserFromRoom(room: string, socketId: string): void;
+  addCommentToRoom(room: string, message: string, socketId: string): TCommentInfo | {};
+  searchRoomComments(room: string): TCommentInfo[];
+  searchUserFromRoom(room: string, socketId: string): TSocketUserInfo;
+}
+
+export class Rooms implements IRooms {
+  constructor(public rooms: TRoomInfo = {}) { }
+
+  get length() {
+    return Object.keys(this.rooms).length;
+  }
+
+  addRoom(room: string) {
+    if (this.rooms[room]) return;
+    this.rooms[room] = {
+      users: new SocketUser(),
+      comments: new Comments(),
     };
   }
 
-  return {};
-};
-
-usersTable.addLikeVideoToList = function (username: any, videoId: any) {
-  if (!username || !videoId) return;
-  const user = this.findUser(username);
-
-  const isLikeVideoExist = usersTable.checkLikeVideoExist(username, videoId);
-  if (!isLikeVideoExist) {
-    user.likeVideoList.push(videoId);
-  }
-  return user.likeVideoList;
-};
-
-usersTable.removeLikeVideoFromList = function (username: any, videoId: any) {
-  if (!username || !videoId) return;
-  const user = this.findUser(username);
-
-  const isLikeVideoExist = usersTable.checkLikeVideoExist(username, videoId);
-  if (isLikeVideoExist) {
-    user.likeVideoList = user.likeVideoList.filter((id: any) => id !== videoId);
-  }
-  return user.likeVideoList;
-};
-
-usersTable.addLike = function (username: any) {
-  const user = this.find((user: any) => user.username === username);
-
-  if (!user) return -1;
-
-  user.stream.like++;
-
-  return user.stream.like;
-};
-
-usersTable.reduceLike = function (username: any) {
-  const user = this.find((user: any) => user.username === username);
-
-  if (!user) return -1;
-
-  user.stream.like--;
-
-  return user.stream.like;
-};
-
-usersTable.addDislikeVideoToList = function (username: any, videoId: any) {
-  if (!username || !videoId) return;
-  const user = this.findUser(username);
-
-  const isDislikeVideoExist = usersTable.checkDislikeVideoExist(
-    username,
-    videoId
-  );
-  if (!isDislikeVideoExist) {
-    user.dislikeVideoList.push(videoId);
-  }
-  return user.dislikeVideoList;
-};
-
-usersTable.removeDislikeVideoFromList = function (username: any, videoId: any) {
-  if (!username || !videoId) return;
-  const user = this.findUser(username);
-
-  const isDislikeVideoExist = usersTable.checkDislikeVideoExist(
-    username,
-    videoId
-  );
-  if (isDislikeVideoExist) {
-    user.dislikeVideoList = user.dislikeVideoList.filter(
-      (id: any) => id !== videoId
-    );
+  initialRoom(room: string) {
+    if (!this.rooms[room]) return;
+    this.rooms[room] = {
+      users: new SocketUser(),
+      comments: new Comments(),
+    };
   }
 
-  return user.dislikeVideoList;
-};
+  removeRoom(room: string) {
+    if (!this.rooms[room]) return;
+    delete this.rooms[room];
+  }
 
-usersTable.addDislike = function (username: any) {
-  const user = this.find((user: any) => user.username === username);
+  addUserToRoom(room: string, socketId: string, author: TAuthorInfo) {
+    if (!room || !socketId || !author) return;
+    if (!this.rooms[room] || !this.rooms[room].users) return;
+    this.rooms[room].users.addUser(socketId, author);
+  }
 
-  if (!user) return -1;
+  removeUserFromRoom(room: string, socketId: string) {
+    if (!room || !socketId) return;
+    if (!this.rooms[room] || !this.rooms[room].users) return;
+    this.rooms[room].users.removeUser(socketId);
+  }
 
-  user.stream.dislike++;
+  addCommentToRoom(room: string, message: string, socketId: string) {
+    if (!room || !message || !socketId) {
+      throw new Error("Room, message or socket id was empty!")
+    };
 
-  return user.stream.dislike;
-};
+    const author = this.searchUserFromRoom(room, socketId);
 
-usersTable.reduceDislike = function (username: any) {
-  const user = this.find((user: any) => user.username === username);
+    if (!this.rooms[room] || !this.rooms[room].comments || !author) {
+      throw new Error("Didn't found Room, comments or author!");
+    };
 
-  if (!user) return -1;
+    const comment = this.rooms[room].comments.addComment(author, message);
 
-  user.stream.dislike--;
+    return comment;
+  }
 
-  return user.stream.dislike;
-};
+  searchRoomComments(room: string) {
+    if (!this.rooms[room]) {
+      throw new Error("Didn't found Room!");
+    };
 
-usersTable.verifyUser = function (username: any, password: any) {
-  const user = this.find((user: any) => {
-    if (user.username === username) {
-      const result = checkPassword(password, user.password);
-      return result;
-    }
-  });
+    return this.rooms[room].comments.searchComments();
+  }
 
-  if (!user) return null;
-  const { password: currentPassword, stream, ...userData } = user;
+  searchUserFromRoom(room: string, socketId: string) {
+    if (!room || !socketId) {
+      throw new Error("Room or socket id was empty!")
+    };
 
-  return {
-    user: userData,
-    stream,
+    if (!this.rooms[room] || !this.rooms[room].users) {
+      throw new Error("Didn't found Room or users!");
+    };
+
+    return this.rooms[room].users.users[socketId];
+  }
+}
+
+type TMemberInfo = {
+  id: number;
+  username: string;
+  password: string;
+  streamKey: string;
+  avatar: string;
+  subscribes: number;
+  email: string;
+  videos: IVideo;
+  dislikeVideoList: string[];
+  likeVideoList: string[];
+  subscribeList: string[];
+}
+
+type TMemberStreamInfo = {
+  videoId: string;
+  isStreamOn: boolean;
+  type: string;
+  author: {
+    username: string;
+    nickname: string;
+    avatar: string;
   };
-};
+  title: string;
+  thumbnail: string;
+  content: string;
+  startTime: number;
+  like: number;
+  dislike: number;
+}
 
-usersTable.getMe = function (username: any) {
-  const user = usersTable.find((user: any) => user.username === username);
-  const { password, stream, ...userData } = user;
+type TCompleteMemberInfo = TMemberInfo & {
+  [key: string]: any;
+  stream: TMemberStreamInfo
+}
 
-  return {
-    user: userData,
-    stream,
-  };
-};
+type TVisibleMemberInfo = Omit<TMemberInfo, "password">
 
-usersTable.getStream = function (username: any) {
-  const user = usersTable.find((user: any) => user.username === username);
-  const { avatar, subscribes, stream } = user;
+type TResponseMemberInfo = {
+  user: TVisibleMemberInfo, stream: TMemberStreamInfo
+}
 
-  return {
-    user: {
-      avatar,
-      subscribes,
-      username,
-    },
-    stream,
-  };
-};
+interface IMembers {
+  length: number;
+  members: TCompleteMemberInfo[];
+  initialRoom(username: string): void;
+  findUser(username: string): TCompleteMemberInfo | undefined;
+  generateNewUser(username: string, password: string, email: string): Promise<TResponseMemberInfo | {}>;
+  checkLikeVideoExist(username: string, videoId: number | string): boolean;
+  checkDislikeVideoExist(username: string, videoId: number | string): boolean;
+  getUser(username: string): TResponseMemberInfo | {};
+  addLikeVideoToList(username: string, videoId: number | string): string[];
+  removeLikeVideoFromList(username: string, videoId: number | string): string[];
+  addDislikeVideoToList(username: string, videoId: number | string): string[];
+  removeDislikeVideoFromList(username: string, videoId: number | string): string[];
+  addLike(username: string): number;
+  reduceLike(username: string): number;
+  addDislike(username: string): number;
+  reduceDislike(username: string): number;
+  verifyUser(username: string, password: string): TResponseMemberInfo | null;
+  getMe(username: string): TResponseMemberInfo | {};
+  getStream(username: string): {
+    user: TResponseVideoAuthorInfo,
+    stream: TMemberStreamInfo;
+  } | {};
 
-usersTable.editUserMeta = function (username: any, options: any) {
-  const user = usersTable.find((user: any) => user.username === username);
+  // options 的型別應該定義的更清楚(或許可以使用 ReturnType)
+  editMemberInfo(username: string, options: {
+    stream: {
+      title: string;
+      content: string;
+    };
+  }): {
+    stream: {
+      title: string;
+      content: string;
+    };
+  } | {};
+  getStreamThumbnail(username: string): string;
+  editStreamThumbnail(username: string): string;
+  refreshStreamKey(username: string): string;
+  getStreamThumbnail(username: string): string;
+  addSubscribeToList(currentUsername: string, subscribeUsername: string): string[];
+  removeSubscribeFromList(currentUsername: string, subscribeUsername: string): string[];
+}
 
-  Object.entries(options).forEach(([key, value]: [any, any]) => {
-    if (Object.prototype.toString.call(value) === "[object Object]") {
-      user[key] = {
-        ...user[key],
-        ...value,
-      };
-    } else {
-      user[key] = value;
-    }
-  });
 
-  return options;
-};
-
-usersTable.getStreamThumbnail = function (username: any) {
-  const user = usersTable.find((user: any) => user.username === username);
-
-  if (!user) return "";
-
-  return user.stream.thumbnail;
-};
-
-usersTable.editStreamThumbnail = function (username: any) {
-  const user = usersTable.find((user: any) => user.username === username);
-
-  if (!user) return "";
-
-  user.stream.thumbnail = `/streams/${username}/thumbnail`;
-
-  return `/streams/${username}/thumbnail`;
-};
-
-usersTable.refreshStreamKey = function (username: any) {
-  const user = usersTable.find((user: any) => user.username === username);
-  const streamKey = genStreamKey(username);
-
-  user.streamKey = streamKey;
-
-  return streamKey;
-};
-
-usersTable.addSubscribeToList = function (currentUsername: any, subscribeUsername: any) {
-  const currentUser = this.findUser(currentUsername);
-
-  if (!currentUser) return [];
-
-  const isSubscribe = !!currentUser.subscribeList.find(
-    (username: any) => username === subscribeUsername
-  );
-
-  if (!isSubscribe) {
-    currentUser.subscribeList.push(subscribeUsername);
-  }
-
-  return currentUser.subscribeList;
-};
-
-usersTable.removeSubscribeFromList = function (
-  currentUsername: any,
-  subscribeUsername: any
-) {
-  const currentUser = this.findUser(currentUsername);
-
-  if (!currentUser) return [];
-
-  const isSubscribe = !!currentUser.subscribeList.find(
-    (username: any) => username === subscribeUsername
-  );
-
-  if (isSubscribe) {
-    currentUser.subscribeList = currentUser.subscribeList.filter(
-      (username: any) => username !== subscribeUsername
-    );
-  }
-
-  return currentUser.subscribeList;
-};
 
 const comments: TCommentInfo[] = [
   {

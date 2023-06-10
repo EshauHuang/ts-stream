@@ -1,7 +1,7 @@
 import express from "express";
 import { usersTable } from "../models/stream";
 import { rooms } from "../models/stream";
-import { CustomRequest  } from "../index"
+import { CustomRequest } from "../index"
 
 
 const router = express.Router();
@@ -38,7 +38,7 @@ export default router
       }
 
       // check username or email weren't duplicate
-      const isDuplicate = usersTable.some(
+      const isDuplicate = usersTable.members.some(
         (user: any) => user.username === username || user.email === email
       );
 
@@ -46,19 +46,21 @@ export default router
         throw new Error("Duplicate account or email");
       }
 
-      const data = await usersTable.generateNewUser(username, password, email);
+      const { user, stream } = await usersTable.generateNewUser(username, password, email);
 
-      if (!data) {
+      if (!user || !stream) {
         throw new Error("Something went wrong");
       }
 
-      rooms.addRoom(data.user.username);
+      rooms.addRoom(user.username);
 
-      req.session.user = data.user.username;
+      req.session.user = user.username;
 
       res.status(200).json({
         message: "Register success",
-        data,
+        data: {
+          user, stream
+        },
       });
     } catch (error: any) {
       const { message } = error;

@@ -20,7 +20,7 @@ export default router
       const start = (page - 1) * limit;
       const end = page * limit;
 
-      const streams = usersTable
+      const streams = usersTable.members
         .filter((user: any) => user.stream.isStreamOn)
         .slice(start, end)
         .map((user: any) => user.stream);
@@ -121,6 +121,11 @@ export default router
 
       // 找直播中的 videoId
       const { stream } = usersTable.getStream(username);
+
+      if (!stream) {
+        throw new Error("Cant found the stream!")
+      }
+      
       const { videoId } = stream;
 
       // 如還未將影片加至 user 喜愛影片內則加入，有加入則刪除
@@ -144,6 +149,11 @@ export default router
 
       // 找直播中的 videoId
       const { stream } = usersTable.getStream(username);
+
+      if (!stream) {
+        throw new Error("Cant found the stream!")
+      }
+
       const { videoId } = stream;
 
       // 如還未將影片加至 user 喜愛影片內則加入，有加入則刪除
@@ -167,6 +177,11 @@ export default router
 
       // 找直播中的 videoId
       const { stream } = usersTable.getStream(username);
+
+      if (!stream) {
+        throw new Error("Cant found the stream!")
+      }
+
       const { videoId } = stream;
 
       // 如還未將影片加至 user 喜愛影片內則加入，有加入則刪除
@@ -191,6 +206,11 @@ export default router
 
       // 找直播中的 videoId
       const { stream } = usersTable.getStream(username);
+
+      if (!stream) {
+        throw new Error("Cant found the stream!")
+      }
+
       const { videoId } = stream;
 
       // 如還未將影片加至 user 喜愛影片內則加入，有加入則刪除

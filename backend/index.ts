@@ -12,14 +12,9 @@ import videosRoute from "./routes/videos.js";
 import signRoute from "./routes/sign.js";
 import liveRoute from "./routes/live.js";
 
-interface User {
-  // Define your User properties here
-  username: string;
-  // Other properties...
-}
 
 interface UserSession extends session.Session {
-  user?: User;
+  user?: string;
 }
 
 export interface CustomRequest extends Request {

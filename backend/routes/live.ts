@@ -33,7 +33,7 @@ export default router
       }
 
       // 確認是否有該 user
-      const user = usersTable.find((user: any) => user.username === username);
+      const user = usersTable.findUser(username);
 
       if (!user) {
         console.log("無此 user");
@@ -62,14 +62,16 @@ export default router
     try {
       console.log("Live stream started");
       const { username, name: videoId } = req.body;
-
-      const user = usersTable.find((user: any) => user.username === username);
-
+      
       if (!username || !videoId) {
         throw new Error(
           "Missing or invalid 'username' or 'name' properties in request body"
         );
       }
+
+      const user = usersTable.findUser(username);
+
+      if (!user) throw new Error("Can't find the user!")
 
       const mediaDir = path.join(`/app/media/${videoId}.m3u8`);
 
@@ -101,7 +103,9 @@ export default router
       const { name: videoId, username } = req.body;
 
       // 取得此 streamKey 的擁有者
-      const user = usersTable.find((user: any) => user.username === username);
+      const user = usersTable.findUser(username);
+
+      if (!user) throw new Error("Can't find the user!")
 
       // room 名稱與 username 相同，取得此 room 的 comments
       const { comments } = rooms.rooms[username];

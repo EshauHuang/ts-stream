@@ -3,7 +3,7 @@ import { sessionAuth } from "../utils/sessionAuth.js";
 import { usersTable } from "../models/stream.js";
 import { toAbsolute } from "../utils/toAbsolute.js";
 import { access, constants } from "node:fs/promises";
-import { CustomRequest} from "../index"
+import { CustomRequest } from "../index"
 
 const router = express.Router();
 
@@ -53,13 +53,12 @@ export default router
   .put("/:username", sessionAuth, (req, res) => {
     try {
       const { username } = req.params;
-      const { title, content } = req.body;
+      const { title, content }: { title: string, content: string } = req.body;
 
       if (!username || !title) {
         throw new Error("Empty data!");
       }
-
-      const options = usersTable.editUserMeta(username, {
+      const options = usersTable.editMemberInfo(username, {
         stream: {
           title,
           content,
