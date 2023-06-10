@@ -3,6 +3,7 @@ import { sessionAuth } from "../utils/sessionAuth.js";
 import { usersTable } from "../models/stream.js";
 import { toAbsolute } from "../utils/toAbsolute.js";
 import { access, constants } from "node:fs/promises";
+import { CustomRequest } from "../index"
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ router.use((req, res, next) => {
 });
 
 export default router
-  .get("/me", sessionAuth, (req, res) => {
+  .get("/me", sessionAuth, (req: CustomRequest, res) => {
     try {
       const { user } = req.session;
 
@@ -27,11 +28,17 @@ export default router
         data,
       });
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({
-        message,
+        message: "Unexpected error",
       });
     }
   })
@@ -43,22 +50,29 @@ export default router
 
       res.json({ message: "success", data });
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .put("/:username", sessionAuth, (req, res) => {
     try {
       const { username } = req.params;
-      const { title, content } = req.body;
+      const { title, content }: { title: string, content: string } = req.body;
 
       if (!username || !title) {
         throw new Error("Empty data!");
       }
-
-      const options = usersTable.editUserMeta(username, {
+      const options = usersTable.editMemberInfo(username, {
         stream: {
           title,
           content,
@@ -70,10 +84,18 @@ export default router
         data: options,
       });
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .put("/:username/subscribe/add", sessionAuth, (req, res) => {
@@ -85,10 +107,18 @@ export default router
 
       res.json({ message: "success", subscribeList });
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .put("/:username/subscribe/remove", sessionAuth, (req, res) => {
@@ -100,8 +130,18 @@ export default router
 
       res.json({ message: "success", subscribeList });
     } catch (error) {
-      const { message } = error;
-      res.json({ message });
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .get("/:username/avatar", async (req, res) => {
@@ -117,8 +157,14 @@ export default router
 
       res.sendFile(directory);
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({ message: "no such file or directory" });
     }

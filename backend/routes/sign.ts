@@ -1,6 +1,8 @@
 import express from "express";
-import { usersTable } from "../models/stream.js";
-import { rooms } from "../models/stream.js";
+import { usersTable } from "../models/stream";
+import { rooms } from "../models/stream";
+import { CustomRequest } from "../index"
+
 
 const router = express.Router();
 
@@ -19,15 +21,21 @@ export default router
 
       res.status(200).json({ message: "sign out" });
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({
-        message,
+        message: "Unexpected error",
       });
     }
   })
-  .post("/sign-up", async (req, res) => {
+  .post("/sign-up", async (req: CustomRequest, res) => {
     try {
       const { username, password, email } = req.body;
 
@@ -36,7 +44,7 @@ export default router
       }
 
       // check username or email weren't duplicate
-      const isDuplicate = usersTable.some(
+      const isDuplicate = usersTable.members.some(
         (user) => user.username === username || user.email === email
       );
 
@@ -44,30 +52,38 @@ export default router
         throw new Error("Duplicate account or email");
       }
 
-      const data = await usersTable.generateNewUser(username, password, email);
+      const { user, stream } = await usersTable.generateNewUser(username, password, email);
 
-      if (!data) {
+      if (!user || !stream) {
         throw new Error("Something went wrong");
       }
 
-      rooms.addRoom(data.user.username);
+      rooms.addRoom(user.username);
 
-      req.session.user = data.user.username;
+      req.session.user = user.username;
 
       res.status(200).json({
         message: "Register success",
-        data,
+        data: {
+          user, stream
+        },
       });
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({
-        message,
+        message: "Unexpected error",
       });
     }
   })
-  .post("/sign-in", async (req, res) => {
+  .post("/sign-in", async (req: CustomRequest, res) => {
     try {
       const { username, password } = req.body;
 
@@ -88,11 +104,17 @@ export default router
         data,
       });
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({
-        message,
+        message: "Unexpected error",
       });
     }
   });

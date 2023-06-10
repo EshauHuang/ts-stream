@@ -20,22 +20,25 @@ export default router
       const start = (page - 1) * limit;
       const end = page * limit;
 
-      const sliceVideos = Object.entries(videos)
-        .slice(start, end)
-        .map((entry) => ({
-          id: entry[0],
-          ...entry[1],
-        }));
+      const sliceVideos = videos.getVideos(page, limit);
 
       res.json({
         message: "success",
         videos: sliceVideos,
       });
     } catch (error) {
-      const { message } = error;
-      console.log(message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .get("/:videoId", (req, res) => {
@@ -45,11 +48,17 @@ export default router
 
       res.json({ message: "success", data: { ...videoData } });
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({
-        message,
+        message: "Unexpected error",
       });
     }
   })
@@ -64,8 +73,14 @@ export default router
 
       res.sendFile(directory);
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({ message: "no such file or directory" });
     }
@@ -91,10 +106,18 @@ export default router
 
       res.json({ message: "success", like, likeVideoList });
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .put("/:videoId/like/reduce", sessionAuth, (req, res) => {
@@ -110,10 +133,18 @@ export default router
 
       res.json({ message: "success", like, likeVideoList });
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .put("/:videoId/dislike/add", sessionAuth, (req, res) => {
@@ -130,10 +161,18 @@ export default router
 
       res.json({ message: "success", dislike, dislikeVideoList });
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .put("/:videoId/dislike/reduce", sessionAuth, (req, res) => {
@@ -153,9 +192,17 @@ export default router
 
       res.json({ message: "success", dislike, dislikeVideoList });
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   });

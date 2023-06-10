@@ -1,7 +1,7 @@
 import chokidar from "chokidar";
 import path from "path";
 
-export default function watchMediaDirectory(mediaDir, onM3U8Added) {
+export default function watchMediaDirectory(mediaDir: string, onM3U8Added: () => void) {
   const watcher = chokidar.watch(mediaDir, {
     ignored: /(^|[\/\\])\../, // ignore dotfiles
     persistent: true,

@@ -1,5 +1,5 @@
 import multer from "multer";
-import generateDirectory from "./generateDirectory.js";
+import generateDirectory from "./generateDirectory";
 
 export const storage = multer.diskStorage({
   destination: async function (req, file, cb) {

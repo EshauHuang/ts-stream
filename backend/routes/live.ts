@@ -2,7 +2,7 @@ import express from "express";
 import { copyFile } from "node:fs/promises";
 import path from "path";
 
-import { io } from "../index.js";
+import { io } from "../index";
 import { usersTable } from "../models/stream.js";
 import { toAbsolute } from "../utils/toAbsolute.js";
 import { videos, rooms } from "../models/stream.js";
@@ -33,7 +33,7 @@ export default router
       }
 
       // 確認是否有該 user
-      const user = usersTable.find((user) => user.username === username);
+      const user = usersTable.findUser(username);
 
       if (!user) {
         console.log("無此 user");
@@ -50,11 +50,17 @@ export default router
         .status(302)
         .redirect(`${process.env.STREAM_SERVER_URL}/stream/${videoId}?username=${username}`);
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({
-        message,
+        message: "Unexpected error",
       });
     }
   })
@@ -63,13 +69,15 @@ export default router
       console.log("Live stream started");
       const { username, name: videoId } = req.body;
 
-      const user = usersTable.find((user) => user.username === username);
-
       if (!username || !videoId) {
         throw new Error(
           "Missing or invalid 'username' or 'name' properties in request body"
         );
       }
+
+      const user = usersTable.findUser(username);
+
+      if (!user) throw new Error("Can't find the user!")
 
       const mediaDir = path.join(`/app/media/${videoId}.m3u8`);
 
@@ -87,11 +95,17 @@ export default router
 
       res.status(204).end();
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({
-        message,
+        message: "Unexpected error",
       });
     }
   })
@@ -101,10 +115,12 @@ export default router
       const { name: videoId, username } = req.body;
 
       // 取得此 streamKey 的擁有者
-      const user = usersTable.find((user) => user.username === username);
+      const user = usersTable.findUser(username);
+
+      if (!user) throw new Error("Can't find the user!")
 
       // room 名稱與 username 相同，取得此 room 的 comments
-      const { comments } = rooms[username];
+      const { comments } = rooms.rooms[username];
 
       const { isStreamOn, thumbnail, ...streamData } = user.stream;
       const streamThumbnailDirectory = toAbsolute(`publish/users/${username}`);
@@ -138,15 +154,21 @@ export default router
       });
 
       usersTable.initialRoom(username);
-
       rooms.initialRoom(username);
+
       res.status(204).end();
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({
-        message,
+        message: "Unexpected error",
       });
     }
   });

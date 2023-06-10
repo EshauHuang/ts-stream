@@ -20,17 +20,25 @@ export default router
       const start = (page - 1) * limit;
       const end = page * limit;
 
-      const streams = usersTable
+      const streams = usersTable.members
         .filter((user) => user.stream.isStreamOn)
         .slice(start, end)
         .map((user) => user.stream);
 
       res.json({ message: "success", streams });
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .get("/:username", (req, res) => {
@@ -47,10 +55,18 @@ export default router
         },
       });
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .get("/:username/thumbnail", async (req, res) => {
@@ -65,8 +81,14 @@ export default router
 
       res.sendFile(directory);
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({ message: "no such file or directory" });
     }
@@ -89,10 +111,18 @@ export default router
           data: { stream: { thumbnail } },
         });
       } catch (error) {
-        const { message } = error;
-        console.log("error", message);
+        if (error instanceof Error) {
+          const { message } = error;
+          console.log("error", message);
 
-        res.status(400).json({ message });
+          res.status(400).json({
+            message,
+          });
+        }
+
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
     }
   )
@@ -108,10 +138,18 @@ export default router
 
       res.json({ message: "success", streamKey });
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .put("/:username/like/add", sessionAuth, (req, res) => {
@@ -121,6 +159,11 @@ export default router
 
       // 找直播中的 videoId
       const { stream } = usersTable.getStream(username);
+
+      if (!stream) {
+        throw new Error("Cant found the stream!")
+      }
+      
       const { videoId } = stream;
 
       // 如還未將影片加至 user 喜愛影片內則加入，有加入則刪除
@@ -131,10 +174,18 @@ export default router
 
       res.json({ message: "success", like, likeVideoList });
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .put("/:username/like/reduce", sessionAuth, (req, res) => {
@@ -144,6 +195,11 @@ export default router
 
       // 找直播中的 videoId
       const { stream } = usersTable.getStream(username);
+
+      if (!stream) {
+        throw new Error("Cant found the stream!")
+      }
+
       const { videoId } = stream;
 
       // 如還未將影片加至 user 喜愛影片內則加入，有加入則刪除
@@ -154,10 +210,18 @@ export default router
 
       res.json({ message: "success", like, likeVideoList });
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .put("/:username/dislike/add", sessionAuth, (req, res) => {
@@ -167,6 +231,11 @@ export default router
 
       // 找直播中的 videoId
       const { stream } = usersTable.getStream(username);
+
+      if (!stream) {
+        throw new Error("Cant found the stream!")
+      }
+
       const { videoId } = stream;
 
       // 如還未將影片加至 user 喜愛影片內則加入，有加入則刪除
@@ -178,10 +247,18 @@ export default router
 
       res.json({ message: "success", dislike, dislikeVideoList });
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .put("/:username/dislike/reduce", sessionAuth, (req, res) => {
@@ -191,6 +268,11 @@ export default router
 
       // 找直播中的 videoId
       const { stream } = usersTable.getStream(username);
+
+      if (!stream) {
+        throw new Error("Cant found the stream!")
+      }
+
       const { videoId } = stream;
 
       // 如還未將影片加至 user 喜愛影片內則加入，有加入則刪除
@@ -205,9 +287,17 @@ export default router
 
       res.json({ message: "success", dislike, dislikeVideoList });
     } catch (error) {
-      const { message } = error;
-      console.log("error", message);
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })

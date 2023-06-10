@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { io, Socket } from "socket.io-client";
 
 import { UserContext } from "@/contexts/userContext";
-import { CommentsContext, IComment } from "@/contexts/commentsContext";
+import { CommentsContext, TCommentInfo } from "@/contexts/commentsContext";
 
 import ChatMessages from "@/components/chat-messages/chat-messages.component";
 import SendMessage from "@/components/send-message/send-message.component";
@@ -16,7 +16,7 @@ interface User {
 
 interface ServerToClientEvents {
   connect: () => void;
-  "chat-message": (comment: IComment) => void;
+  "chat-message": (comment: TCommentInfo) => void;
   "stream-connected": ({ videoId }: { videoId: string }) => void;
 }
 
@@ -27,7 +27,7 @@ interface ClientToServerEvents {
 interface IChatroomProps {
   isLive: boolean;
   roomName?: string;
-  comments?: IComment[];
+  comments?: TCommentInfo[];
   setStream?: React.Dispatch<React.SetStateAction<IStreamData>>;
 }
 

@@ -5,29 +5,27 @@ import { getComments } from "@/api/stream";
 
 import { VideoOptionsContext } from "@/contexts/videoOptionsContext";
 
-export interface IUser {
-  photo?: string;
+export type TCommentAuthorInfo = {
   username: string;
-  memberPhoto?: string;
-}
+};
 
-export interface IMessage {
+export type TMessage = {
   text: string;
-}
+};
 
-export interface IComment {
+export type TCommentInfo = {
   time: number | string;
-  user: IUser;
-  message: IMessage;
-}
+  author: TCommentAuthorInfo;
+  message: TMessage;
+};
 
 interface CommentsContextProps {
-  currentComments: IComment[] | [];
-  setCurrentComments: React.Dispatch<React.SetStateAction<IComment[] | []>>;
-  addNewComment: ({ time, user, message }: IComment) => void;
-  commentsDelay: IComment[] | [];
-  setCommentsDelay: React.Dispatch<React.SetStateAction<IComment[] | []>>;
-  addNewDelayComments: (comments: IComment[]) => void;
+  currentComments: TCommentInfo[] | [];
+  setCurrentComments: React.Dispatch<React.SetStateAction<TCommentInfo[] | []>>;
+  addNewComment: ({ time, author, message }: TCommentInfo) => void;
+  commentsDelay: TCommentInfo[] | [];
+  setCommentsDelay: React.Dispatch<React.SetStateAction<TCommentInfo[] | []>>;
+  addNewDelayComments: (comments: TCommentInfo[]) => void;
   fetchNewCommentsAndAddToDelayComments: () => void;
   setVideoStartTime: (startTime: number) => void;
 }
@@ -41,8 +39,10 @@ export const CommentsContext = createContext({} as CommentsContextProps);
 export const CommentsProvider: React.FC<CommentsProviderProps> = ({
   children,
 }) => {
-  const [currentComments, setCurrentComments] = useState<IComment[] | []>([]);
-  const [commentsDelay, setCommentsDelay] = useState<IComment[] | []>([]);
+  const [currentComments, setCurrentComments] = useState<TCommentInfo[] | []>(
+    []
+  );
+  const [commentsDelay, setCommentsDelay] = useState<TCommentInfo[] | []>([]);
   const timerRef = useRef<NodeJS.Timer | null>(null);
   const [isFetchNewComments, setIsFetchNewComments] = useState(false);
   const [isNextComments, setIsNextComments] = useState(true);
@@ -52,18 +52,18 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
     videoOptions: { currentTime, videoId, isScrubbing },
   } = useContext(VideoOptionsContext);
 
-  const addNewComment = ({ time, user, message }: IComment) => {
+  const addNewComment = ({ time, author, message }: TCommentInfo) => {
     setCurrentComments((prev) => [
       ...prev,
       {
         time,
-        user,
+        author,
         message,
       },
     ]);
   };
 
-  const addNewDelayComments = (comments: IComment[]) => {
+  const addNewDelayComments = (comments: TCommentInfo[]) => {
     setCommentsDelay((prev) => [...prev, ...comments]);
   };
 
@@ -71,8 +71,8 @@ export const CommentsProvider: React.FC<CommentsProviderProps> = ({
   const fetchNewCommentsAndAddToDelayComments = async () => {
     if (!videoStartTime) return;
 
-    const videoRealTime =
-      (currentTime - 1 < 0 ? 0 : currentTime - 1) * 1000 + videoStartTime;
+    const videoRealTime = currentTime * 1000 + videoStartTime;
+
     const { comments } = await getComments(videoId, videoRealTime, -1);
 
     const { time: lastCommentTime } = comments[comments.length - 1] || {};
