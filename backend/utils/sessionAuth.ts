@@ -1,4 +1,9 @@
-export const sessionAuth = (req: any, res: any, next: any) => {
+import { Response, NextFunction } from "express";
+
+import { CustomRequest } from "..";
+
+
+export const sessionAuth = (req: CustomRequest, res: Response, next: NextFunction) => {
   if (req.session.user) {
     next();
   } else {

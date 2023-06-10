@@ -49,12 +49,18 @@ export default router
       res
         .status(302)
         .redirect(`${process.env.STREAM_SERVER_URL}/stream/${videoId}?username=${username}`);
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({
-        message,
+        message: "Unexpected error",
       });
     }
   })
@@ -62,7 +68,7 @@ export default router
     try {
       console.log("Live stream started");
       const { username, name: videoId } = req.body;
-      
+
       if (!username || !videoId) {
         throw new Error(
           "Missing or invalid 'username' or 'name' properties in request body"
@@ -88,12 +94,18 @@ export default router
       });
 
       res.status(204).end();
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({
-        message,
+        message: "Unexpected error",
       });
     }
   })
@@ -145,12 +157,18 @@ export default router
       rooms.initialRoom(username);
 
       res.status(204).end();
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({
-        message,
+        message: "Unexpected error",
       });
     }
   });

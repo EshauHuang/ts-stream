@@ -245,7 +245,7 @@ class Members implements IMembers {
     videoId = videoId.toString();
     const user = this.findUser(username);
 
-    return !!(user && user.dislikeVideoList.find((id: any) => id === videoId));
+    return !!(user && user.dislikeVideoList.find((id) => id === videoId));
   };
 
   getUser(username: string) {
@@ -293,7 +293,7 @@ class Members implements IMembers {
 
     if (isLikeVideoExist) {
       const index = user.likeVideoList.indexOf(videoId);
-      // user.likeVideoList = user.likeVideoList.filter((id: any) => id !== videoId);
+      // user.likeVideoList = user.likeVideoList.filter((id) => id !== videoId);
       user.likeVideoList.splice(index, 1);
 
     }
@@ -383,7 +383,7 @@ class Members implements IMembers {
   };
 
   verifyUser(username: string, password: string) {
-    // const user = this.find((user: any) => {
+    // const user = this.find((user) => {
     //   if (user.username === username) {
     //     const result = checkPassword(password, user.password);
     //     return result;
@@ -642,7 +642,7 @@ export type TAuthorInfo = {
   username: string;
 }
 
-interface TCommentInfo {
+export interface TCommentInfo {
   time: number;
   author: TAuthorInfo
   message: {
@@ -654,7 +654,7 @@ interface IComment {
   comments: TCommentInfo[];
   length: number;
   createTime: number;
-  addComment(author: TAuthorInfo, message: string): TCommentInfo | {};
+  addComment(author: TAuthorInfo, message: string): TCommentInfo;
   searchComments(): TCommentInfo[];
   getPreviousComments(targetTime: number | string, limit?: number): TCommentInfo[];
   getNextComments(targetTime: number | string, limit?: number): TCommentInfo[];
@@ -715,7 +715,6 @@ export class Comments implements IComment {
   }
 
   addComment(author: TAuthorInfo, text: string) {
-    if (!author || !text) return {};
     const comment = {
       time: new Date().getTime(),
       author,

@@ -12,6 +12,7 @@ import videosRoute from "./routes/videos.js";
 import signRoute from "./routes/sign.js";
 import liveRoute from "./routes/live.js";
 
+import { ServerToClientEvents, ClientToServerEvents, InterServerEvents, SocketData  } from "./socket/chatroom.js"
 
 interface UserSession extends session.Session {
   user?: string;
@@ -48,7 +49,7 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 const server = createServer(app);
 
-export const io = new Server(server, {
+export const io = new Server<ServerToClientEvents, ClientToServerEvents, InterServerEvents, SocketData>(server, {
   cors: {
     origin: "*",
   },

@@ -26,11 +26,19 @@ export default router
         message: "success",
         videos: sliceVideos,
       });
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .get("/:videoId", (req, res) => {
@@ -39,12 +47,18 @@ export default router
       const videoData = videos.getVideo(videoId);
 
       res.json({ message: "success", data: { ...videoData } });
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({
-        message,
+        message: "Unexpected error",
       });
     }
   })
@@ -58,9 +72,15 @@ export default router
       await access(directory, constants.F_OK);
 
       res.sendFile(directory);
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({ message: "no such file or directory" });
     }
@@ -85,11 +105,19 @@ export default router
       const like = videos.addLike(videoId);
 
       res.json({ message: "success", like, likeVideoList });
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .put("/:videoId/like/reduce", sessionAuth, (req, res) => {
@@ -104,11 +132,19 @@ export default router
       const like = videos.reduceLike(videoId);
 
       res.json({ message: "success", like, likeVideoList });
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .put("/:videoId/dislike/add", sessionAuth, (req, res) => {
@@ -124,11 +160,19 @@ export default router
       const dislike = videos.addDislike(videoId);
 
       res.json({ message: "success", dislike, dislikeVideoList });
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .put("/:videoId/dislike/reduce", sessionAuth, (req, res) => {
@@ -147,10 +191,18 @@ export default router
       const dislike = videos.reduceDislike(videoId);
 
       res.json({ message: "success", dislike, dislikeVideoList });
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   });

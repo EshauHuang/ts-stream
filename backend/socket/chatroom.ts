@@ -1,10 +1,31 @@
-import { rooms } from "../models/stream";
+import { rooms, TCommentInfo, TAuthorInfo } from "../models/stream";
+import { Server } from "socket.io";
+import _ from "lodash-es"
 
-import { TAuthorInfo } from "../models/stream"
+export type TCommentAuthorInfo = {
+  username: string;
+};
 
-export const startIo = (io: any) => {
-  io.on("connection", (socket: any) => {
+export type TMessage = {
+  text: string;
+};
 
+export interface ServerToClientEvents {
+  "chat-message": (comment: TCommentInfo) => void;
+}
+
+export interface ClientToServerEvents {
+  "stream-connected": ({ videoId }: { videoId: string }) => void;
+  "send-message": (message: string, callback: ({ status }: { status: string }) => void) => void;
+  "user-connect": (user: TAuthorInfo, roomName: string) => void;
+}
+
+export interface InterServerEvents { }
+
+export interface SocketData { }
+
+export const startIo = (io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>) => {
+  io.on("connection", (socket) => {
     socket.on("user-connect", (user: TAuthorInfo, roomName: string) => {
       socket.join(roomName);
 
@@ -14,15 +35,25 @@ export const startIo = (io: any) => {
     });
 
     socket.on("send-message", (message: string, callback: ({ status }: { status: string }) => void) => {
-      currentRoomToDo((room: any) => {
-        const comment = rooms.addCommentToRoom(room, message, socket.id);
+      currentRoomToDo((room: string) => {
+        try {
+          const comment = rooms.addCommentToRoom(room, message, socket.id);
 
-        io.in(room).emit("chat-message", comment);
+          io.in(room).emit("chat-message", comment);
 
-        if (!callback) return;
-        callback({
-          status: "ok",
-        });
+          if (!callback) return;
+          callback({
+            status: "ok",
+          });
+        } catch (error) {
+          if (error instanceof Error) {
+            const { message } = error;
+            console.log("error", message);
+          } else {
+            console.log("Unexpected error");
+          }
+
+        }
       });
     });
 
@@ -32,7 +63,7 @@ export const startIo = (io: any) => {
       });
     });
 
-    function currentRoomToDo(func: (room: any) => void) {
+    function currentRoomToDo(func: (room: string) => void) {
       for (const room of socket.rooms) {
         if (room !== socket.id) {
           func(room);

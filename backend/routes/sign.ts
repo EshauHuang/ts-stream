@@ -20,12 +20,18 @@ export default router
       });
 
       res.status(200).json({ message: "sign out" });
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({
-        message,
+        message: "Unexpected error",
       });
     }
   })
@@ -39,7 +45,7 @@ export default router
 
       // check username or email weren't duplicate
       const isDuplicate = usersTable.members.some(
-        (user: any) => user.username === username || user.email === email
+        (user) => user.username === username || user.email === email
       );
 
       if (isDuplicate) {
@@ -62,12 +68,18 @@ export default router
           user, stream
         },
       });
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({
-        message,
+        message: "Unexpected error",
       });
     }
   })
@@ -91,12 +103,18 @@ export default router
         message: "Login success",
         data,
       });
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({
-        message,
+        message: "Unexpected error",
       });
     }
   });

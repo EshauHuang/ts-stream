@@ -27,12 +27,18 @@ export default router
         message: "success",
         data,
       });
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({
-        message,
+        message: "Unexpected error",
       });
     }
   })
@@ -43,11 +49,19 @@ export default router
       const data = usersTable.getUser(username);
 
       res.json({ message: "success", data });
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .put("/:username", sessionAuth, (req, res) => {
@@ -69,11 +83,19 @@ export default router
         message: "success",
         data: options,
       });
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .put("/:username/subscribe/add", sessionAuth, (req, res) => {
@@ -84,11 +106,19 @@ export default router
       const subscribeList = usersTable.addSubscribeToList(user, username);
 
       res.json({ message: "success", subscribeList });
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .put("/:username/subscribe/remove", sessionAuth, (req, res) => {
@@ -99,9 +129,19 @@ export default router
       const subscribeList = usersTable.removeSubscribeFromList(user, username);
 
       res.json({ message: "success", subscribeList });
-    } catch (error: any) {
-      const { message } = error;
-      res.json({ message });
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .get("/:username/avatar", async (req, res) => {
@@ -116,9 +156,15 @@ export default router
       await access(directory, constants.F_OK);
 
       res.sendFile(directory);
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({ message: "no such file or directory" });
     }

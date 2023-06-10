@@ -21,16 +21,24 @@ export default router
       const end = page * limit;
 
       const streams = usersTable.members
-        .filter((user: any) => user.stream.isStreamOn)
+        .filter((user) => user.stream.isStreamOn)
         .slice(start, end)
-        .map((user: any) => user.stream);
+        .map((user) => user.stream);
 
       res.json({ message: "success", streams });
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .get("/:username", (req, res) => {
@@ -46,11 +54,19 @@ export default router
           ...streamMeta,
         },
       });
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .get("/:username/thumbnail", async (req, res) => {
@@ -64,9 +80,15 @@ export default router
       await access(directory, constants.F_OK);
 
       res.sendFile(directory);
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
+
+        res.status(400).json({
+          message,
+        });
+      }
 
       res.status(400).json({ message: "no such file or directory" });
     }
@@ -88,11 +110,19 @@ export default router
           message: "success",
           data: { stream: { thumbnail } },
         });
-      } catch (error: any) {
-        const { message } = error;
-        console.log("error", message);
+      } catch (error) {
+        if (error instanceof Error) {
+          const { message } = error;
+          console.log("error", message);
 
-        res.status(400).json({ message });
+          res.status(400).json({
+            message,
+          });
+        }
+
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
     }
   )
@@ -107,11 +137,19 @@ export default router
       const streamKey = usersTable.refreshStreamKey(username);
 
       res.json({ message: "success", streamKey });
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .put("/:username/like/add", sessionAuth, (req, res) => {
@@ -135,11 +173,19 @@ export default router
       const like = usersTable.addLike(username);
 
       res.json({ message: "success", like, likeVideoList });
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .put("/:username/like/reduce", sessionAuth, (req, res) => {
@@ -163,11 +209,19 @@ export default router
       const like = usersTable.reduceLike(username);
 
       res.json({ message: "success", like, likeVideoList });
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .put("/:username/dislike/add", sessionAuth, (req, res) => {
@@ -192,11 +246,19 @@ export default router
       const dislike = usersTable.addDislike(username);
 
       res.json({ message: "success", dislike, dislikeVideoList });
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
   .put("/:username/dislike/reduce", sessionAuth, (req, res) => {
@@ -224,10 +286,18 @@ export default router
       const dislike = usersTable.reduceDislike(username);
 
       res.json({ message: "success", dislike, dislikeVideoList });
-    } catch (error: any) {
-      const { message } = error;
-      console.log("error", message);
+    } catch (error) {
+      if (error instanceof Error) {
+        const { message } = error;
+        console.log("error", message);
 
-      res.status(400).json({ message });
+        res.status(400).json({
+          message,
+        });
+      }
+
+      res.status(400).json({
+        message: "Unexpected error",
+      });
     }
   })
