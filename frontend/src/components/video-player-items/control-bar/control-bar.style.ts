@@ -14,6 +14,7 @@ import {
   VolumeMutedIcon,
 } from "@/components/ui/icon.style";
 
+import SettingsIcon from '@mui/icons-material/Settings';
 
 export const ControlBarLeftPart = styled.div`
   display: flex;
@@ -63,7 +64,7 @@ export const ControlBarContainer = styled.div<{ isScrubbing: boolean }>`
   bottom: 0;
   width: 100%;
   height: 5rem;
-  opacity: ${({ isScrubbing }) => (isScrubbing ? 1 : 0)};
+  /* opacity: ${({ isScrubbing }) => (isScrubbing ? 1 : 0)}; */
   transition: opacity 0.2s ease-out;
 
   ${PlayPauseIcon},
@@ -92,3 +93,13 @@ export const ControlBarContainer = styled.div<{ isScrubbing: boolean }>`
     color: white;
   }
 `;
+
+export const SettingButton = styled(SettingsIcon) <{ isShowSettingMenu: boolean }>`
+  width: 3.5rem;
+  height: 3.5rem;
+  margin: 0 1.5rem;
+  cursor: pointer;
+  color: white;
+  transform: ${({ isShowSettingMenu }) => isShowSettingMenu && `rotate(45deg)`};
+  transition: transform .4s ease;
+`

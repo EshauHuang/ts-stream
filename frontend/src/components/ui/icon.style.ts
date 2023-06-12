@@ -12,6 +12,7 @@ import { ReactComponent as TheaterTallSvg } from "@/assets/icons/screen/theater-
 import { ReactComponent as TheaterWideSvg } from "@/assets/icons/screen/theater-wide.svg";
 import { ReactComponent as CaptionsSvg } from "@/assets/icons/captions.svg";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import TuneIcon from '@mui/icons-material/Tune';
 
 export const PlayPauseIcon = styled(PlayPauseSvg)``;
 
@@ -38,5 +39,12 @@ export const CaptionsIcon = styled(CaptionsSvg)``;
 export const StyledAccountCircleIcon = styled(AccountCircleIcon)`
   width: 100%;
   height: 100%;
+  color: white;
+`
+
+export const StyledTuneIcon = styled(TuneIcon)`
+  width: 2.4rem;
+  height: 2.4rem;
+  cursor: pointer;
   color: white;
 `
