@@ -1,6 +1,7 @@
 import ControlBar from "@/components/video-player-items/control-bar/control-bar.component";
+import SettingMenu from "@/components/video-player-items/setting-menu/setting-menu.component";
 
-import useVideoPlayer from "@/hooks/useVideoPlayer";
+import useVideoPlayer, { MenuStateName } from "@/hooks/useVideoPlayer";
 
 import { PlayerContainer, Video, Thumbnail } from "./video-player.style";
 
@@ -19,6 +20,7 @@ export interface IVideoOptions {
   setTime: undefined | number;
   currentTime: number;
   duration: number;
+  isShowSettingMenu: boolean;
 }
 
 export interface IVideoControllers {
@@ -33,6 +35,9 @@ export interface IVideoControllers {
   ) => void;
   handleMouseUp: () => void;
   handleVideoEnded: () => void;
+  handleChangeQuality: (id: number) => void;
+  handleChangeSettingMenuState: (name: MenuStateName) => void;
+  handleToggleSettingMenu: () => void;
 }
 
 export interface IVideoPlayer {
@@ -48,23 +53,34 @@ const VideoPlayer: React.FC<IVideoPlayer> = ({
   isLive,
   thumbnail,
 }) => {
-  const { videoRef, timelineRef, videoOptions, videoControllers } =
-    useVideoPlayer({
-      src,
-      videoId,
-      isLive,
-    });
-  const { isFull, isTheater, isLoaded } = videoOptions;
+  const {
+    videoQualities,
+    videoRef,
+    timelineRef,
+    videoOptions,
+    videoControllers,
+    findQuality,
+    currentSettingMenuState,
+  } = useVideoPlayer({
+    src,
+    videoId,
+    isLive,
+  });
+  const { isFull, isTheater, isLoaded, isShowSettingMenu } = videoOptions;
   const {
     handleTogglePlay,
     handleVideoTime,
     handleVideoLoaded,
     handleVideoEnded,
+    handleChangeQuality,
+    handleChangeSettingMenuState,
   } = videoControllers;
 
   const shouldRenderVideo = src || videoId;
 
-  const showThumbnail = thumbnail ? `${import.meta.env.VITE_API_SERVER_URL}${thumbnail}` : img5
+  const showThumbnail = thumbnail
+    ? `${import.meta.env.VITE_API_SERVER_URL}${thumbnail}`
+    : img5;
 
   return (
     <PlayerContainer isFull={isFull} isTheater={isTheater}>
@@ -77,6 +93,15 @@ const VideoPlayer: React.FC<IVideoPlayer> = ({
             onLoadedMetadata={(e) => handleVideoLoaded(e)}
             onEnded={() => handleVideoEnded()}
           ></Video>
+          {isShowSettingMenu && (
+            <SettingMenu
+              currentSettingMenuState={currentSettingMenuState}
+              handleChangeSettingMenuState={handleChangeSettingMenuState}
+              findQuality={findQuality}
+              videoQualities={videoQualities}
+              handleChangeQuality={handleChangeQuality}
+            />
+          )}
           {isLoaded && (
             <ControlBar
               timelineRef={timelineRef}

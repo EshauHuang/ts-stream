@@ -8,10 +8,8 @@ import renderTimeString from "@/utils/renderTimeString";
 
 import { CommentsContext } from "@/contexts/commentsContext";
 
-import {
-  IVideoControllers,
-  IVideoOptions,
-} from "@/components/video-player/video-player.component";
+import { IVideoOptions } from "@/contexts/videoOptionsContext";
+import { IVideoControllers } from "@/hooks/useVideoPlayer";
 
 import {
   MiniPlayerIcon,
@@ -30,6 +28,7 @@ import {
   ControlBarContainer,
   ControlBarLeftPart,
   ControlBarRightPart,
+  SettingButton,
   TimeString,
 } from "./control-bar.style";
 
@@ -108,6 +107,7 @@ const ControlBar = ({
     isFull,
     currentTime,
     duration,
+    isShowSettingMenu,
   } = videoOptions;
 
   const {
@@ -119,6 +119,7 @@ const ControlBar = ({
     handleToggleMiniMode,
     handleToggleTheaterMode,
     handleToggleFullMode,
+    handleToggleSettingMenu,
   } = videoControllers;
 
   const { fetchNewCommentsAndAddToDelayComments } = useContext(CommentsContext);
@@ -152,6 +153,10 @@ const ControlBar = ({
         )}
       </ControlBarLeftPart>
       <ControlBarRightPart>
+        <SettingButton
+          isShowSettingMenu={isShowSettingMenu}
+          onClick={() => handleToggleSettingMenu()}
+        />
         <MiniPlayerButton
           isFull={isFull}
           handleToggleMiniMode={handleToggleMiniMode}

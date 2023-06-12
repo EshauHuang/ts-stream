@@ -18,6 +18,7 @@ export interface IVideoOptions {
   currentTime: number;
   duration: number;
   startTime?: number;
+  isShowSettingMenu: boolean;
 }
 
 interface VideoOptionsContextProps {
@@ -54,7 +55,8 @@ export const VideoOptionsProvider: React.FC<VideoOptionsProviderProps> = ({
     setTime: undefined,
     currentTime: 0,
     duration: 0,
-    startTime: undefined
+    startTime: undefined,
+    isShowSettingMenu: false
   });
 
   const value = {

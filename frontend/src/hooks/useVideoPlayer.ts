@@ -15,6 +15,9 @@ export interface IVideoControllers {
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => void;
   handleMouseUp: () => void;
+  handleChangeQuality: (id: number) => void;
+  handleChangeSettingMenuState: (name: MenuStateName) => void;
+  handleToggleSettingMenu: () => void;
 }
 
 export interface IVideoPlayer {
@@ -23,6 +26,30 @@ export interface IVideoPlayer {
   videoId?: string | number;
 }
 
+export type TQuality = {
+  id: number;
+  label: string;
+  quality: string;
+}
+
+export interface IVideoQualities {
+  targetId: number;
+  qualitiesList: TQuality[];
+}
+
+export type MenuStateName = "home" | "quality";
+
+const settingMenuState = {
+  home: {
+    name: "home",
+    panelHeight: "5.6rem",
+  },
+  quality: {
+    name: "quality",
+    panelHeight: "31rem",
+  },
+};
+
 const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   const STREAM_SERVER_URL = import.meta.env.VITE_GET_STREAM_URL;
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -30,6 +57,46 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   const tmpTimeRef = useRef<number>(0);
   const [hls, setHls] = useState<Hls | null>(null);
   const { videoOptions, setVideoOptions } = useContext(VideoOptionsContext)
+  const [videoQualities, seIVideoQualities] = useState<IVideoQualities>({
+    targetId: 3,
+    qualitiesList: [
+      {
+        id: 1,
+        label: "1080p",
+        quality: "1080",
+      },
+      {
+        id: 2,
+        label: "720p",
+        quality: "720",
+      },
+      {
+        id: 3,
+        label: "480p",
+        quality: "480",
+      },
+      {
+        id: 4,
+        label: "360p",
+        quality: "360",
+      },
+      {
+        id: 5,
+        label: "240p",
+        quality: "240",
+      },
+      {
+        id: 6,
+        label: "自動",
+        quality: "auto",
+      },
+    ]
+  });
+  const [settingMenuStateName, setSettingMenuStateName] =
+    useState<MenuStateName>("home");
+  const currentSettingMenuState = settingMenuState[settingMenuStateName];
+
+  const { qualitiesList, targetId } = videoQualities;
 
   const {
     isLoaded,
@@ -42,6 +109,24 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
     duration,
     setTime,
   } = videoOptions;
+
+  const handleToggleSettingMenu = () => {
+    setSettingMenuStateName("home")
+    setVideoOptions(prev => ({
+      ...prev,
+      isShowSettingMenu: !prev.isShowSettingMenu
+    }))
+  }
+
+  const findQuality = () => qualitiesList.find(quality => quality.id === targetId) || ({
+    id: 6,
+    label: "自動",
+    quality: "auto",
+  });
+
+  const handleChangeSettingMenuState = (name: MenuStateName) => {
+    setSettingMenuStateName(name);
+  };
 
   const handleTogglePlay = () => {
     if (!isLoaded) return
@@ -240,6 +325,13 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
     [isLoaded]
   );
 
+  const handleChangeQuality = (id: number) => {
+    seIVideoQualities(prev => ({
+      ...prev,
+      targetId: id
+    }));
+  };
+
   // 統一由此依據資料判斷 video 執行的動作
   useEffect(() => {
     const video = videoRef.current;
@@ -292,7 +384,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
         initialLiveManifestSize: 3,
       }
       : {
-        startPosition: 0,
+        startPosition: currentTime,
       };
 
     if (!hls) {
@@ -311,7 +403,16 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
         hls.loadSource(url);
       });
 
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+        const { levels } = data
+        const quality = findQuality();
+
+        if (quality) {
+          const targetLevel = levels.findIndex(level => level.height.toString() === quality.quality)
+
+          hls.startLevel = targetLevel;
+        }
+
         setVideoOptions((prev) => ({
           ...prev,
           isPlay: true,
@@ -352,7 +453,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
       hls.destroy();
       setHls(null);
     };
-  }, [videoId, hls]);
+  }, [videoId, hls, targetId]);
 
   useEffect(() => {
     if (videoId) {
@@ -374,9 +475,12 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   }, [src])
 
   return {
+    videoQualities,
     videoRef,
     timelineRef,
     videoOptions,
+    findQuality,
+    currentSettingMenuState,
     videoControllers: {
       handleUpdateVideoTimeByTimeline,
       handleMouseUp,
@@ -388,7 +492,10 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
       handleToggleFullMode,
       handleVideoTime,
       handleVideoLoaded,
-      handleVideoEnded
+      handleVideoEnded,
+      handleChangeQuality,
+      handleChangeSettingMenuState,
+      handleToggleSettingMenu
     }
   }
 
