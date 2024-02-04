@@ -3,13 +3,13 @@ import { copyFile } from "node:fs/promises";
 import path from "path";
 
 import { io } from "../index";
-import { usersTable } from "../models/stream.js";
-import { toAbsolute } from "../utils/toAbsolute.js";
-import { videos, rooms } from "../models/stream.js";
-import { checkStreamKey } from "../utils/streamKey.js";
-import checkDirectory from "../utils/checkDirectory.js";
-import generateDirectory from "../utils/generateDirectory.js";
-import watchMediaDirectory from "../utils/watchMediaDirectory.js";
+import { usersTable } from "../models/stream";
+import { toAbsolute } from "../utils/toAbsolute";
+import { videos, rooms } from "../models/stream";
+import { checkStreamKey } from "../utils/streamKey";
+import checkDirectory from "../utils/checkDirectory";
+import generateDirectory from "../utils/generateDirectory";
+import watchMediaDirectory from "../utils/watchMediaDirectory";
 
 const router = express.Router();
 

@@ -5,14 +5,14 @@ import session from "express-session";
 import { createServer } from "http";
 import { Server } from "socket.io";
 
-import { startIo } from "./socket/chatroom.js";
-import usersRoute from "./routes/users.js";
-import streamsRoute from "./routes/streams.js";
-import videosRoute from "./routes/videos.js";
-import signRoute from "./routes/sign.js";
-import liveRoute from "./routes/live.js";
+import { startIo } from "./socket/chatroom";
+import usersRoute from "./routes/users";
+import streamsRoute from "./routes/streams";
+import videosRoute from "./routes/videos";
+import signRoute from "./routes/sign";
+import liveRoute from "./routes/live";
 
-import { ServerToClientEvents, ClientToServerEvents, InterServerEvents, SocketData  } from "./socket/chatroom.js"
+import { ServerToClientEvents, ClientToServerEvents, InterServerEvents, SocketData  } from "./socket/chatroom"
 
 interface UserSession extends session.Session {
   user?: string;

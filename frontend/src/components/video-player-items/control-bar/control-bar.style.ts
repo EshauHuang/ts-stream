@@ -64,7 +64,7 @@ export const ControlBarContainer = styled.div<{ isScrubbing: boolean }>`
   bottom: 0;
   width: 100%;
   height: 5rem;
-  /* opacity: ${({ isScrubbing }) => (isScrubbing ? 1 : 0)}; */
+  opacity: ${({ isScrubbing }) => (isScrubbing ? 1 : 0)};
   transition: opacity 0.2s ease-out;
 
   ${PlayPauseIcon},

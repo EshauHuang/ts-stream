@@ -1,7 +1,7 @@
 import express from "express";
-import { sessionAuth } from "../utils/sessionAuth.js";
-import { usersTable } from "../models/stream.js";
-import { toAbsolute } from "../utils/toAbsolute.js";
+import { sessionAuth } from "../utils/sessionAuth";
+import { usersTable } from "../models/stream";
+import { toAbsolute } from "../utils/toAbsolute";
 import { access, constants } from "node:fs/promises";
 import { CustomRequest } from "../index"
 

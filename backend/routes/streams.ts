@@ -1,9 +1,9 @@
 import express from "express";
 import { access, constants } from "node:fs/promises";
-import { sessionAuth } from "../utils/sessionAuth.js";
-import { usersTable } from "../models/stream.js";
-import { upload } from "../utils/multerStorage.js";
-import { toAbsolute } from "../utils/toAbsolute.js";
+import { sessionAuth } from "../utils/sessionAuth";
+import { usersTable } from "../models/stream";
+import { upload } from "../utils/multerStorage";
+import { toAbsolute } from "../utils/toAbsolute";
 
 const router = express.Router();
 

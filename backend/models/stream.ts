@@ -2,7 +2,7 @@ import * as _ from "lodash-es";
 import { copyFile, constants } from "node:fs/promises";
 
 import { usersDir } from "../utils/toAbsolute";
-import { genStreamKey } from "../utils/streamKey.js";
+import { genStreamKey } from "../utils/streamKey";
 import { genSalt, hashPassword, checkPassword } from "../utils/password";
 import checkDirectory from "../utils/checkDirectory";
 import generateDirectory from "../utils/generateDirectory";
