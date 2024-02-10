@@ -36,9 +36,11 @@ export default router
         });
       }
 
-      res.status(400).json({
-        message: "Unexpected error",
-      });
+      else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
+      }
     }
   })
   .get("/:username", (req, res) => {
@@ -64,9 +66,11 @@ export default router
         });
       }
 
-      res.status(400).json({
-        message: "Unexpected error",
-      });
+      else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
+      }
     }
   })
   .get("/:username/thumbnail", async (req, res) => {
@@ -88,9 +92,9 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({ message: "no such file or directory" });
       }
-
-      res.status(400).json({ message: "no such file or directory" });
     }
   })
   .post(
@@ -118,11 +122,11 @@ export default router
           res.status(400).json({
             message,
           });
+        } else {
+          res.status(400).json({
+            message: "Unexpected error",
+          });
         }
-
-        res.status(400).json({
-          message: "Unexpected error",
-        });
       }
     }
   )
@@ -145,11 +149,11 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
-
-      res.status(400).json({
-        message: "Unexpected error",
-      });
     }
   })
   .put("/:username/like/add", sessionAuth, (req, res) => {
@@ -163,7 +167,7 @@ export default router
       if (!stream) {
         throw new Error("Cant found the stream!")
       }
-      
+
       const { videoId } = stream;
 
       // 如還未將影片加至 user 喜愛影片內則加入，有加入則刪除
@@ -181,11 +185,11 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
-
-      res.status(400).json({
-        message: "Unexpected error",
-      });
     }
   })
   .put("/:username/like/reduce", sessionAuth, (req, res) => {
@@ -217,11 +221,11 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
-
-      res.status(400).json({
-        message: "Unexpected error",
-      });
     }
   })
   .put("/:username/dislike/add", sessionAuth, (req, res) => {
@@ -254,11 +258,11 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
-
-      res.status(400).json({
-        message: "Unexpected error",
-      });
     }
   })
   .put("/:username/dislike/reduce", sessionAuth, (req, res) => {
@@ -294,10 +298,10 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
-
-      res.status(400).json({
-        message: "Unexpected error",
-      });
     }
   })

@@ -28,11 +28,11 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
-
-      res.status(400).json({
-        message: "Unexpected error",
-      });
     }
   })
   .post("/sign-up", async (req: CustomRequest, res) => {
@@ -76,11 +76,11 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
-
-      res.status(400).json({
-        message: "Unexpected error",
-      });
     }
   })
   .post("/sign-in", async (req: CustomRequest, res) => {
@@ -111,10 +111,10 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
-
-      res.status(400).json({
-        message: "Unexpected error",
-      });
     }
   });

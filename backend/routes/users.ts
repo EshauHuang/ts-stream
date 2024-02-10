@@ -35,11 +35,11 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
-
-      res.status(400).json({
-        message: "Unexpected error",
-      });
     }
   })
   .get("/:username", (req, res) => {
@@ -57,11 +57,11 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
-
-      res.status(400).json({
-        message: "Unexpected error",
-      });
     }
   })
   .put("/:username", sessionAuth, (req, res) => {
@@ -91,11 +91,11 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
-
-      res.status(400).json({
-        message: "Unexpected error",
-      });
     }
   })
   .put("/:username/subscribe/add", sessionAuth, (req, res) => {
@@ -114,11 +114,11 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
-
-      res.status(400).json({
-        message: "Unexpected error",
-      });
     }
   })
   .put("/:username/subscribe/remove", sessionAuth, (req, res) => {
@@ -137,11 +137,11 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
-
-      res.status(400).json({
-        message: "Unexpected error",
-      });
     }
   })
   .get("/:username/avatar", async (req, res) => {
@@ -164,8 +164,8 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({ message: "no such file or directory" });
       }
-
-      res.status(400).json({ message: "no such file or directory" });
     }
   });

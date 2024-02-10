@@ -34,11 +34,11 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
-
-      res.status(400).json({
-        message: "Unexpected error",
-      });
     }
   })
   .get("/:videoId", (req, res) => {
@@ -55,11 +55,11 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
-
-      res.status(400).json({
-        message: "Unexpected error",
-      });
     }
   })
   .get("/:videoId/thumbnail", async (req, res) => {
@@ -80,9 +80,9 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({ message: "no such file or directory" });
       }
-
-      res.status(400).json({ message: "no such file or directory" });
     }
   })
   .post("/:videoId/comments", (req, res) => {
@@ -113,11 +113,11 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
-
-      res.status(400).json({
-        message: "Unexpected error",
-      });
     }
   })
   .put("/:videoId/like/reduce", sessionAuth, (req, res) => {
@@ -140,11 +140,11 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
-
-      res.status(400).json({
-        message: "Unexpected error",
-      });
     }
   })
   .put("/:videoId/dislike/add", sessionAuth, (req, res) => {
@@ -168,11 +168,11 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
-
-      res.status(400).json({
-        message: "Unexpected error",
-      });
     }
   })
   .put("/:videoId/dislike/reduce", sessionAuth, (req, res) => {
@@ -199,10 +199,10 @@ export default router
         res.status(400).json({
           message,
         });
+      } else {
+        res.status(400).json({
+          message: "Unexpected error",
+        });
       }
-
-      res.status(400).json({
-        message: "Unexpected error",
-      });
     }
   });

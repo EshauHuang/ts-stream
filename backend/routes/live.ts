@@ -57,11 +57,11 @@ export default router
         res.status(400).json({
           message,
         });
-      }
-
+      } else{
       res.status(400).json({
         message: "Unexpected error",
       });
+}
     }
   })
   .post("/start", (req, res) => {
@@ -104,9 +104,11 @@ export default router
         });
       }
 
+      else{
       res.status(400).json({
         message: "Unexpected error",
       });
+}
     }
   })
   .post("/end", async (req, res) => {
@@ -167,8 +169,10 @@ export default router
         });
       }
 
+      else{
       res.status(400).json({
         message: "Unexpected error",
       });
+}
     }
   });
