@@ -4,9 +4,10 @@ import { CommentsProvider } from "@/contexts/commentsContext";
 import { VideoOptionsProvider } from "@/contexts/videoOptionsContext";
 
 const RoomContextLayout = () => {
-  const {pathname} = useLocation();
+  const { pathname } = useLocation();
 
   const isLive = pathname.search(/^\/live/) >= 0;
+  console.log("object");
 
   return (
     <VideoOptionsProvider isLive={isLive}>

@@ -154,7 +154,7 @@ const ControlBar = ({
       </ControlBarLeftPart>
       <ControlBarRightPart>
         <SettingButton
-          isShowSettingMenu={isShowSettingMenu}
+          $isShowSettingMenu={isShowSettingMenu}
           onClick={() => handleToggleSettingMenu()}
         />
         <MiniPlayerButton

@@ -94,12 +94,12 @@ export const ControlBarContainer = styled.div<{ isScrubbing: boolean }>`
   }
 `;
 
-export const SettingButton = styled(SettingsIcon) <{ isShowSettingMenu: boolean }>`
+export const SettingButton = styled(SettingsIcon) <{ $isShowSettingMenu: boolean }>`
   width: 3.5rem;
   height: 3.5rem;
   margin: 0 1.5rem;
   cursor: pointer;
   color: white;
-  transform: ${({ isShowSettingMenu }) => isShowSettingMenu && `rotate(45deg)`};
+  transform: ${({ $isShowSettingMenu }) => $isShowSettingMenu && `rotate(45deg)`};
   transition: transform .4s ease;
 `
