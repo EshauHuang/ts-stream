@@ -21,9 +21,10 @@ password: user01
 
 ### OBS 設定
 至 Settings -> Stream 設定
-- Server: rtmp://a.rtmp.redice.live/live
+- Server: rtmp://localhost/live
 - Stream Key: 設定頁面的 Primary Stream key
-![obs-setting](https://github.com/EshauHuang/ts-stream/assets/52191824/34c492c5-ca31-4cdb-bda2-d42a817f48da)
+<img width="982" alt="obs-setting" src="https://github.com/EshauHuang/ts-stream/assets/52191824/a2ee15c7-1bbb-4651-a7c5-ccd26d830b55">
+
 
 
 ### 直播頁面
