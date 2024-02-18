@@ -35,7 +35,7 @@ const VideoCard = ({ video }: { video: IVideoCard }) => {
       case "video":
         return `/video/${id}`;
       case "stream":
-        return `/live/${author.username}`;
+        return `/stream/${author.username}`;
       default:
         return "";
     }

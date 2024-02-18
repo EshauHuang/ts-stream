@@ -116,7 +116,7 @@ const Navbar = () => {
     >
       {/* <MenuItem onClick={handleMenuClose}>Profile</MenuItem> */}
       <MenuItem onClick={handleMenuClose}>
-        <Link to={`/live/${username}`}>Stream Room</Link>
+        <Link to={`stream/${username}`}>Stream Room</Link>
       </MenuItem>
       <MenuItem onClick={handleMenuClose}>
         <Link to={`${username}/setting`}>Stream Setting</Link>

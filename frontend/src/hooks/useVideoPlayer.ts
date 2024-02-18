@@ -22,7 +22,7 @@ export interface IVideoControllers {
 
 export interface IVideoPlayer {
   src?: string;
-  isLive?: boolean;
+  isStream?: boolean;
   videoId?: string | number;
 }
 
@@ -50,7 +50,7 @@ const settingMenuState = {
   },
 };
 
-const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
+const useVideoPlayer = ({ isStream, videoId, src }: IVideoPlayer) => {
   const STREAM_SERVER_URL = import.meta.env.VITE_GET_STREAM_URL;
   const videoRef = useRef<HTMLVideoElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -134,7 +134,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
     let videoTime: number | undefined;
 
     // When the video was stopped by user, save the current time.
-    if (isLive) {
+    if (isStream) {
       if (isPlay && isPlaying) {
         tmpTimeRef.current = Date.now();
       } else {
@@ -208,7 +208,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
     if (!timeline || isScrubbing || !isPlay) return;
 
     const { currentTime } = e.target as HTMLVideoElement;
-    const percent = isLive ? 1 : currentTime / duration;
+    const percent = isStream ? 1 : currentTime / duration;
 
     timeline.style.setProperty("--progress-position", `${percent}`);
 
@@ -250,7 +250,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
 
     const timeline = timelineRef.current;
 
-    if (!timeline || isLive) return;
+    if (!timeline || isStream) return;
 
     const { clientX } = e;
     const { width, x } = timeline.getBoundingClientRect();
@@ -274,7 +274,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
   const handleMouseUp = () => {
     if (!isLoaded) return
 
-    if (isLive) return;
+    if (isStream) return;
 
     setVideoOptions((prev) => ({
       ...prev,
@@ -288,7 +288,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
 
     const timeline = timelineRef.current;
 
-    if (!timeline || !isScrubbing || isLive) return;
+    if (!timeline || !isScrubbing || isStream) return;
     const { clientX } = e;
     const { width, x } = timeline.getBoundingClientRect();
     // 不會少於 0，且不會大於 timeline 的寬
@@ -379,7 +379,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
     const video = videoRef.current;
 
     if (!video || (!videoId && !src)) return;
-    const config = isLive
+    const config = isStream
       ? {
         initialLiveManifestSize: 3,
       }
@@ -397,7 +397,7 @@ const useVideoPlayer = ({ isLive, videoId, src }: IVideoPlayer) => {
       hls.attachMedia(video);
 
       hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-        const url = isLive
+        const url = isStream
           ? `${STREAM_SERVER_URL}/live/${videoId}.m3u8`
           : `${STREAM_SERVER_URL}/videos/${videoId}/master.m3u8`;
         hls.loadSource(url);

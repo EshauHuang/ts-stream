@@ -336,9 +336,9 @@ const Video = () => {
   return (
     <Container>
       <Primary>
-        <VideoPlayer videoId={videoId} isLive={false} />
+        <VideoPlayer videoId={videoId} isStream={false} />
         {dimensions && dimensions.width < 1030 && (
-          <Chatroom comments={comments} isLive={false} />
+          <Chatroom comments={comments} isStream={false} />
         )}
         <Meta>
           <Title>{title}</Title>
@@ -376,7 +376,7 @@ const Video = () => {
       </Primary>
       <Secondary>
         {dimensions && dimensions.width >= 1030 && (
-          <Chatroom comments={comments} isLive={false} />
+          <Chatroom comments={comments} isStream={false} />
         )}
       </Secondary>
     </Container>

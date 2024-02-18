@@ -35,22 +35,22 @@ export const TimelineCursor = styled.div`
 
 export const StyledTimelineContainer = styled.div<{
   isScrubbing: boolean;
-  isLive: boolean;
+  isStream: boolean;
 }>`
   position: absolute;
   left: 50%;
   bottom: 100%;
   width: 97%;
   height: 0.5rem;
-  cursor: ${({ isLive }) => (isLive ? "auto" : "pointer")};
+  cursor: ${({ isStream }) => (isStream ? "auto" : "pointer")};
   transform: translate(-50%);
 
   ${Timeline}, ${Scrubber} {
     transform: ${({ isScrubbing }) => isScrubbing && "scaleY(1)"};
   }
 
-  ${({ isLive }) =>
-    !isLive &&
+  ${({ isStream }) =>
+    !isStream &&
     `
       &:hover {
         ${Timeline} {

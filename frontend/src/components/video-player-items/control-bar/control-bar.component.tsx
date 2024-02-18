@@ -1,7 +1,7 @@
 import { useContext } from "react";
 
 import TimelineSlider from "@/components/video-player-items/timeline-slider/timeline-slider.component";
-import LiveBlock from "@/components/video-player-items/live-block/live-block.component";
+import StreamBlock from "@/components/video-player-items/stream-block/stream-block.component";
 import VolumeBlock from "@/components/video-player-items/volume-block/volume-block.component";
 
 import renderTimeString from "@/utils/renderTimeString";
@@ -100,7 +100,7 @@ const ControlBar = ({
   const {
     isScrubbing,
     isPlay,
-    isLive,
+    isStream,
     volume,
     isMuted,
     isTheater,
@@ -128,7 +128,7 @@ const ControlBar = ({
     <ControlBarContainer isScrubbing={isScrubbing}>
       <TimelineSlider
         ref={timelineRef}
-        isLive={isLive}
+        isStream={isStream}
         isScrubbing={isScrubbing}
         handleUpdateVideoTimeByTimeline={handleUpdateVideoTimeByTimeline}
         handleMouseUp={() => {
@@ -144,8 +144,8 @@ const ControlBar = ({
           handleToggleMute={handleToggleMute}
           handleChangeVolume={handleChangeVolume}
         />
-        {isLive ? (
-          <LiveBlock />
+        {isStream ? (
+          <StreamBlock />
         ) : (
           <TimeString>
             {renderTimeString(currentTime)} / {renderTimeString(duration)}

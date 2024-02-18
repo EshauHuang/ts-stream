@@ -3,7 +3,7 @@ import _ from "lodash-es";
 
 export interface IVideoOptions {
   isLoaded: boolean;
-  isLive: boolean;
+  isStream: boolean;
   videoId?: string | number;
   src?: string;
   volume: number;
@@ -28,7 +28,7 @@ interface VideoOptionsContextProps {
 
 interface VideoOptionsProviderProps {
   children?: React.ReactNode;
-  isLive?: boolean;
+  isStream?: boolean;
 }
 
 export const VideoOptionsContext = createContext(
@@ -37,11 +37,11 @@ export const VideoOptionsContext = createContext(
 
 export const VideoOptionsProvider: React.FC<VideoOptionsProviderProps> = ({
   children,
-  isLive,
+  isStream,
 }) => {
   const [videoOptions, setVideoOptions] = useState<IVideoOptions>({
     isLoaded: false,
-    isLive: isLive ? true : false,
+    isStream: isStream ? true : false,
     videoId: "",
     src: "",
     volume: 0.5,

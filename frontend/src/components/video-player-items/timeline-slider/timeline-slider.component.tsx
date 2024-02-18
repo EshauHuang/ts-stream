@@ -12,12 +12,12 @@ import {
 const TimelineSlider = forwardRef(
   (
     {
-      isLive,
+      isStream,
       isScrubbing,
       handleMouseUp,
       handleUpdateVideoTimeByTimeline,
     }: {
-      isLive: boolean;
+      isStream: boolean;
       isScrubbing: boolean;
       handleMouseUp: () => void;
       handleUpdateVideoTimeByTimeline: (
@@ -41,10 +41,10 @@ const TimelineSlider = forwardRef(
     return (
       <StyledTimelineContainer
         ref={timelineRef}
-        isLive={isLive}
+        isStream={isStream}
         isScrubbing={isScrubbing}
         onClick={(e) => {
-          if (isLive) {
+          if (isStream) {
             e.preventDefault();
             e.stopPropagation();
           }
@@ -54,7 +54,7 @@ const TimelineSlider = forwardRef(
       >
         <TimelineCursor></TimelineCursor>
         <Timeline></Timeline>
-        {!isLive && <ScrubberSpot />}
+        {!isStream && <ScrubberSpot />}
       </StyledTimelineContainer>
     );
   }

@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const StyledLiveBlock = styled.div`
+export const StyledStreamBlock = styled.div`
   display: flex;
   align-items: center;
   color: white;

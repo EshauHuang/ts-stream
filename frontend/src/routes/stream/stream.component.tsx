@@ -39,7 +39,7 @@ import {
   FeedbackMeta,
   MoreHorizIconButton,
   Secondary,
-} from "./live.style";
+} from "./stream.style";
 
 import { StyledAccountCircleIcon } from "@/components/ui/icon.style";
 
@@ -131,7 +131,7 @@ const initialStreamData = {
   },
 };
 
-const Live = () => {
+const Stream = () => {
   const { username } = useParams() as { username: string };
   const [streamData, setStreamData] = useState<IStreamData>(initialStreamData);
   const [currentUserData, setCurrentUserData] =
@@ -358,12 +358,12 @@ const Live = () => {
   return (
     <Container>
       <Primary>
-        <VideoPlayer thumbnail={thumbnail} videoId={videoId} isLive={true} />
+        <VideoPlayer thumbnail={thumbnail} videoId={videoId} isStream={true} />
         {dimensions && dimensions.width < 1030 && (
           <Chatroom
             setStream={setStreamData}
             roomName={username}
-            isLive={true}
+            isStream={true}
           />
         )}
         <Meta>
@@ -447,7 +447,7 @@ const Live = () => {
           <Chatroom
             setStream={setStreamData}
             roomName={username}
-            isLive={true}
+            isStream={true}
           />
         )}
       </Secondary>
@@ -455,4 +455,4 @@ const Live = () => {
   );
 };
 
-export default Live;
+export default Stream;

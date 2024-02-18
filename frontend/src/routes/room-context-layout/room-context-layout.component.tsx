@@ -6,11 +6,10 @@ import { VideoOptionsProvider } from "@/contexts/videoOptionsContext";
 const RoomContextLayout = () => {
   const { pathname } = useLocation();
 
-  const isLive = pathname.search(/^\/live/) >= 0;
-  console.log("object");
+  const isStream = pathname.search(/^\/stream/) >= 0;
 
   return (
-    <VideoOptionsProvider isLive={isLive}>
+    <VideoOptionsProvider isStream={isStream}>
       <CommentsProvider>
         <Outlet />
       </CommentsProvider>

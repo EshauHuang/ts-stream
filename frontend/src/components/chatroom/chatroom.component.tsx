@@ -6,7 +6,7 @@ import { CommentsContext, TCommentInfo } from "@/contexts/commentsContext";
 
 import ChatMessages from "@/components/chat-messages/chat-messages.component";
 import SendMessage from "@/components/send-message/send-message.component";
-import { IStreamData } from "@/routes/live/live.component";
+import { IStreamData } from "@/routes/stream/stream.component";
 
 import { Container, ViewModeBar } from "./chatroom.style";
 
@@ -25,14 +25,14 @@ interface ClientToServerEvents {
 }
 
 interface IChatroomProps {
-  isLive: boolean;
+  isStream: boolean;
   roomName?: string;
   comments?: TCommentInfo[];
   setStream?: React.Dispatch<React.SetStateAction<IStreamData>>;
 }
 
 const Chatroom: React.FC<IChatroomProps> = ({
-  isLive,
+  isStream,
   roomName,
   setStream,
   comments,
@@ -100,7 +100,7 @@ const Chatroom: React.FC<IChatroomProps> = ({
     <Container>
       <ViewModeBar>Stream Chat</ViewModeBar>
       <ChatMessages />
-      {isLive && <SendMessage socket={socket} />}
+      {isStream && <SendMessage socket={socket} />}
     </Container>
   );
 };

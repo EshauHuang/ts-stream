@@ -8,7 +8,7 @@ import { PlayerContainer, Video, Thumbnail } from "./video-player.style";
 import img5 from "/images/2.jpg";
 
 export interface IVideoOptions {
-  isLive: boolean;
+  isStream: boolean;
   volume: number;
   isScrubbing: boolean;
   isTheater: boolean;
@@ -42,7 +42,7 @@ export interface IVideoControllers {
 
 export interface IVideoPlayer {
   src?: string;
-  isLive: boolean;
+  isStream: boolean;
   videoId?: string | number;
   thumbnail?: string;
 }
@@ -50,7 +50,7 @@ export interface IVideoPlayer {
 const VideoPlayer: React.FC<IVideoPlayer> = ({
   src,
   videoId,
-  isLive,
+  isStream,
   thumbnail,
 }) => {
   const {
@@ -64,7 +64,7 @@ const VideoPlayer: React.FC<IVideoPlayer> = ({
   } = useVideoPlayer({
     src,
     videoId,
-    isLive,
+    isStream,
   });
   const { isFull, isTheater, isLoaded, isShowSettingMenu } = videoOptions;
   const {
